@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.2 - Release/version alignment
+
+- Bumped the internal application version to `1.1.2` so the executable, GitHub tag and GitHub Release can stay aligned.
+- Kept the Single-EXE packaging introduced in 1.1.1.
+- Confirmed that maintenance PowerShell helpers remain embedded resources and are not copied beside the executable.
+- Kept the release package gate that accepts only `ToastifyReloaded.exe` inside each public ZIP.
+- No playback, hotkey, Compatibility Guard or updater behavior was changed in this patch.
+
+## 1.1.1 - Single-EXE release packaging
+
+- Changed public x64 and ARM64 Release ZIPs to contain only `ToastifyReloaded.exe`.
+- Embedded Lyrics, recovery, removal and diagnostic PowerShell helpers inside the application assembly.
+- Helpers are extracted to a temporary location only when invoked by the application.
+- Added a packaging gate that fails if unexpected files are included in a Release ZIP.
+
 ## 1.1.0 - Automatic Compatibility Guard
 
 - Added automatic Spotify version detection and baseline tracking.
