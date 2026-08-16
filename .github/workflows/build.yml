@@ -1,0 +1,36 @@
+name: build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore .\ToastifyModern.sln
+
+      - name: Build
+        run: dotnet build .\ToastifyModern.sln -c Release --no-restore
+
+      - name: Publish x64
+        shell: pwsh
+        run: .\scripts\publish.ps1 -Runtime win-x64 -SelfContained $true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ToastifyModern-win-x64
+          path: dist/ToastifyModern-win-x64.zip

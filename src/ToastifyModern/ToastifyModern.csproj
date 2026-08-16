@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AssemblyName>ToastifyModern</AssemblyName>
+    <RootNamespace>ToastifyModern</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.0.0</Version>
+    <Authors>Toastify Modern contributors</Authors>
+    <Description>Modern Windows companion for Spotify: global hotkeys, track popups and Spicetify Lyrics Plus helper.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\scripts\install-lyrics.ps1" Link="scripts\install-lyrics.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\scripts\restore-after-spotify-update.ps1" Link="scripts\restore-after-spotify-update.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\scripts\remove-lyrics.ps1" Link="scripts\remove-lyrics.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\scripts\diagnose.ps1" Link="scripts\diagnose.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
