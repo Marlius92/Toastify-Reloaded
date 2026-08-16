@@ -3,6 +3,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Threading;
+using MediaColor = System.Windows.Media.Color;
+using MediaColors = System.Windows.Media.Colors;
+using MediaColorConverter = System.Windows.Media.ColorConverter;
 using ToastifyReloaded.Models;
 
 namespace ToastifyReloaded;
@@ -37,21 +40,21 @@ public partial class ToastWindow : Window
             Math.Max(0, settings.ToastCornerTopRight),
             Math.Max(0, settings.ToastCornerBottomRight),
             Math.Max(0, settings.ToastCornerBottomLeft));
-        ToastBorder.BorderBrush = new SolidColorBrush(ParseColor(settings.ToastBorderColor, Color.FromArgb(255, 41, 41, 41)));
-        TopGradientStop.Color = ParseColor(settings.ToastColorTop, Color.FromArgb(255, 85, 85, 85));
-        BottomGradientStop.Color = ParseColor(settings.ToastColorBottom, Color.FromArgb(255, 21, 21, 21));
+        ToastBorder.BorderBrush = new SolidColorBrush(ParseColor(settings.ToastBorderColor, MediaColor.FromArgb(255, 41, 41, 41)));
+        TopGradientStop.Color = ParseColor(settings.ToastColorTop, MediaColor.FromArgb(255, 85, 85, 85));
+        BottomGradientStop.Color = ParseColor(settings.ToastColorBottom, MediaColor.FromArgb(255, 21, 21, 21));
         TopGradientStop.Offset = Math.Clamp(settings.ToastColorTopOffset, 0, 1);
         BottomGradientStop.Offset = Math.Clamp(settings.ToastColorBottomOffset, TopGradientStop.Offset, 1);
-        Title1.Foreground = new SolidColorBrush(ParseColor(settings.ToastTitle1Color, Colors.White));
-        Title2.Foreground = new SolidColorBrush(ParseColor(settings.ToastTitle2Color, Color.FromArgb(255, 240, 240, 240)));
+        Title1.Foreground = new SolidColorBrush(ParseColor(settings.ToastTitle1Color, MediaColors.White));
+        Title2.Foreground = new SolidColorBrush(ParseColor(settings.ToastTitle2Color, MediaColor.FromArgb(255, 240, 240, 240)));
         Title1.FontSize = Math.Clamp(settings.ToastTitle1FontSize, 6, 40);
         Title2.FontSize = Math.Clamp(settings.ToastTitle2FontSize, 6, 40);
         if (settings.ToastTitle1DropShadow)
             Title1.Effect = new DropShadowEffect { ShadowDepth = Math.Clamp(settings.ToastTitle1ShadowDepth, 0, 8), BlurRadius = Math.Clamp(settings.ToastTitle1ShadowBlur, 0, 24), Opacity = 0.8 };
         if (settings.ToastTitle2DropShadow)
             Title2.Effect = new DropShadowEffect { ShadowDepth = Math.Clamp(settings.ToastTitle2ShadowDepth, 0, 8), BlurRadius = Math.Clamp(settings.ToastTitle2ShadowBlur, 0, 24), Opacity = 0.8 };
-        SongProgressBarContainer.Background = new SolidColorBrush(ParseColor(settings.SongProgressBarBackgroundColor, Color.FromArgb(255, 51, 51, 51)));
-        var progressBrush = new SolidColorBrush(ParseColor(settings.SongProgressBarForegroundColor, Color.FromArgb(255, 160, 160, 160)));
+        SongProgressBarContainer.Background = new SolidColorBrush(ParseColor(settings.SongProgressBarBackgroundColor, MediaColor.FromArgb(255, 51, 51, 51)));
+        var progressBrush = new SolidColorBrush(ParseColor(settings.SongProgressBarForegroundColor, MediaColor.FromArgb(255, 160, 160, 160)));
         SongProgressBarLine.Background = progressBrush;
         SongProgressBarLineEllipse.Fill = progressBrush;
         SongProgressBar.Visibility = settings.ShowSongProgressBar ? Visibility.Visible : Visibility.Collapsed;
@@ -96,9 +99,9 @@ public partial class ToastWindow : Window
         }
     }
 
-    private static Color ParseColor(string value, Color fallback)
+    private static MediaColor ParseColor(string value, MediaColor fallback)
     {
-        try { return (Color)ColorConverter.ConvertFromString(value)!; }
+        try { return (MediaColor)MediaColorConverter.ConvertFromString(value)!; }
         catch { return fallback; }
     }
 }

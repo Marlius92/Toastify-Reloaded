@@ -9,6 +9,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using MediaColor = System.Windows.Media.Color;
+using MediaColors = System.Windows.Media.Colors;
+using MediaColorConverter = System.Windows.Media.ColorConverter;
 using Microsoft.Win32;
 using ToastifyReloaded.Models;
 using ToastifyReloaded.Native;
@@ -154,11 +157,11 @@ public partial class MainWindow : Window
         BorderTopRightUpDown.Value = _settings.ToastCornerTopRight;
         BorderBottomLeftUpDown.Value = _settings.ToastCornerBottomLeft;
         BorderBottomRightUpDown.Value = _settings.ToastCornerBottomRight;
-        ToastColorTopPicker.SelectedColor = ParseColor(_settings.ToastColorTop, Color.FromArgb(255, 85, 85, 85));
-        ToastColorBottomPicker.SelectedColor = ParseColor(_settings.ToastColorBottom, Color.FromArgb(255, 21, 21, 21));
-        ToastBorderColorPicker.SelectedColor = ParseColor(_settings.ToastBorderColor, Color.FromArgb(255, 41, 41, 41));
-        Title1ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle1Color, Colors.White);
-        Title2ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle2Color, Color.FromArgb(255, 240, 240, 240));
+        ToastColorTopPicker.SelectedColor = ParseColor(_settings.ToastColorTop, MediaColor.FromArgb(255, 85, 85, 85));
+        ToastColorBottomPicker.SelectedColor = ParseColor(_settings.ToastColorBottom, MediaColor.FromArgb(255, 21, 21, 21));
+        ToastBorderColorPicker.SelectedColor = ParseColor(_settings.ToastBorderColor, MediaColor.FromArgb(255, 41, 41, 41));
+        Title1ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle1Color, MediaColors.White);
+        Title2ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle2Color, MediaColor.FromArgb(255, 240, 240, 240));
         ColorTopUpDown.Value = _settings.ToastColorTopOffset;
         ColorBottomUpDown.Value = _settings.ToastColorBottomOffset;
         Title1FontSizeUpDown.Value = _settings.ToastTitle1FontSize;
@@ -169,8 +172,8 @@ public partial class MainWindow : Window
         Title1ShadowBlurUpDown.Value = _settings.ToastTitle1ShadowBlur;
         Title2ShadowDepthUpDown.Value = _settings.ToastTitle2ShadowDepth;
         Title2ShadowBlurUpDown.Value = _settings.ToastTitle2ShadowBlur;
-        SongProgressBackgroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarBackgroundColor, Color.FromArgb(255, 51, 51, 51));
-        SongProgressForegroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarForegroundColor, Color.FromArgb(255, 160, 160, 160));
+        SongProgressBackgroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarBackgroundColor, MediaColor.FromArgb(255, 51, 51, 51));
+        SongProgressForegroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarForegroundColor, MediaColor.FromArgb(255, 160, 160, 160));
         UpdateToastOptionsEnabledState();
 
         CbUseProxy.IsChecked = _settings.UseProxy;
@@ -185,11 +188,11 @@ public partial class MainWindow : Window
         CbConfigureAutoUpdates.SelectedIndex = _settings.AutoInstallToastifyUpdates ? 1 : 0;
     }
 
-    private static Color ParseColor(string value, Color fallback)
+    private static MediaColor ParseColor(string value, MediaColor fallback)
     {
         try
         {
-            return (Color)ColorConverter.ConvertFromString(value)!;
+            return (MediaColor)MediaColorConverter.ConvertFromString(value)!;
         }
         catch
         {
@@ -197,7 +200,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private static string ColorToString(Color? color, string fallback) => color?.ToString() ?? fallback;
+    private static string ColorToString(MediaColor? color, string fallback) => color?.ToString() ?? fallback;
 
     private async Task PollSpotifyAsync()
     {
@@ -613,7 +616,7 @@ public partial class MainWindow : Window
         LstHotKeys.Items.Refresh();
     }
 
-    private void TxtSingleKey_OnPreviewKeyDown(object sender, KeyEventArgs e)
+    private void TxtSingleKey_OnPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
         if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt or Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin)
