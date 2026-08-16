@@ -31,6 +31,9 @@ public sealed class GlobalHotkeyService : IDisposable
 
         foreach (var binding in bindings)
         {
+            if (!binding.Enabled)
+                continue;
+
             if (!seen.Add(binding.Shortcut.Trim()))
             {
                 errors.Add($"{binding.ActionLabel}: scorciatoia duplicata ({binding.Shortcut}).");

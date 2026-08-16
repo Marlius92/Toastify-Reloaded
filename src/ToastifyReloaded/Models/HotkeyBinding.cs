@@ -4,18 +4,19 @@ public sealed class HotkeyBinding
 {
     public HotkeyAction Action { get; set; }
     public string Shortcut { get; set; } = string.Empty;
+    public bool Enabled { get; set; } = true;
 
     public string ActionLabel => Action switch
     {
-        HotkeyAction.PlayPause => "Play / Pausa",
-        HotkeyAction.NextTrack => "Brano successivo",
-        HotkeyAction.PreviousTrack => "Brano precedente",
-        HotkeyAction.VolumeUp => "Volume +",
-        HotkeyAction.VolumeDown => "Volume -",
+        HotkeyAction.PlayPause => "Play/Pause",
+        HotkeyAction.NextTrack => "Next Track",
+        HotkeyAction.PreviousTrack => "Previous Track",
+        HotkeyAction.VolumeUp => "Volume Up",
+        HotkeyAction.VolumeDown => "Volume Down",
         HotkeyAction.Mute => "Mute",
-        HotkeyAction.SeekForward => "Avanti 10 secondi",
-        HotkeyAction.SeekBackward => "Indietro 10 secondi",
-        HotkeyAction.ShowToast => "Mostra popup",
+        HotkeyAction.SeekForward => "Seek Forward",
+        HotkeyAction.SeekBackward => "Seek Backward",
+        HotkeyAction.ShowToast => "Show Toast",
         _ => Action.ToString()
     };
 }

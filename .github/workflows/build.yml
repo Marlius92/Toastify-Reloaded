@@ -19,6 +19,10 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Verify classic Toastify UI invariants
+        shell: pwsh
+        run: .\scripts\verify-classic-ui.ps1
+
       - name: Restore
         run: dotnet restore .\ToastifyReloaded.sln
 

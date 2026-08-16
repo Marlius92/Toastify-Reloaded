@@ -2,11 +2,6 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
-        <SolidColorBrush x:Key="AccentBrush" Color="#1DB954" />
-        <Style TargetType="Button">
-            <Setter Property="Margin" Value="4" />
-            <Setter Property="Padding" Value="12,7" />
-            <Setter Property="Cursor" Value="Hand" />
-        </Style>
+        <!-- Intentionally empty: classic WPF system styles are part of the Toastify 1.11.2 look. -->
     </Application.Resources>
 </Application>

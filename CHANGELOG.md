@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.2.1 - 2026-08-16
+
+### Fixed
+- Replaced the earlier visual approximation with a strict Toastify 1.11.2-reference WPF interface: 580x570, non-resizable, native Windows controls and the historical General / Hotkeys / Toast / Advanced tab order.
+- Restored the historical 250x70 toast notification geometry, gradient, 60x60 artwork area, title typography, border and progress-bar layout.
+- Removed the custom dark dashboard visual language introduced by earlier Reloaded builds.
+- Restored native WPF control styling and the historical settings geometry rather than a Reloaded reinterpretation.
+
+### Added
+- Added one extra **Reloaded** tab for Lyrics Plus, automatic updates and Compatibility Guard without modifying the original four-tab layout.
+- Added persisted classic Toast size, position, colors, font and border settings.
+- Added the historical Toastify-style logo resource and application icon.
+
+### Verification
+- Added a CI classic-UI guard that rejects accidental changes to the historical window size, tab order, Save/Default geometry, native WPF styling and 250x70 toast visual constants.
+
+### Packaging
+- Keeps the v1.2 installer model: installed application under Program Files, Start-menu entry, uninstall support and installer-based automatic updates.
+
 ## 1.2.0 - 2026-08-16
 
 ### Added

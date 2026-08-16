@@ -10,7 +10,8 @@
     <AssemblyName>ToastifyReloaded</AssemblyName>
     <RootNamespace>ToastifyReloaded</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.2.0</Version>
+    <ApplicationIcon>Resources\ToastifyIcon.ico</ApplicationIcon>
+    <Version>1.2.1</Version>
     <Authors>Toastify Reloaded contributors</Authors>
     <Description>Toastify Reloaded - Windows companion for Spotify with global hotkeys, track popups and Spicetify Lyrics Plus integration.</Description>
   </PropertyGroup>
@@ -28,5 +29,14 @@
                       LogicalName="ToastifyReloaded.Scripts.remove-lyrics.ps1" />
     <EmbeddedResource Include="..\..\scripts\diagnose.ps1"
                       LogicalName="ToastifyReloaded.Scripts.diagnose.ps1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\SpotifyToastifyLogo.png" />
+    <Resource Include="Resources\ToastifyIcon.ico" />
   </ItemGroup>
 </Project>

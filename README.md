@@ -26,6 +26,21 @@
 - Native installer packages for Windows x64 and ARM64, with Start menu and uninstall registration.
 - Local JSON configuration in `%APPDATA%\ToastifyReloaded\settings.json`.
 
+## Classic Toastify 1.11.2 interface (v1.2.1)
+
+The visible shell is intentionally based on the historical Toastify 1.11.2 desktop interface rather than the custom Reloaded dashboard used by earlier builds.
+
+The compatibility target is deliberately strict:
+
+- Settings window: **580 × 570**, fixed size, native WPF/Windows controls.
+- Historical top-level tabs remain in the same order: **General**, **Hotkeys**, **Toast**, **Advanced**.
+- Historical control geometry, labels, margins, logo placement, Save button and Default split-button are preserved.
+- The Toast popup returns to **250 × 70**, with the original gray-to-black gradient, 60 × 60 artwork area, border, typography and progress-bar geometry.
+- Reloaded-specific functions are isolated in one additional **Reloaded** tab so they do not redesign the historical four tabs.
+- The installer, Compatibility Guard, Spicetify/Lyrics repair and GitHub updater remain modern backend components and do not change the classic visual shell.
+
+Because WPF uses the active Windows system theme and DPI scaling, exact physical pixels can vary with Windows theme/DPI. The XAML geometry and control structure are kept aligned with the historical 1.11.2 reference.
+
 ## Compatibility Guard (v1.1.0)
 
 Toastify Reloaded keeps the media-control core separate from Spotify's user interface. Playback controls use Windows media sessions, while Lyrics customization is handled through Spicetify.
@@ -41,7 +56,7 @@ At startup and periodically while the app is running, the Compatibility Guard ch
 7. run `spicetify auto` to launch Spotify again;
 8. record the new Spotify version only after a successful repair.
 
-If Spicetify does not yet support a brand-new Spotify release, Toastify Reloaded reports the failure and avoids an automatic retry loop for that same version. The user can force another attempt later from **Aggiornamenti → Ripara Spotify / Lyrics ora**.
+If Spicetify does not yet support a brand-new Spotify release, Toastify Reloaded reports the failure and avoids an automatic retry loop for that same version. The user can force another attempt later from **Reloaded → Repair now**.
 
 ## Installation and automatic updates
 
@@ -72,7 +87,7 @@ The built-in updater now downloads the matching Setup executable. Windows displa
 
 ## Lyrics Plus
 
-The **Lyrics** tab enables the `lyrics-plus` Custom App through Spicetify. This repository does not contain song lyrics.
+The **Reloaded** tab contains the **Lyrics Plus** section that enables the `lyrics-plus` Custom App through Spicetify. This repository does not contain song lyrics.
 
 Manual installation:
 
@@ -113,8 +128,8 @@ NSIS must be installed on the build machine.
 Push a version tag, for example:
 
 ```powershell
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.2.1
+git push origin v1.2.1
 ```
 
 The release workflow publishes x64 and ARM64 Setup executables. Those installer asset names are also used by the built-in updater.
@@ -146,4 +161,4 @@ Toastify-Reloaded/
 
 ## License
 
-Toastify Reloaded source code is released under the MIT License. See `NOTICE.md` for third-party names and integration details.
+Toastify Reloaded v1.2.1 and later is distributed under the GNU GPL v2 to remain compatible with the historical Toastify 1.11.2 UI/resource lineage used by the classic interface. See `LICENSE` and `NOTICE.md`.
