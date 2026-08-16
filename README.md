@@ -1,8 +1,26 @@
 # Toastify Reloaded
 
-**Toastify Reloaded** is a Windows companion for Spotify with global hotkeys, track popups, Spicetify/Lyrics integration and an automatic Compatibility Guard designed to recover after Spotify updates.
+**Toastify Reloaded** is a modern continuation of the classic **Toastify for Spotify** experience on Windows. It preserves the familiar Toastify interface and workflow while replacing obsolete integration points with modern Windows media controls, global hotkeys, Spicetify/Lyrics support, automatic repair after Spotify updates and installable Windows releases.
 
-> Independent community project. Not affiliated with Spotify AB. Toastify Reloaded is a modern reimplementation inspired by the discontinued Toastify utility.
+> Independent community project. Toastify Reloaded is not an official release from Spotify AB or from the original Toastify developers.
+
+## Project lineage & credits
+
+Toastify Reloaded exists because of the work of the developers who created and maintained the original Toastify project. This repository is intended to preserve that experience while adapting it to current versions of Spotify and Windows.
+
+Special credit goes to:
+
+- **nachmore** — creator of the original Toastify project: [nachmore/toastify](https://github.com/nachmore/toastify)
+- **Alessandro Attard Barbini (`@aleab`)** — principal maintainer of the later Toastify fork and the historical **1.11.x** generation used as the main visual and behavioral reference for Toastify Reloaded: [aleab/toastify](https://github.com/aleab/toastify)
+- **Marlius92** — development and maintenance of **Toastify Reloaded**.
+
+The original authors are **not responsible for Toastify Reloaded**, its new code, support, releases or future changes.
+
+### Project philosophy
+
+Toastify Reloaded is not intended to redesign Toastify. Its goal is to keep the classic application recognizable and familiar while modernizing the parts that no longer work reliably with current Spotify and Windows versions.
+
+**Classic Toastify experience. Modern Spotify compatibility.**
 
 ## Main features
 
@@ -165,6 +183,8 @@ Toastify-Reloaded/
 - Spicetify may temporarily lag behind a newly released Spotify version. In that case the Compatibility Guard intentionally stops retrying automatically for that version.
 - Microsoft Store Spotify detection is supported for version reporting, but Spicetify itself recommends the regular desktop Spotify installation on Windows when Store-specific configuration problems occur.
 
-## License
+## License & trademark notice
 
-Toastify Reloaded v1.2.1 and later is distributed under the GNU GPL v2 to remain compatible with the historical Toastify 1.11.2 UI/resource lineage used by the classic interface. See `LICENSE` and `NOTICE.md`.
+Toastify Reloaded v1.2.1 and later is distributed under the **GNU General Public License v2.0 (GPL-2.0)** to remain compatible with the historical Toastify 1.11.2 code/UI/resource lineage used by the classic interface. See `LICENSE` and `NOTICE.md`.
+
+The Toastify name and historical project credits belong to their respective authors. Spotify, the Spotify logo and related trademarks are property of Spotify AB. Toastify Reloaded is an independent open-source project and is not affiliated with, sponsored by or endorsed by Spotify AB or the original Toastify developers.
