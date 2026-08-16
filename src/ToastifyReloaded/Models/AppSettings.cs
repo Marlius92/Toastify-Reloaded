@@ -50,13 +50,7 @@ public sealed class AppSettings
     public string SongProgressBarBackgroundColor { get; set; } = "#FF333333";
     public string SongProgressBarForegroundColor { get; set; } = "#FFA0A0A0";
 
-    // Original Advanced-tab values are persisted even when not used by the
-    // modern GSMTC playback backend.
-    public bool UseProxy { get; set; }
-    public string ProxyHost { get; set; } = string.Empty;
-    public string ProxyPort { get; set; } = string.Empty;
-    public string ProxyUsername { get; set; } = string.Empty;
-    public bool BypassProxyOnLocal { get; set; }
+    // Advanced-tab values retained by Reloaded.
     public bool EnableSpotifyWebApi { get; set; }
     public bool EnableBroadcaster { get; set; }
 

@@ -315,27 +315,7 @@
             <!-- ADVANCED -->
             <TabItem Header="Advanced" x:Name="TabAdvanced">
                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <CheckBox x:Name="CbUseProxy" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,10,0,0" Height="21" VerticalContentAlignment="Center" Content="Use Proxy" />
-                    <StackPanel Orientation="Vertical" Margin="32,38,12,0" VerticalAlignment="Top" IsEnabled="{Binding IsChecked, ElementName=CbUseProxy}">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <wpft:WatermarkTextBox x:Name="ProxyHostTextBox" Width="200" Watermark="Host" KeepWatermarkOnGotFocus="False" />
-                            <wpft:WatermarkTextBox x:Name="ProxyPortTextBox" Width="50" Margin="8,0,0,0" Watermark="Port" KeepWatermarkOnGotFocus="False" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
-                            <wpft:WatermarkTextBox x:Name="ProxyUsernameTextBox" Width="200" Watermark="Username" KeepWatermarkOnGotFocus="False" />
-                            <wpft:WatermarkPasswordBox x:Name="ProxyPasswordBox" Width="160" Margin="8,0,0,0" Watermark="Password" KeepWatermarkOnGotFocus="False" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
-                            <CheckBox x:Name="CbBypassProxyLocal" Content="Bypass proxy for local addresses" />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="12,135,12,0">
-                        <Image x:Name="AdvancedWarningImage" Width="20" Height="20" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
-                        <TextBlock Foreground="{StaticResource InfoTextColorBrush}" VerticalAlignment="Center" Margin="8,0,0,0">To correctly apply changes to the proxy settings, it's required to restart Toastify.</TextBlock>
-                    </StackPanel>
-
-                    <Grid Margin="12,175,12,0" VerticalAlignment="Top" Height="24">
+                    <Grid Margin="12,10,12,0" VerticalAlignment="Top" Height="24">
                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                         <CheckBox x:Name="CbEnableSpotifyWebApi" Grid.Column="0" HorizontalAlignment="Left" VerticalContentAlignment="Center" Height="21" Content="Enable Spotify WebAPI" />
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" IsEnabled="{Binding IsChecked, ElementName=CbEnableSpotifyWebApi}">
@@ -349,7 +329,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid Margin="12,204,12,0" VerticalAlignment="Top" Height="24">
+                    <Grid Margin="12,40,12,0" VerticalAlignment="Top" Height="24">
                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                         <CheckBox x:Name="CbEnableBroadcaster" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="21">
                             <TextBlock>Enable Broadcaster (see: <Hyperlink NavigateUri="https://github.com/aleab/toastify/wiki">Wiki Page</Hyperlink>)</TextBlock>

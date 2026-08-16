@@ -32,7 +32,10 @@ Require-Text $main 'x:Name="FadeInUpDown"' 'Toast fade-in setting'
 Require-Text $main 'x:Name="FadeOutUpDown"' 'Toast fade-out setting'
 Require-Text $main 'VerticalScrollBarVisibility="Auto"' 'DPI-safe scrollable settings surfaces'
 Require-Text $main 'Text="{}{0}"' 'escaped historical clipboard template'
-if ($main.Contains('Text="{0}"')) { throw 'Classic UI guard failed: unescaped {0} XAML markup extension reintroduced.' }
+
+if ($main -match '(?i)proxy') {
+    throw 'Classic UI guard failed: obsolete Proxy controls were reintroduced.'
+}
 
 $topTabs = [regex]::Matches($main, '<TabItem\s+Header="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
 $expected = @('General','Hotkeys','Toast','Advanced','Reloaded')

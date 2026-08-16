@@ -49,7 +49,6 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         var warningIcon = LoadSystemIcon(32515); // IDI_WARNING
-        AdvancedWarningImage.Source = warningIcon;
         HotkeyWarningImage.Source = warningIcon;
         ToastInfoImage.Source = LoadSystemIcon(32516); // IDI_INFORMATION
 
@@ -179,11 +178,6 @@ public partial class MainWindow : Window
         SongProgressForegroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarForegroundColor, MediaColor.FromArgb(255, 160, 160, 160));
         UpdateToastOptionsEnabledState();
 
-        CbUseProxy.IsChecked = _settings.UseProxy;
-        ProxyHostTextBox.Text = _settings.ProxyHost;
-        ProxyPortTextBox.Text = _settings.ProxyPort;
-        ProxyUsernameTextBox.Text = _settings.ProxyUsername;
-        CbBypassProxyLocal.IsChecked = _settings.BypassProxyOnLocal;
         CbEnableSpotifyWebApi.IsChecked = _settings.EnableSpotifyWebApi;
         CbEnableBroadcaster.IsChecked = _settings.EnableBroadcaster;
 
@@ -399,11 +393,6 @@ public partial class MainWindow : Window
         _settings.SongProgressBarBackgroundColor = ColorToString(SongProgressBackgroundColorPicker.SelectedColor, "#FF333333");
         _settings.SongProgressBarForegroundColor = ColorToString(SongProgressForegroundColorPicker.SelectedColor, "#FFA0A0A0");
 
-        _settings.UseProxy = CbUseProxy.IsChecked == true;
-        _settings.ProxyHost = ProxyHostTextBox.Text;
-        _settings.ProxyPort = ProxyPortTextBox.Text;
-        _settings.ProxyUsername = ProxyUsernameTextBox.Text;
-        _settings.BypassProxyOnLocal = CbBypassProxyLocal.IsChecked == true;
         _settings.EnableSpotifyWebApi = CbEnableSpotifyWebApi.IsChecked == true;
         _settings.EnableBroadcaster = CbEnableBroadcaster.IsChecked == true;
 
@@ -714,11 +703,6 @@ public partial class MainWindow : Window
                 LoadSettingsIntoUi();
                 break;
             case TabItem tab when tab == TabAdvanced:
-                CbUseProxy.IsChecked = false;
-                ProxyHostTextBox.Text = string.Empty;
-                ProxyPortTextBox.Text = string.Empty;
-                ProxyUsernameTextBox.Text = string.Empty;
-                CbBypassProxyLocal.IsChecked = false;
                 CbEnableSpotifyWebApi.IsChecked = false;
                 CbEnableBroadcaster.IsChecked = false;
                 break;
