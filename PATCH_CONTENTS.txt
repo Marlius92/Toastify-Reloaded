@@ -1,0 +1,24 @@
+Toastify Reloaded v1.1.0 PATCH
+
+File aggiunti/modificati:
+- CHANGELOG.md
+- README.md
+- REPOSITORY_CONTENTS.md
+- docs/ARCHITECTURE.md
+- docs/AUTO_UPDATE_AND_COMPATIBILITY.md
+- docs/GUIDA_COMPLETA_IT.md
+- docs/LYRICS.md
+- scripts/restore-after-spotify-update.ps1
+- src/ToastifyReloaded/MainWindow.xaml
+- src/ToastifyReloaded/MainWindow.xaml.cs
+- src/ToastifyReloaded/Models/AppSettings.cs
+- src/ToastifyReloaded/Models/CompatibilityRepairResult.cs
+- src/ToastifyReloaded/Models/SpotifyInstallationInfo.cs
+- src/ToastifyReloaded/Models/UpdateCheckResult.cs
+- src/ToastifyReloaded/Services/CompatibilityRepairService.cs
+- src/ToastifyReloaded/Services/PowerShellService.cs
+- src/ToastifyReloaded/Services/SpotifyInstallationService.cs
+- src/ToastifyReloaded/Services/UpdateService.cs
+- src/ToastifyReloaded/ToastifyReloaded.csproj
+
+Dopo aver copiato il contenuto della patch nella root della repository, esegui APPLY_V1.1.0.cmd solo se nella repository esistono ancora vecchi percorsi ToastifyModern.

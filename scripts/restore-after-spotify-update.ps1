@@ -24,7 +24,10 @@ if (Get-Process Spotify -ErrorAction SilentlyContinue) {
     }
 }
 
-Write-Step "Riapplicazione standard"
+Write-Step "Aggiornamento opzionale di Spicetify"
+try { spicetify upgrade } catch { Write-Warning $_.Exception.Message }
+
+Write-Step "Riapplicazione raccomandata dopo update Spotify"
 $firstAttemptFailed = $false
 try {
     spicetify backup apply
@@ -34,17 +37,21 @@ try {
 }
 
 if ($firstAttemptFailed) {
-    Write-Warning "La riapplicazione standard non è riuscita. Provo ad aggiornare Spicetify e ricostruire il backup."
-    Write-Step "Aggiornamento Spicetify"
-    try { spicetify update } catch { Write-Warning $_.Exception.Message }
-
+    Write-Warning "La riapplicazione standard non è riuscita. Provo una ricostruzione completa."
     Write-Step "Restore + nuovo backup + apply"
     spicetify restore backup apply
+    if ($LASTEXITCODE -ne 0) { throw "Spicetify non è ancora compatibile con questa versione di Spotify oppure la riparazione è fallita." }
 }
 
 Write-Step "Assicuro che Lyrics Plus sia ancora abilitata"
-spicetify config custom_apps lyrics-plus
+$currentApps = spicetify config custom_apps | Out-String
+if ($currentApps -notmatch 'lyrics-plus') {
+    spicetify config custom_apps lyrics-plus
+}
 spicetify apply
 
-Write-Host "`nRipristino completato. Ora riapri Spotify." -ForegroundColor Green
+Write-Step "Avvio Spotify tramite Spicetify Auto"
+spicetify auto
+
+Write-Host "`nRipristino completato." -ForegroundColor Green
 Read-Host "Premi Invio per chiudere"

@@ -7,6 +7,19 @@ public sealed class AppSettings
     public bool StartMinimized { get; set; }
     public bool StartWithWindows { get; set; }
 
+    // Automatic maintenance / compatibility guard.
+    public bool AutoCheckToastifyUpdates { get; set; } = true;
+    public bool AutoInstallToastifyUpdates { get; set; } = true;
+    public bool AutoRepairAfterSpotifyUpdate { get; set; } = true;
+    public bool KeepLyricsPlusEnabled { get; set; } = true;
+    public bool AutoUpgradeSpicetify { get; set; } = true;
+    public bool RestartSpotifyAfterRepair { get; set; } = true;
+
+    // Internal state used to detect Spotify upgrades without repair loops.
+    public string LastKnownSpotifyVersion { get; set; } = string.Empty;
+    public string LastAutoRepairAttemptVersion { get; set; } = string.Empty;
+    public DateTimeOffset? LastAutoRepairAttemptUtc { get; set; }
+
     public List<HotkeyBinding> Hotkeys { get; set; } = CreateDefaultHotkeys();
 
     public static List<HotkeyBinding> CreateDefaultHotkeys() =>

@@ -316,3 +316,8 @@ Esegui il ripristino Spicetify. Non reinstallare Toastify Reloaded.
 ### Lyrics Plus apre la pagina ma non mostra testo
 
 L'applicazione Toastify Reloaded non gestisce i provider Lyrics. Apri le impostazioni di Lyrics Plus dentro Spotify e verifica il provider disponibile.
+
+
+## Aggiornamenti automatici e Compatibility Guard (v1.1.0)
+
+Apri la scheda **Aggiornamenti** per attivare/disattivare auto-update di Toastify, riparazione automatica dopo update Spotify, mantenimento Lyrics Plus, upgrade Spicetify e riavvio Spotify. La prima versione Spotify rilevata viene usata come baseline; al cambio versione parte il recupero automatico.

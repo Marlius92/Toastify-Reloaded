@@ -59,3 +59,8 @@ Lyrics tab
   -> spicetify CLI
   -> Spotify UI customization
 ```
+
+
+## v1.1.0 - Maintenance layer
+
+`SpotifyInstallationService` identifica la versione Spotify; `CompatibilityRepairService` gestisce il recupero Spicetify; `UpdateService` consulta GitHub Releases e prepara l'aggiornamento in-place della distribuzione portable. Le impostazioni persistenti e lo stato anti-loop sono in `AppSettings`.

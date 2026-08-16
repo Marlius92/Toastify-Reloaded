@@ -33,3 +33,5 @@ This package is ready to be committed as a Git repository.
 
 - `.github/workflows/build.yml`
 - `.github/workflows/release.yml`
+
+- `docs/AUTO_UPDATE_AND_COMPATIBILITY.md` - Compatibility Guard and self-update design.

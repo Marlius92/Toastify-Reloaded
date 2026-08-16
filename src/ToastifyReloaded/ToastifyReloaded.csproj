@@ -10,7 +10,7 @@
     <AssemblyName>ToastifyReloaded</AssemblyName>
     <RootNamespace>ToastifyReloaded</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.0.3</Version>
+    <Version>1.1.0</Version>
     <Authors>Toastify Reloaded contributors</Authors>
     <Description>Toastify Reloaded - Windows companion for Spotify with global hotkeys, track popups and Spicetify Lyrics Plus integration.</Description>
   </PropertyGroup>

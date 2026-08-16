@@ -54,3 +54,8 @@ This executes:
 spicetify config custom_apps lyrics-plus-
 spicetify apply
 ```
+
+
+## Riparazione automatica dalla v1.1.0
+
+Il Compatibility Guard rileva il cambio di versione Spotify e può eseguire automaticamente `spicetify backup apply`, mantenere `lyrics-plus` configurato e riavviare Spotify con `spicetify auto`. In caso di fallimento non entra in un ciclo infinito: la stessa versione viene ritentata automaticamente una sola volta.
