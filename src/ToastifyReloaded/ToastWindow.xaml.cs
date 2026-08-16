@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using MediaColor = System.Windows.Media.Color;
 using MediaColors = System.Windows.Media.Colors;
@@ -14,6 +15,7 @@ public partial class ToastWindow : Window
 {
     private readonly DispatcherTimer _timer;
     private readonly AppSettings _settings;
+    private bool _fadeOutStarted;
 
     public ToastWindow(TrackInfo track, AppSettings settings)
     {
@@ -63,16 +65,63 @@ public partial class ToastWindow : Window
         _timer.Tick += (_, _) =>
         {
             _timer.Stop();
-            Close();
+            StartFadeOut();
         };
 
         Loaded += (_, _) => PositionToast();
+        Closed += (_, _) => _timer.Stop();
     }
 
     public void ShowTimed()
     {
+        var fadeInMs = Math.Clamp(_settings.ToastFadeInMs, 0, 5000);
+        Opacity = fadeInMs > 0 ? 0 : 1;
         Show();
+
+        if (fadeInMs == 0)
+        {
+            StartDisplayTimer();
+            return;
+        }
+
+        var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(fadeInMs))
+        {
+            FillBehavior = FillBehavior.Stop
+        };
+        fadeIn.Completed += (_, _) =>
+        {
+            Opacity = 1;
+            BeginAnimation(OpacityProperty, null);
+            StartDisplayTimer();
+        };
+        BeginAnimation(OpacityProperty, fadeIn);
+    }
+
+    private void StartDisplayTimer()
+    {
+        _timer.Interval = TimeSpan.FromMilliseconds(Math.Clamp(_settings.ToastDurationMs, 500, 30000));
         _timer.Start();
+    }
+
+    private void StartFadeOut()
+    {
+        if (_fadeOutStarted)
+            return;
+
+        _fadeOutStarted = true;
+        var fadeOutMs = Math.Clamp(_settings.ToastFadeOutMs, 0, 5000);
+        if (fadeOutMs == 0)
+        {
+            Close();
+            return;
+        }
+
+        var fadeOut = new DoubleAnimation(Opacity, 0, TimeSpan.FromMilliseconds(fadeOutMs))
+        {
+            FillBehavior = FillBehavior.Stop
+        };
+        fadeOut.Completed += (_, _) => Close();
+        BeginAnimation(OpacityProperty, fadeOut);
     }
 
     private void PositionToast()

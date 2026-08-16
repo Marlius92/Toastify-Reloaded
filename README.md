@@ -6,12 +6,12 @@
 
 ## Main features
 
-- Global hotkeys even while Spotify is in the background.
+- Global hotkeys even while Spotify or any other application is in the foreground; registration is independent from the visible Settings window.
 - Play/Pause, Next and Previous track.
 - Seek forward/backward by 10 seconds.
 - Windows volume up/down and mute.
 - Customizable shortcuts.
-- Popup when the current track changes.
+- Popup when the current track changes, with independently configurable fade-in and fade-out timing.
 - System-tray operation and optional Windows startup.
 - No Spotify username/password or developer API key required.
 - One-click **Lyrics Plus** integration through Spicetify.
@@ -26,7 +26,7 @@
 - Native installer packages for Windows x64 and ARM64, with Start menu and uninstall registration.
 - Local JSON configuration in `%APPDATA%\ToastifyReloaded\settings.json`.
 
-## Classic Toastify 1.11.2 interface (v1.2.1)
+## Classic Toastify 1.11.2 interface (v1.2.2)
 
 The visible shell is intentionally based on the historical Toastify 1.11.2 desktop interface rather than the custom Reloaded dashboard used by earlier builds.
 
@@ -34,7 +34,7 @@ The compatibility target is deliberately strict:
 
 - Settings window: **580 × 570**, fixed size, native WPF/Windows controls.
 - Historical top-level tabs remain in the same order: **General**, **Hotkeys**, **Toast**, **Advanced**.
-- Historical control geometry, labels, margins, logo placement, Save button and Default split-button are preserved.
+- Historical control geometry, labels, logo placement, Save button and Default split-button are preserved; internal grids/scrolling were made DPI-safe in v1.2.2 to prevent text/control overlap.
 - The Toast popup returns to **250 × 70**, with the original gray-to-black gradient, 60 × 60 artwork area, border, typography and progress-bar geometry.
 - Reloaded-specific functions are isolated in one additional **Reloaded** tab so they do not redesign the historical four tabs.
 - The installer, Compatibility Guard, Spicetify/Lyrics repair and GitHub updater remain modern backend components and do not change the classic visual shell.
@@ -85,6 +85,12 @@ The built-in updater now downloads the matching Setup executable. Windows displa
 | Seek -10s | `Ctrl+Alt+Shift+Left` |
 | Show popup | `Ctrl+Alt+T` |
 
+Global hotkeys are registered through a dedicated hidden native message window, so they continue to work when another program is active or the Settings window is hidden in the system tray. Windows-reserved or already-registered key combinations can still be unavailable.
+
+### Toast fade
+
+`Toast -> General` includes separate **Fade In** and **Fade Out** values in milliseconds. A value of `0` disables that side of the animation. `Display Time` remains the amount of time the toast stays fully visible between the two animations.
+
 ## Lyrics Plus
 
 The **Reloaded** tab contains the **Lyrics Plus** section that enables the `lyrics-plus` Custom App through Spicetify. This repository does not contain song lyrics.
@@ -128,8 +134,8 @@ NSIS must be installed on the build machine.
 Push a version tag, for example:
 
 ```powershell
-git tag v1.2.1
-git push origin v1.2.1
+git tag v1.2.2
+git push origin v1.2.2
 ```
 
 The release workflow publishes x64 and ARM64 Setup executables. Those installer asset names are also used by the built-in updater.

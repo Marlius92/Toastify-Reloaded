@@ -75,7 +75,7 @@
                             <ColumnDefinition Width="421*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Width="119">Clipboard Template:</TextBlock>
-                        <TextBox x:Name="TbClipboardTemplate" VerticalContentAlignment="Center" Grid.Column="1" Text="{}{0}" />
+                        <TextBox x:Name="TbClipboardTemplate" VerticalContentAlignment="Center" Grid.Column="1" Text="{0}" />
                         <TextBlock TextWrapping="Wrap" Foreground="{StaticResource InfoTextColorBrush}" Margin="0,8,0,0" Grid.Column="1" Grid.Row="1"
                                    Text="This is the text that will be copied to the clipboard when you hit the &quot;Copy to Clipboard&quot; hotkey. &quot;{0}&quot; will be replaced with the name of the currently playing song." />
                     </Grid>
@@ -141,132 +141,172 @@
                     <TabControl x:Name="ToastOptionsTabControl" TabStripPlacement="Left" Margin="4,44,4,10">
                         <TabControl.Resources><Style TargetType="TabItem"><Setter Property="Padding" Value="5,3,8,3" /></Style></TabControl.Resources>
                         <TabItem Header="General">
-                            <Grid>
-                                <CheckBox x:Name="CbOnlyShowToastOnHotkey" Height="21" HorizontalAlignment="Left" Margin="12,10,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
-                                          Content="Only Show Toast when Hotkey is pressed" />
-                                <CheckBox x:Name="CbDisableToastFullscreen" Height="21" HorizontalAlignment="Left" Margin="12,34,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
-                                          Content="Disable Toast when a fullscreen app is running" />
-                                <CheckBox x:Name="CbShowSongProgressBar" Height="21" IsEnabled="False" HorizontalAlignment="Left" Margin="12,58,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
-                                          Content="Show song progress bar" />
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <Grid MinHeight="505" Margin="0,0,4,6">
+                                    <CheckBox x:Name="CbOnlyShowToastOnHotkey" Height="21" HorizontalAlignment="Left" Margin="12,10,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
+                                              Content="Only Show Toast when Hotkey is pressed" />
+                                    <CheckBox x:Name="CbDisableToastFullscreen" Height="21" HorizontalAlignment="Left" Margin="12,34,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
+                                              Content="Disable Toast when a fullscreen app is running" />
+                                    <CheckBox x:Name="CbShowSongProgressBar" Height="21" IsEnabled="False" HorizontalAlignment="Left" Margin="12,58,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
+                                              Content="Show song progress bar" />
 
-                                <Grid VerticalAlignment="Top" Margin="12,101,12,0">
-                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                                    <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" VerticalContentAlignment="Center">Display Time :</Label>
-                                    <wpft:IntegerUpDown x:Name="DisplayTimeUpDown" Grid.Column="0" Height="24" Margin="95,0,12,0" VerticalContentAlignment="Center" TextAlignment="Left"
-                                                        Watermark="Fade-out time" AllowSpin="True" AllowTextInput="True" Minimum="500" Maximum="30000" Increment="100" DefaultValue="3500" Value="3500" />
-                                    <Label Grid.Column="1" Height="26" Margin="-8,0,0,0" VerticalContentAlignment="Center" FontSize="11" HorizontalAlignment="Left">(milliseconds)</Label>
-                                </Grid>
+                                    <Grid VerticalAlignment="Top" Margin="12,101,12,0" Height="26">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" VerticalContentAlignment="Center">Display Time :</Label>
+                                        <wpft:IntegerUpDown x:Name="DisplayTimeUpDown" Grid.Column="0" Height="24" Width="105" Margin="95,0,0,0" HorizontalAlignment="Left" VerticalContentAlignment="Center" TextAlignment="Left"
+                                                            Watermark="Display time" AllowSpin="True" AllowTextInput="True" Minimum="500" Maximum="30000" Increment="100" DefaultValue="3500" Value="3500" />
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="{StaticResource InfoTextColorBrush}" Text="milliseconds" />
+                                    </Grid>
 
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="12,137,12,0" Height="26">
-                                    <TextBlock VerticalAlignment="Center">Artist and Track name :</TextBlock>
-                                    <ComboBox x:Name="CbToastTitlesOrder" VerticalContentAlignment="Center" Width="170" Margin="6,0,0,0" SelectedIndex="0">
-                                        <ComboBoxItem Content="Track name / Artist" />
-                                        <ComboBoxItem Content="Artist / Track name" />
-                                    </ComboBox>
-                                </StackPanel>
-
-                                <StackPanel VerticalAlignment="Top" Margin="12,185,12,0">
-                                    <Grid>
+                                    <!-- Reloaded addition: independent fade-in/fade-out timing, kept inside the historical Toast tab. -->
+                                    <Grid VerticalAlignment="Top" Margin="12,137,12,0" Height="28">
                                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" Margin="0,0,0,34" VerticalAlignment="Bottom" VerticalContentAlignment="Center">Toast Width :</Label>
-                                        <wpft:DoubleUpDown x:Name="ToastWidthUpDown" Grid.Column="0" Height="24" Margin="95,0,12,35" VerticalAlignment="Bottom" Minimum="150" Maximum="1000" Increment="1" DefaultValue="250" Value="250" FormatString="F0" />
-                                        <Label Grid.Column="1" Height="26" HorizontalAlignment="Left" Margin="0,0,0,34" VerticalAlignment="Bottom" VerticalContentAlignment="Center">Left Position :</Label>
-                                        <wpft:DoubleUpDown x:Name="PositionLeftUpDown" Grid.Column="1" Height="24" Margin="95,0,12,35" VerticalAlignment="Bottom" Minimum="-1" Maximum="10000" Increment="1" DefaultValue="-1" Value="-1" FormatString="F0" />
-                                        <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" VerticalAlignment="Bottom" VerticalContentAlignment="Center">Toast Height :</Label>
-                                        <wpft:DoubleUpDown x:Name="ToastHeightUpDown" Grid.Column="0" Height="24" Margin="95,0,12,1" VerticalAlignment="Bottom" Minimum="50" Maximum="500" Increment="1" DefaultValue="70" Value="70" FormatString="F0" />
-                                        <Label Grid.Column="1" Height="26" HorizontalAlignment="Left" VerticalAlignment="Bottom" VerticalContentAlignment="Center">Top Position :</Label>
-                                        <wpft:DoubleUpDown x:Name="PositionTopUpDown" Grid.Column="1" Height="24" Margin="95,0,12,1" VerticalAlignment="Bottom" Minimum="-1" Maximum="10000" Increment="1" DefaultValue="-1" Value="-1" FormatString="F0" />
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Label Height="26" Width="58" VerticalContentAlignment="Center">Fade In :</Label>
+                                            <wpft:IntegerUpDown x:Name="FadeInUpDown" Height="24" Width="78" VerticalContentAlignment="Center" TextAlignment="Left"
+                                                                Watermark="Fade in" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="5000" Increment="50" DefaultValue="250" Value="250" />
+                                            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource InfoTextColorBrush}">ms</TextBlock>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Label Height="26" Width="66" VerticalContentAlignment="Center">Fade Out :</Label>
+                                            <wpft:IntegerUpDown x:Name="FadeOutUpDown" Height="24" Width="78" VerticalContentAlignment="Center" TextAlignment="Left"
+                                                                Watermark="Fade out" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="5000" Increment="50" DefaultValue="250" Value="250" />
+                                            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource InfoTextColorBrush}">ms</TextBlock>
+                                        </StackPanel>
                                     </Grid>
-                                    <Grid VerticalAlignment="Top" Margin="0,10,0,0">
-                                        <Image x:Name="ToastInfoImage" Width="32" Height="32" HorizontalAlignment="Left" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
-                                        <TextBlock Margin="36,0,0,0" TextWrapping="Wrap" Padding="0" Foreground="{StaticResource InfoTextColorBrush}">
-                                            The best way to tweak the position of the toast is to hold down Ctrl and then drag the toast around. The raw numbers are still accessible above. Note that the Toast will display at the default position (lower corner above the system time) if you position the toast off-screen.
-                                        </TextBlock>
-                                    </Grid>
-                                </StackPanel>
 
-                                <StackPanel VerticalAlignment="Top" Margin="12,341,12,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Height="26" VerticalContentAlignment="Center">Border Thickness :</Label>
-                                        <wpft:DoubleUpDown x:Name="BorderThicknessUpDown" Width="54" Height="24" VerticalContentAlignment="Center" Margin="6,0,0,0" FormatString="F1" Minimum="0" Maximum="100" Increment="0.1" DefaultValue="1" Value="1" />
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="12,173,12,0" Height="26">
+                                        <TextBlock VerticalAlignment="Center">Artist and Track name :</TextBlock>
+                                        <ComboBox x:Name="CbToastTitlesOrder" VerticalContentAlignment="Center" Width="170" Margin="6,0,0,0" SelectedIndex="0">
+                                            <ComboBoxItem Content="Track name / Artist" />
+                                            <ComboBoxItem Content="Artist / Track name" />
+                                        </ComboBox>
                                     </StackPanel>
-                                    <Grid Margin="0,10,0,0">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="74*"/><ColumnDefinition Width="163*"/></Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="26">Border Corner Radius</Label>
-                                        <Grid Grid.Column="1">
+
+                                    <StackPanel VerticalAlignment="Top" Margin="12,221,12,0">
+                                        <Grid Height="60">
                                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                                            <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" Margin="20,0,0,0" Foreground="#FF575757">Top Left</Label>
-                                            <wpft:DoubleUpDown x:Name="BorderTopLeftUpDown" Grid.Column="0" Height="24" Margin="77,1,8,0" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
-                                            <wpft:DoubleUpDown x:Name="BorderTopRightUpDown" Grid.Column="1" Height="24" Margin="8,1,81,0" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
-                                            <Label Grid.Column="1" Height="26" HorizontalAlignment="Right" Margin="0,0,21,0" Foreground="#FF575757">Top Right</Label>
-                                            <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" Margin="0,34,0,0" Foreground="#FF575757">Bottom Left</Label>
-                                            <wpft:DoubleUpDown x:Name="BorderBottomLeftUpDown" Grid.Column="0" Height="24" Margin="77,35,8,0" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
-                                            <wpft:DoubleUpDown x:Name="BorderBottomRightUpDown" Grid.Column="1" Height="24" Margin="8,35,81,1" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
-                                            <Label Grid.Column="1" Height="26" HorizontalAlignment="Right" Margin="0,34,21,0" Foreground="#FF575757">Bottom Right</Label>
+                                            <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="30"/></Grid.RowDefinitions>
+                                            <Label Grid.Row="0" Grid.Column="0" Height="26" HorizontalAlignment="Left" VerticalContentAlignment="Center">Toast Width :</Label>
+                                            <wpft:DoubleUpDown x:Name="ToastWidthUpDown" Grid.Row="0" Grid.Column="0" Height="24" Width="105" Margin="95,0,12,0" HorizontalAlignment="Left" Minimum="150" Maximum="1000" Increment="1" DefaultValue="250" Value="250" FormatString="F0" />
+                                            <Label Grid.Row="0" Grid.Column="1" Height="26" HorizontalAlignment="Left" VerticalContentAlignment="Center">Left Position :</Label>
+                                            <wpft:DoubleUpDown x:Name="PositionLeftUpDown" Grid.Row="0" Grid.Column="1" Height="24" Width="105" Margin="95,0,12,0" HorizontalAlignment="Left" Minimum="-1" Maximum="10000" Increment="1" DefaultValue="-1" Value="-1" FormatString="F0" />
+                                            <Label Grid.Row="1" Grid.Column="0" Height="26" HorizontalAlignment="Left" VerticalContentAlignment="Center">Toast Height :</Label>
+                                            <wpft:DoubleUpDown x:Name="ToastHeightUpDown" Grid.Row="1" Grid.Column="0" Height="24" Width="105" Margin="95,0,12,0" HorizontalAlignment="Left" Minimum="50" Maximum="500" Increment="1" DefaultValue="70" Value="70" FormatString="F0" />
+                                            <Label Grid.Row="1" Grid.Column="1" Height="26" HorizontalAlignment="Left" VerticalContentAlignment="Center">Top Position :</Label>
+                                            <wpft:DoubleUpDown x:Name="PositionTopUpDown" Grid.Row="1" Grid.Column="1" Height="24" Width="105" Margin="95,0,12,0" HorizontalAlignment="Left" Minimum="-1" Maximum="10000" Increment="1" DefaultValue="-1" Value="-1" FormatString="F0" />
                                         </Grid>
-                                    </Grid>
-                                </StackPanel>
-                            </Grid>
+                                        <Grid VerticalAlignment="Top" Margin="0,10,0,0">
+                                            <Image x:Name="ToastInfoImage" Width="32" Height="32" HorizontalAlignment="Left" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
+                                            <TextBlock Margin="36,0,4,0" TextWrapping="Wrap" Padding="0" Foreground="{StaticResource InfoTextColorBrush}">
+                                                The best way to tweak the position of the toast is to hold down Ctrl and then drag the toast around. The raw numbers are still accessible above. Note that the Toast will display at the default position (lower corner above the system time) if you position the toast off-screen.
+                                            </TextBlock>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <StackPanel VerticalAlignment="Top" Margin="12,385,12,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Height="26" VerticalContentAlignment="Center">Border Thickness :</Label>
+                                            <wpft:DoubleUpDown x:Name="BorderThicknessUpDown" Width="60" Height="24" VerticalContentAlignment="Center" Margin="6,0,0,0" FormatString="F1" Minimum="0" Maximum="100" Increment="0.1" DefaultValue="1" Value="1" />
+                                        </StackPanel>
+                                        <Grid Margin="0,10,0,0">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="125"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Label Grid.Column="0" VerticalAlignment="Top" VerticalContentAlignment="Center" Height="26">Border Corner Radius</Label>
+                                            <Grid Grid.Column="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="55"/><ColumnDefinition Width="62"/><ColumnDefinition Width="62"/><ColumnDefinition Width="62"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="30"/></Grid.RowDefinitions>
+                                                <Label Grid.Row="0" Grid.Column="0" Height="26" Padding="2,5" Foreground="#FF575757">Top Left</Label>
+                                                <wpft:DoubleUpDown x:Name="BorderTopLeftUpDown" Grid.Row="0" Grid.Column="1" Height="24" Margin="2,1,4,0" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
+                                                <Label Grid.Row="0" Grid.Column="2" Height="26" Padding="3,5" Foreground="#FF575757">Top Right</Label>
+                                                <wpft:DoubleUpDown x:Name="BorderTopRightUpDown" Grid.Row="0" Grid.Column="3" Height="24" Margin="2,1,2,0" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
+                                                <Label Grid.Row="1" Grid.Column="0" Height="26" Padding="2,5" Foreground="#FF575757">Bottom Left</Label>
+                                                <wpft:DoubleUpDown x:Name="BorderBottomLeftUpDown" Grid.Row="1" Grid.Column="1" Height="24" Margin="2,1,4,0" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
+                                                <Label Grid.Row="1" Grid.Column="2" Height="26" Padding="3,5" Foreground="#FF575757">Bottom Right</Label>
+                                                <wpft:DoubleUpDown x:Name="BorderBottomRightUpDown" Grid.Row="1" Grid.Column="3" Height="24" Margin="2,1,2,0" Minimum="0" Increment="0.1" DefaultValue="4" Value="4" FormatString="F1" />
+                                            </Grid>
+                                        </Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </ScrollViewer>
                         </TabItem>
 
                         <TabItem Header="Colors &amp; Font">
-                            <StackPanel>
-                                <GroupBox Header="Background &amp; Border" HeaderTemplate="{StaticResource GroupBoxHeaderTemplate}" Margin="6,3,4,0" VerticalAlignment="Top">
-                                    <Grid Margin="4,6,4,4">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="22*"/><ColumnDefinition Width="65*"/></Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" Width="65">Top color :</Label>
-                                        <wpft:ColorPicker x:Name="ToastColorTopPicker" Grid.Column="1" HorizontalAlignment="Left" Height="24" Width="145" Margin="0,1,0,0" SelectedColor="#FF555555" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
-                                        <Label Grid.Column="1" Height="26" Margin="160,0,0,0" HorizontalAlignment="Left" Width="48">Offset :</Label>
-                                        <wpft:DoubleUpDown x:Name="ColorTopUpDown" Grid.Column="1" Height="24" Margin="218,1,6,0" FormatString="P0" Minimum="0" Maximum="1" Increment="0.01" DefaultValue="0" Value="0" />
-                                        <Label Grid.Column="0" Height="26" Margin="0,36,0,0" HorizontalAlignment="Left" Width="85">Bottom color :</Label>
-                                        <wpft:ColorPicker x:Name="ToastColorBottomPicker" Grid.Column="1" HorizontalAlignment="Left" Height="24" Width="145" Margin="0,37,0,0" SelectedColor="#FF151515" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
-                                        <Label Grid.Column="1" Height="26" Margin="160,36,0,0" HorizontalAlignment="Left" Width="48">Offset :</Label>
-                                        <wpft:DoubleUpDown x:Name="ColorBottomUpDown" Grid.Column="1" Height="24" Margin="218,37,6,0" FormatString="P0" Minimum="0" Maximum="1" Increment="0.01" DefaultValue="1" Value="1" />
-                                        <Label Grid.Column="0" Height="26" Margin="0,72,0,0" HorizontalAlignment="Left" Width="81">Border color :</Label>
-                                        <wpft:ColorPicker x:Name="ToastBorderColorPicker" Grid.Column="1" HorizontalAlignment="Left" Height="24" Width="145" Margin="0,73,0,0" SelectedColor="#FF292929" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
-                                    </Grid>
-                                </GroupBox>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="0,0,2,5">
+                                    <GroupBox Header="Background &amp; Border" HeaderTemplate="{StaticResource GroupBoxHeaderTemplate}" Margin="6,3,4,0" VerticalAlignment="Top">
+                                        <Grid Margin="4,6,4,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="105"/><ColumnDefinition Width="145"/><ColumnDefinition Width="56"/><ColumnDefinition Width="80"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions><RowDefinition Height="32"/><RowDefinition Height="32"/><RowDefinition Height="32"/></Grid.RowDefinitions>
+                                            <Label Grid.Row="0" Grid.Column="0" Height="26" VerticalContentAlignment="Center">Top color :</Label>
+                                            <wpft:ColorPicker x:Name="ToastColorTopPicker" Grid.Row="0" Grid.Column="1" Height="24" Width="140" Margin="0,1,5,0" SelectedColor="#FF555555" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
+                                            <Label Grid.Row="0" Grid.Column="2" Height="26" Padding="4,5" VerticalContentAlignment="Center">Offset :</Label>
+                                            <wpft:DoubleUpDown x:Name="ColorTopUpDown" Grid.Row="0" Grid.Column="3" Height="24" Margin="0,1,2,0" FormatString="P0" Minimum="0" Maximum="1" Increment="0.01" DefaultValue="0" Value="0" />
 
-                                <GroupBox Header="Text" Padding="0" HeaderTemplate="{StaticResource GroupBoxHeaderTemplate}" Margin="6,3,4,0" VerticalAlignment="Top">
-                                    <Grid Margin="4,6,4,4">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="22*"/><ColumnDefinition Width="65*"/></Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Height="26" HorizontalAlignment="Left" Width="59">Top title :</Label>
-                                        <wpft:ColorPicker x:Name="Title1ColorPicker" Grid.Column="1" HorizontalAlignment="Left" Height="24" Width="145" Margin="0,1,0,0" SelectedColor="White" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
-                                        <Label Grid.Column="1" Height="26" Margin="160,0,0,0" HorizontalAlignment="Left" Width="63">Font size :</Label>
-                                        <wpft:DoubleUpDown x:Name="Title1FontSizeUpDown" Grid.Column="1" Height="24" Margin="233,1,6,0" Minimum="6" Maximum="22" Increment="1" DefaultValue="16" Value="16" FormatString="N0" />
-                                        <CheckBox x:Name="CbToastTitle1DropShadow" Grid.Column="0" Height="21" HorizontalAlignment="Left" Margin="12,31,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="92" Content="Drop Shadow" />
-                                        <Grid Grid.Column="1" Height="26" Margin="16,28,6,0" VerticalAlignment="Top" IsEnabled="{Binding IsChecked, ElementName=CbToastTitle1DropShadow}">
-                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                                            <Label Grid.Column="0" HorizontalAlignment="Left" VerticalContentAlignment="Center">Depth :</Label>
-                                            <wpft:DoubleUpDown x:Name="Title1ShadowDepthUpDown" Grid.Column="0" Height="24" Width="88" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" FormatString="N1" Watermark="Shadow depth" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="8" Increment="0.1" DefaultValue="3" Value="3" />
-                                            <Label Grid.Column="1" HorizontalAlignment="Left" VerticalContentAlignment="Center">Blur :</Label>
-                                            <wpft:DoubleUpDown x:Name="Title1ShadowBlurUpDown" Grid.Column="1" Height="24" Width="88" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" FormatString="N1" Watermark="Shadow blur" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="24" Increment="1" DefaultValue="2" Value="2" />
-                                        </Grid>
-                                        <Label Grid.Column="0" Height="26" VerticalAlignment="Top" Margin="0,60,0,0" HorizontalAlignment="Left" Width="79">Bottom title :</Label>
-                                        <wpft:ColorPicker x:Name="Title2ColorPicker" Grid.Column="1" HorizontalAlignment="Left" Height="24" Width="145" Margin="0,61,0,0" SelectedColor="#FFF0F0F0" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
-                                        <Label Grid.Column="1" Height="26" Margin="160,60,0,0" HorizontalAlignment="Left" Width="63">Font size :</Label>
-                                        <wpft:DoubleUpDown x:Name="Title2FontSizeUpDown" Grid.Column="1" Height="24" Margin="233,61,6,0" Minimum="6" Maximum="22" Increment="1" DefaultValue="12" Value="12" FormatString="N0" />
-                                        <CheckBox x:Name="CbToastTitle2DropShadow" Grid.Column="0" Height="21" HorizontalAlignment="Left" Margin="12,91,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="92" Content="Drop Shadow" />
-                                        <Grid Grid.Column="1" Height="26" Margin="16,88,6,0" VerticalAlignment="Top" IsEnabled="{Binding IsChecked, ElementName=CbToastTitle2DropShadow}">
-                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                                            <Label Grid.Column="0" HorizontalAlignment="Left" VerticalContentAlignment="Center">Depth :</Label>
-                                            <wpft:DoubleUpDown x:Name="Title2ShadowDepthUpDown" Grid.Column="0" Height="24" Width="88" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" FormatString="N1" Watermark="Shadow depth" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="8" Increment="0.1" DefaultValue="3" Value="3" />
-                                            <Label Grid.Column="1" HorizontalAlignment="Left" VerticalContentAlignment="Center">Blur :</Label>
-                                            <wpft:DoubleUpDown x:Name="Title2ShadowBlurUpDown" Grid.Column="1" Height="24" Width="88" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" FormatString="N1" Watermark="Shadow blur" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="24" Increment="1" DefaultValue="2" Value="2" />
-                                        </Grid>
-                                    </Grid>
-                                </GroupBox>
+                                            <Label Grid.Row="1" Grid.Column="0" Height="26" VerticalContentAlignment="Center">Bottom color :</Label>
+                                            <wpft:ColorPicker x:Name="ToastColorBottomPicker" Grid.Row="1" Grid.Column="1" Height="24" Width="140" Margin="0,1,5,0" SelectedColor="#FF151515" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
+                                            <Label Grid.Row="1" Grid.Column="2" Height="26" Padding="4,5" VerticalContentAlignment="Center">Offset :</Label>
+                                            <wpft:DoubleUpDown x:Name="ColorBottomUpDown" Grid.Row="1" Grid.Column="3" Height="24" Margin="0,1,2,0" FormatString="P0" Minimum="0" Maximum="1" Increment="0.01" DefaultValue="1" Value="1" />
 
-                                <GroupBox Header="Song Progress Bar" HeaderTemplate="{StaticResource GroupBoxHeaderTemplate}" Margin="6,3,4,0" VerticalAlignment="Top" IsEnabled="{Binding IsChecked, ElementName=CbShowSongProgressBar}">
-                                    <Grid Margin="4,6,4,4">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="22*"/><ColumnDefinition Width="65*"/></Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Height="26" HorizontalAlignment="Left">Background color :</Label>
-                                        <wpft:ColorPicker x:Name="SongProgressBackgroundColorPicker" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24" Width="145" Margin="0,1,0,0" SelectedColor="#FF333333" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
-                                        <Label Grid.Column="0" Height="26" Margin="0,36,0,0" HorizontalAlignment="Left">Foreground color :</Label>
-                                        <wpft:ColorPicker x:Name="SongProgressForegroundColorPicker" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24" Width="145" Margin="0,37,0,0" SelectedColor="#FFA0A0A0" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
-                                    </Grid>
-                                </GroupBox>
-                            </StackPanel>
+                                            <Label Grid.Row="2" Grid.Column="0" Height="26" VerticalContentAlignment="Center">Border color :</Label>
+                                            <wpft:ColorPicker x:Name="ToastBorderColorPicker" Grid.Row="2" Grid.Column="1" Height="24" Width="140" Margin="0,1,5,0" SelectedColor="#FF292929" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
+                                        </Grid>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Text" Padding="0" HeaderTemplate="{StaticResource GroupBoxHeaderTemplate}" Margin="6,3,4,0" VerticalAlignment="Top">
+                                        <Grid Margin="4,6,4,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="105"/><ColumnDefinition Width="145"/><ColumnDefinition Width="66"/><ColumnDefinition Width="70"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="32"/><RowDefinition Height="34"/><RowDefinition Height="32"/><RowDefinition Height="34"/>
+                                            </Grid.RowDefinitions>
+
+                                            <Label Grid.Row="0" Grid.Column="0" Height="26" VerticalContentAlignment="Center">Top title :</Label>
+                                            <wpft:ColorPicker x:Name="Title1ColorPicker" Grid.Row="0" Grid.Column="1" Height="24" Width="140" Margin="0,1,5,0" SelectedColor="White" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
+                                            <Label Grid.Row="0" Grid.Column="2" Height="26" Padding="4,5" VerticalContentAlignment="Center">Font size :</Label>
+                                            <wpft:DoubleUpDown x:Name="Title1FontSizeUpDown" Grid.Row="0" Grid.Column="3" Height="24" Margin="0,1,2,0" Minimum="6" Maximum="22" Increment="1" DefaultValue="16" Value="16" FormatString="N0" />
+
+                                            <CheckBox x:Name="CbToastTitle1DropShadow" Grid.Row="1" Grid.Column="0" Height="21" VerticalAlignment="Center" Margin="12,0,0,0" VerticalContentAlignment="Center" Content="Drop Shadow" />
+                                            <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" IsEnabled="{Binding IsChecked, ElementName=CbToastTitle1DropShadow}">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="78"/><ColumnDefinition Width="38"/><ColumnDefinition Width="78"/></Grid.ColumnDefinitions>
+                                                <Label Grid.Column="0" Height="26" Padding="2,5" VerticalContentAlignment="Center">Depth :</Label>
+                                                <wpft:DoubleUpDown x:Name="Title1ShadowDepthUpDown" Grid.Column="1" Height="24" Margin="0,1,8,0" FormatString="N1" Watermark="Depth" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="8" Increment="0.1" DefaultValue="3" Value="3" />
+                                                <Label Grid.Column="2" Height="26" Padding="2,5" VerticalContentAlignment="Center">Blur :</Label>
+                                                <wpft:DoubleUpDown x:Name="Title1ShadowBlurUpDown" Grid.Column="3" Height="24" Margin="0,1,2,0" FormatString="N1" Watermark="Blur" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="24" Increment="1" DefaultValue="2" Value="2" />
+                                            </Grid>
+
+                                            <Label Grid.Row="2" Grid.Column="0" Height="26" VerticalContentAlignment="Center">Bottom title :</Label>
+                                            <wpft:ColorPicker x:Name="Title2ColorPicker" Grid.Row="2" Grid.Column="1" Height="24" Width="140" Margin="0,1,5,0" SelectedColor="#FFF0F0F0" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
+                                            <Label Grid.Row="2" Grid.Column="2" Height="26" Padding="4,5" VerticalContentAlignment="Center">Font size :</Label>
+                                            <wpft:DoubleUpDown x:Name="Title2FontSizeUpDown" Grid.Row="2" Grid.Column="3" Height="24" Margin="0,1,2,0" Minimum="6" Maximum="22" Increment="1" DefaultValue="12" Value="12" FormatString="N0" />
+
+                                            <CheckBox x:Name="CbToastTitle2DropShadow" Grid.Row="3" Grid.Column="0" Height="21" VerticalAlignment="Center" Margin="12,0,0,0" VerticalContentAlignment="Center" Content="Drop Shadow" />
+                                            <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" IsEnabled="{Binding IsChecked, ElementName=CbToastTitle2DropShadow}">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="78"/><ColumnDefinition Width="38"/><ColumnDefinition Width="78"/></Grid.ColumnDefinitions>
+                                                <Label Grid.Column="0" Height="26" Padding="2,5" VerticalContentAlignment="Center">Depth :</Label>
+                                                <wpft:DoubleUpDown x:Name="Title2ShadowDepthUpDown" Grid.Column="1" Height="24" Margin="0,1,8,0" FormatString="N1" Watermark="Depth" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="8" Increment="0.1" DefaultValue="3" Value="3" />
+                                                <Label Grid.Column="2" Height="26" Padding="2,5" VerticalContentAlignment="Center">Blur :</Label>
+                                                <wpft:DoubleUpDown x:Name="Title2ShadowBlurUpDown" Grid.Column="3" Height="24" Margin="0,1,2,0" FormatString="N1" Watermark="Blur" AllowSpin="True" AllowTextInput="True" Minimum="0" Maximum="24" Increment="1" DefaultValue="2" Value="2" />
+                                            </Grid>
+                                        </Grid>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Song Progress Bar" HeaderTemplate="{StaticResource GroupBoxHeaderTemplate}" Margin="6,3,4,0" VerticalAlignment="Top" IsEnabled="{Binding IsChecked, ElementName=CbShowSongProgressBar}">
+                                        <Grid Margin="4,6,4,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="145"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions><RowDefinition Height="32"/><RowDefinition Height="32"/></Grid.RowDefinitions>
+                                            <Label Grid.Row="0" Grid.Column="0" Height="26" VerticalContentAlignment="Center">Background color :</Label>
+                                            <wpft:ColorPicker x:Name="SongProgressBackgroundColorPicker" Grid.Row="0" Grid.Column="1" Height="24" Width="140" Margin="0,1,5,0" SelectedColor="#FF333333" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
+                                            <Label Grid.Row="1" Grid.Column="0" Height="26" VerticalContentAlignment="Center">Foreground color :</Label>
+                                            <wpft:ColorPicker x:Name="SongProgressForegroundColorPicker" Grid.Row="1" Grid.Column="1" Height="24" Width="140" Margin="0,1,5,0" SelectedColor="#FFA0A0A0" ShowDropDownButton="True" ShowTabHeaders="False" UsingAlphaChannel="True" />
+                                        </Grid>
+                                    </GroupBox>
+                                </StackPanel>
+                            </ScrollViewer>
                         </TabItem>
                     </TabControl>
                 </Grid>
@@ -325,59 +365,62 @@
 
             <!-- The only added top-level tab. The original four tabs remain unchanged in order and style. -->
             <TabItem Header="Reloaded" x:Name="TabReloaded">
-                <Grid>
-                    <GroupBox Header="Lyrics Plus" Margin="12,10,12,0" Padding="8" VerticalAlignment="Top" Height="126">
-                        <StackPanel>
-                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource InfoTextColorBrush}" Margin="0,0,0,6">Spicetify integration used to keep the Lyrics button available inside Spotify.</TextBlock>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="12,48,12,12">
+                        <GroupBox Header="Lyrics Plus" Padding="8" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource InfoTextColorBrush}" Margin="0,0,0,6">Spicetify integration used to keep the Lyrics button available inside Spotify.</TextBlock>
+                                <WrapPanel>
+                                    <Button Content="Install / enable" Click="InstallLyrics_Click" Margin="2" Padding="8,3" />
+                                    <Button Content="Repair after Spotify update" Click="RestoreLyrics_Click" Margin="2" Padding="8,3" />
+                                    <Button Content="Remove" Click="RemoveLyrics_Click" Margin="2" Padding="8,3" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Updates &amp; Compatibility Guard" Padding="8" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="12"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="12"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Toastify Reloaded version:" />
+                                <TextBlock x:Name="AppVersionText" Grid.Row="0" Grid.Column="1" Text="…" TextWrapping="Wrap" />
+                                <TextBlock Grid.Row="1" Text="Spotify version:" Margin="0,4,0,0" />
+                                <TextBlock x:Name="SpotifyVersionText" Grid.Row="1" Grid.Column="1" Text="…" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                <TextBlock Grid.Row="2" Text="Spicetify version:" Margin="0,4,0,0" />
+                                <TextBlock x:Name="SpicetifyVersionText" Grid.Row="2" Grid.Column="1" Text="…" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                <TextBlock Grid.Row="3" Text="Compatibility status:" Margin="0,4,0,0" />
+                                <TextBlock x:Name="CompatibilityStatusText" Grid.Row="3" Grid.Column="1" Text="Checking…" Margin="0,4,0,0" TextWrapping="Wrap" />
+
+                                <CheckBox x:Name="AutoCheckUpdatesCheckBox" Grid.Row="5" Grid.ColumnSpan="2" Margin="0,2" Content="Automatically check Toastify Reloaded updates" />
+                                <CheckBox x:Name="AutoInstallUpdatesCheckBox" Grid.Row="6" Grid.ColumnSpan="2" Margin="0,2" Content="Automatically install Toastify Reloaded updates" />
+                                <CheckBox x:Name="AutoRepairSpotifyCheckBox" Grid.Row="7" Grid.ColumnSpan="2" Margin="0,2" Content="Repair Spicetify automatically when Spotify changes version" />
+                                <CheckBox x:Name="KeepLyricsCheckBox" Grid.Row="8" Grid.ColumnSpan="2" Margin="0,2" Content="Keep Lyrics Plus enabled" />
+                                <CheckBox x:Name="AutoUpgradeSpicetifyCheckBox" Grid.Row="9" Grid.ColumnSpan="2" Margin="0,2" Content="Upgrade Spicetify before repair" />
+                                <CheckBox x:Name="RestartSpotifyCheckBox" Grid.Row="10" Grid.ColumnSpan="2" Margin="0,2" Content="Restart Spotify after repair" />
+
+                                <TextBlock x:Name="UpdateStatusText" Grid.Row="12" Grid.ColumnSpan="2" Text="Updates have not been checked yet." TextWrapping="Wrap" Foreground="{StaticResource InfoTextColorBrush}" />
+                                <WrapPanel Grid.Row="13" Grid.ColumnSpan="2" Margin="0,6,0,0">
+                                    <Button Content="Check updates" Click="CheckUpdatesNow_Click" Margin="2" Padding="6,3" />
+                                    <Button Content="Install update" Click="InstallUpdateNow_Click" Margin="2" Padding="6,3" />
+                                    <Button Content="Check compatibility" Click="CheckCompatibilityNow_Click" Margin="2" Padding="6,3" />
+                                    <Button Content="Repair now" Click="RepairSpotifyNow_Click" Margin="2" Padding="6,3" />
+                                </WrapPanel>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Tools" Padding="6">
                             <WrapPanel>
-                                <Button Content="Install / enable" Click="InstallLyrics_Click" Margin="2" Padding="8,3" />
-                                <Button Content="Repair after Spotify update" Click="RestoreLyrics_Click" Margin="2" Padding="8,3" />
-                                <Button Content="Remove" Click="RemoveLyrics_Click" Margin="2" Padding="8,3" />
+                                <Button Content="Run diagnostics" Click="Diagnose_Click" Margin="2" Padding="8,3" />
+                                <Button Content="Open configuration folder" Click="OpenConfigFolder_Click" Margin="2" Padding="8,3" />
+                                <Button Content="Test Toast" Click="TestToast_Click" Margin="2" Padding="8,3" />
                             </WrapPanel>
-                        </StackPanel>
-                    </GroupBox>
-
-<GroupBox Header="Updates &amp; Compatibility Guard" Margin="12,146,12,0" Padding="8" VerticalAlignment="Top" Height="286">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="12"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="12"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="Toastify Reloaded version:" />
-                            <TextBlock x:Name="AppVersionText" Grid.Row="0" Grid.Column="1" Text="…" />
-                            <TextBlock Grid.Row="1" Text="Spotify version:" Margin="0,4,0,0" />
-                            <TextBlock x:Name="SpotifyVersionText" Grid.Row="1" Grid.Column="1" Text="…" Margin="0,4,0,0" />
-                            <TextBlock Grid.Row="2" Text="Spicetify version:" Margin="0,4,0,0" />
-                            <TextBlock x:Name="SpicetifyVersionText" Grid.Row="2" Grid.Column="1" Text="…" Margin="0,4,0,0" />
-                            <TextBlock Grid.Row="3" Text="Compatibility status:" Margin="0,4,0,0" />
-                            <TextBlock x:Name="CompatibilityStatusText" Grid.Row="3" Grid.Column="1" Text="Checking…" Margin="0,4,0,0" TextWrapping="Wrap" />
-
-                            <CheckBox x:Name="AutoCheckUpdatesCheckBox" Grid.Row="5" Grid.ColumnSpan="2" Content="Automatically check Toastify Reloaded updates" />
-                            <CheckBox x:Name="AutoInstallUpdatesCheckBox" Grid.Row="6" Grid.ColumnSpan="2" Content="Automatically install Toastify Reloaded updates" />
-                            <CheckBox x:Name="AutoRepairSpotifyCheckBox" Grid.Row="7" Grid.ColumnSpan="2" Content="Repair Spicetify automatically when Spotify changes version" />
-                            <CheckBox x:Name="KeepLyricsCheckBox" Grid.Row="8" Grid.ColumnSpan="2" Content="Keep Lyrics Plus enabled" />
-                            <CheckBox x:Name="AutoUpgradeSpicetifyCheckBox" Grid.Row="9" Grid.ColumnSpan="2" Content="Upgrade Spicetify before repair" />
-                            <CheckBox x:Name="RestartSpotifyCheckBox" Grid.Row="10" Grid.ColumnSpan="2" Content="Restart Spotify after repair" />
-
-                            <TextBlock x:Name="UpdateStatusText" Grid.Row="12" Grid.ColumnSpan="2" Text="Updates have not been checked yet." TextWrapping="Wrap" Foreground="{StaticResource InfoTextColorBrush}" />
-                            <WrapPanel Grid.Row="13" Grid.ColumnSpan="2" Margin="0,6,0,0">
-                                <Button Content="Check updates" Click="CheckUpdatesNow_Click" Margin="2" Padding="6,3" />
-                                <Button Content="Install update" Click="InstallUpdateNow_Click" Margin="2" Padding="6,3" />
-                                <Button Content="Check compatibility" Click="CheckCompatibilityNow_Click" Margin="2" Padding="6,3" />
-                                <Button Content="Repair now" Click="RepairSpotifyNow_Click" Margin="2" Padding="6,3" />
-                            </WrapPanel>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="Tools" Margin="12,442,12,0" Padding="6" VerticalAlignment="Top" Height="58">
-                        <WrapPanel>
-                            <Button Content="Run diagnostics" Click="Diagnose_Click" Margin="2" Padding="8,3" />
-                            <Button Content="Open configuration folder" Click="OpenConfigFolder_Click" Margin="2" Padding="8,3" />
-                            <Button Content="Test Toast" Click="TestToast_Click" Margin="2" Padding="8,3" />
-                        </WrapPanel>
-                    </GroupBox>
-                </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
 

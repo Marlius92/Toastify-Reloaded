@@ -108,8 +108,7 @@ public partial class MainWindow : Window
 
     private void MainWindow_SourceInitialized(object? sender, EventArgs e)
     {
-        var handle = new WindowInteropHelper(this).Handle;
-        _globalHotkeys = new GlobalHotkeyService(handle);
+        _globalHotkeys = new GlobalHotkeyService();
         _globalHotkeys.HotkeyPressed += async (_, action) => await ExecuteActionAsync(action);
     }
 
@@ -149,6 +148,8 @@ public partial class MainWindow : Window
         CbDisableToastFullscreen.IsChecked = _settings.DisableToastWithFullscreenApps;
         CbShowSongProgressBar.IsChecked = _settings.ShowSongProgressBar;
         DisplayTimeUpDown.Value = _settings.ToastDurationMs;
+        FadeInUpDown.Value = _settings.ToastFadeInMs;
+        FadeOutUpDown.Value = _settings.ToastFadeOutMs;
         CbToastTitlesOrder.SelectedIndex = _settings.ToastTitlesOrder.Equals("ArtistTrack", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
         ToastWidthUpDown.Value = _settings.ToastWidth;
         ToastHeightUpDown.Value = _settings.ToastHeight;
@@ -368,6 +369,8 @@ public partial class MainWindow : Window
         _settings.DisableToastWithFullscreenApps = CbDisableToastFullscreen.IsChecked == true;
         _settings.ShowSongProgressBar = CbShowSongProgressBar.IsChecked == true;
         _settings.ToastDurationMs = Math.Clamp(DisplayTimeUpDown.Value ?? 3500, 500, 30000);
+        _settings.ToastFadeInMs = Math.Clamp(FadeInUpDown.Value ?? 250, 0, 5000);
+        _settings.ToastFadeOutMs = Math.Clamp(FadeOutUpDown.Value ?? 250, 0, 5000);
         _settings.ToastTitlesOrder = CbToastTitlesOrder.SelectedIndex == 1 ? "ArtistTrack" : "TrackArtist";
         _settings.ToastWidth = ToastWidthUpDown.Value ?? 250;
         _settings.ToastHeight = ToastHeightUpDown.Value ?? 70;
@@ -682,6 +685,8 @@ public partial class MainWindow : Window
                 _settings.ShowToastOnTrackChange = defaults.ShowToastOnTrackChange;
                 _settings.OnlyShowToastOnHotkey = defaults.OnlyShowToastOnHotkey;
                 _settings.ToastDurationMs = defaults.ToastDurationMs;
+                _settings.ToastFadeInMs = defaults.ToastFadeInMs;
+                _settings.ToastFadeOutMs = defaults.ToastFadeOutMs;
                 _settings.ToastWidth = defaults.ToastWidth;
                 _settings.ToastHeight = defaults.ToastHeight;
                 _settings.PositionLeft = defaults.PositionLeft;

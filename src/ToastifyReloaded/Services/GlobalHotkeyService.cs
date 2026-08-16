@@ -14,11 +14,28 @@ public sealed class GlobalHotkeyService : IDisposable
 
     public event EventHandler<HotkeyAction>? HotkeyPressed;
 
-    public GlobalHotkeyService(IntPtr windowHandle)
+    public GlobalHotkeyService()
     {
-        _windowHandle = windowHandle;
-        _source = HwndSource.FromHwnd(windowHandle)
-                  ?? throw new InvalidOperationException("Impossibile collegarsi alla finestra Win32.");
+        // Use a dedicated hidden native window as the hotkey message sink.
+        // This keeps RegisterHotKey independent from whichever application or
+        // Toastify settings window currently has focus or is visible.
+        var parameters = new HwndSourceParameters("ToastifyReloaded.GlobalHotkeySink")
+        {
+            Width = 0,
+            Height = 0,
+            PositionX = -32000,
+            PositionY = -32000,
+            WindowStyle = unchecked((int)0x80000000) // WS_POPUP, intentionally not WS_VISIBLE
+        };
+
+        _source = new HwndSource(parameters);
+        _windowHandle = _source.Handle;
+        if (_windowHandle == IntPtr.Zero)
+        {
+            _source.Dispose();
+            throw new InvalidOperationException("Impossibile creare il ricevitore globale delle hotkey.");
+        }
+
         _source.AddHook(WndProc);
     }
 
@@ -138,6 +155,7 @@ public sealed class GlobalHotkeyService : IDisposable
 
         UnregisterAll();
         _source.RemoveHook(WndProc);
+        _source.Dispose();
         _disposed = true;
     }
 }

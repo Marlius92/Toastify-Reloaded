@@ -1,6 +1,6 @@
 # Classic UI reference — Toastify 1.11.2
 
-Toastify Reloaded v1.2.1 uses the historical Toastify 1.11.2 settings window and toast popup as the visual compatibility target.
+Toastify Reloaded v1.2.2 uses the historical Toastify 1.11.2 settings window and toast popup as the visual compatibility target.
 
 ## Invariants
 
@@ -33,3 +33,9 @@ Lyrics Plus, Compatibility Guard, self-update and diagnostics live in the fifth 
 ## Verification
 
 Structural checks compare XAML dimensions, tab order, key margins and popup geometry. Final visual parity must also be checked on Windows at the same DPI/theme as the historical application, because native WPF system controls inherit Windows theme metrics.
+
+## v1.2.2 DPI-safe extensions
+
+The visible shell remains 580x570 and uses native WPF controls. Toast subpages and the Reloaded page now use measured rows and automatic vertical scrolling where necessary so Windows DPI scaling cannot make labels and numeric controls overlap. Fade In/Fade Out controls are the only new controls added inside the historical Toast tab.
+
+Global hotkeys are handled by a dedicated hidden message window and are not tied to the visibility or foreground state of the Settings window.

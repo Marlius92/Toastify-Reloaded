@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.2 - 2026-08-16
+
+### Fixed
+- Reworked the Toast settings layouts to prevent labels, numeric controls and color/font controls from overlapping at Windows DPI scaling while keeping the historical 580x570 shell and native control style.
+- Made the added Reloaded tab vertically scrollable so Compatibility Guard, update controls and Tools never clip each other.
+- Reworked Toast corner-radius and color/font grids into explicit rows/columns instead of overlapping absolute margins.
+
+### Added
+- Added independent **Fade In** and **Fade Out** times in `Toast -> General`, each configurable from 0 to 5000 ms.
+- Added real opacity animation for toast fade-in and fade-out while preserving the classic 250x70 default toast geometry.
+- Decoupled global hotkeys from the visible Settings window by using a dedicated hidden Win32/WPF message sink. Hotkeys remain active while any other application is in the foreground and while the Settings window is hidden in the tray.
+
 ## 1.2.1 - 2026-08-16
 
 ### Fixed
@@ -12,9 +24,6 @@
 - Added one extra **Reloaded** tab for Lyrics Plus, automatic updates and Compatibility Guard without modifying the original four-tab layout.
 - Added persisted classic Toast size, position, colors, font and border settings.
 - Added the historical Toastify-style logo resource and application icon.
-
-### Verification
-- Added a CI classic-UI guard that rejects accidental changes to the historical window size, tab order, Save/Default geometry, native WPF styling and 250x70 toast visual constants.
 
 ### Packaging
 - Keeps the v1.2 installer model: installed application under Program Files, Start-menu entry, uninstall support and installer-based automatic updates.

@@ -20,6 +20,8 @@ public sealed class AppSettings
     public bool DisableToastWithFullscreenApps { get; set; }
     public bool ShowSongProgressBar { get; set; } = true;
     public int ToastDurationMs { get; set; } = 3500;
+    public int ToastFadeInMs { get; set; } = 250;
+    public int ToastFadeOutMs { get; set; } = 250;
     public string ToastTitlesOrder { get; set; } = "TrackArtist";
     public double ToastWidth { get; set; } = 250;
     public double ToastHeight { get; set; } = 70;

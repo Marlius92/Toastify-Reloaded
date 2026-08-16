@@ -4,10 +4,12 @@ $repo = Split-Path -Parent $PSScriptRoot
 $mainPath = Join-Path $repo 'src\ToastifyReloaded\MainWindow.xaml'
 $toastPath = Join-Path $repo 'src\ToastifyReloaded\ToastWindow.xaml'
 $appPath = Join-Path $repo 'src\ToastifyReloaded\App.xaml'
+$hotkeyPath = Join-Path $repo 'src\ToastifyReloaded\Services\GlobalHotkeyService.cs'
 
 $main = Get-Content -Raw -LiteralPath $mainPath
 $toast = Get-Content -Raw -LiteralPath $toastPath
 $app = Get-Content -Raw -LiteralPath $appPath
+$hotkeys = Get-Content -Raw -LiteralPath $hotkeyPath
 
 function Require-Text([string]$Content, [string]$Needle, [string]$Description) {
     if (-not $Content.Contains($Needle)) {
@@ -26,7 +28,9 @@ Require-Text $main 'Width="47"' 'historical Save button width'
 Require-Text $main 'Margin="0,32,10,0"' 'historical Default split-button position'
 Require-Text $main 'Width="73"' 'historical Default split-button width'
 Require-Text $main 'Height="120" Width="120"' 'historical General-tab logo geometry'
-Require-Text $main 'Text="{}{0}"' 'historical clipboard template must escape XAML markup-extension syntax'
+Require-Text $main 'x:Name="FadeInUpDown"' 'Toast fade-in setting'
+Require-Text $main 'x:Name="FadeOutUpDown"' 'Toast fade-out setting'
+Require-Text $main 'VerticalScrollBarVisibility="Auto"' 'DPI-safe scrollable settings surfaces'
 
 $topTabs = [regex]::Matches($main, '<TabItem\s+Header="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
 $expected = @('General','Hotkeys','Toast','Advanced','Reloaded')
@@ -52,6 +56,8 @@ Require-Text $toast 'FontSize="16"' 'historical first title size'
 Require-Text $toast 'FontSize="12"' 'historical second title size'
 Require-Text $toast 'Background="#FF333333"' 'historical progress background'
 Require-Text $toast 'Background="#FFA0A0A0"' 'historical progress foreground'
+Require-Text $hotkeys 'ToastifyReloaded.GlobalHotkeySink' 'dedicated global hotkey message sink'
+Require-Text $hotkeys 'RegisterHotKey' 'system-wide hotkey registration'
 
 if ($app -match '<Style\b') {
     throw 'Classic UI guard failed: App.xaml contains a global custom Style. Native WPF styles must remain untouched.'
