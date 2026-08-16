@@ -1,4 +1,4 @@
-namespace ToastifyModern.Models;
+namespace ToastifyReloaded.Models;
 
 public sealed record TrackInfo(string Title, string Artist, string Album)
 {

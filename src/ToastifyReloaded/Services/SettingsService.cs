@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.IO;
-using ToastifyModern.Models;
+using ToastifyReloaded.Models;
 
-namespace ToastifyModern.Services;
+namespace ToastifyReloaded.Services;
 
 public sealed class SettingsService
 {
@@ -15,7 +15,7 @@ public sealed class SettingsService
 
     public string SettingsDirectory { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "ToastifyModern");
+        "ToastifyReloaded");
 
     public string SettingsPath => Path.Combine(SettingsDirectory, "settings.json");
 

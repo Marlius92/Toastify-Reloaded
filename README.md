@@ -15,7 +15,7 @@
 - Manual “show current track” popup.
 - System-tray operation.
 - Optional launch with Windows.
-- Local JSON configuration in `%APPDATA%\ToastifyModern\settings.json`.
+- Local JSON configuration in `%APPDATA%\ToastifyReloaded\settings.json`.
 - No Spotify username/password or developer API key required.
 - One-click scripts for **Lyrics Plus** through Spicetify.
 - Recovery helper after Spotify updates.
@@ -39,9 +39,9 @@ Hotkeys can be edited from the application.
 
 ## How it works
 
-Toastify Modern does not automate the Spotify window and does not need to locate a button inside Spotify. Playback data and commands are obtained from the Windows `GlobalSystemMediaTransportControlsSessionManager`. Global shortcuts are registered with the Win32 `RegisterHotKey` API.
+Toastify Reloaded does not automate the Spotify window and does not need to locate a button inside Spotify. Playback data and commands are obtained from the Windows `GlobalSystemMediaTransportControlsSessionManager`. Global shortcuts are registered with the Win32 `RegisterHotKey` API.
 
-This approach is intentionally separate from the Lyrics modification. An update to Spotify can therefore remove Spicetify's injected UI while Toastify Modern itself continues to run.
+This approach is intentionally separate from the Lyrics modification. An update to Spotify can therefore remove Spicetify's injected UI while Toastify Reloaded itself continues to run.
 
 ## Lyrics Plus
 
@@ -101,18 +101,18 @@ The `release.yml` workflow builds both x64 and ARM64 ZIP files and attaches them
 ## Repository structure
 
 ```text
-ToastifyModern/
+ToastifyReloaded/
 ├─ .github/workflows/      CI and release automation
 ├─ docs/                   Detailed Italian documentation
 ├─ scripts/                Build, publish, Lyrics and diagnostic helpers
-├─ src/ToastifyModern/     WPF/.NET 8 source code
+├─ src/ToastifyReloaded/     WPF/.NET 8 source code
 ├─ CHANGELOG.md
 ├─ CONTRIBUTING.md
 ├─ LICENSE
 ├─ NOTICE.md
 ├─ README.md
 ├─ SECURITY.md
-└─ ToastifyModern.sln
+└─ ToastifyReloaded.sln
 ```
 
 ## Troubleshooting
@@ -120,7 +120,7 @@ ToastifyModern/
 ### Spotify is not detected
 
 1. Open Spotify and start a track.
-2. Press **Aggiorna** in Toastify Modern.
+2. Press **Aggiorna** in Toastify Reloaded.
 3. Run `scripts\diagnose.ps1` if it is still not detected.
 
 ### A hotkey does not work
@@ -137,7 +137,7 @@ This is normally the injected Spicetify UI being replaced by a Spotify update. R
 
 ### Lyrics Plus is enabled but no lyrics load
 
-That is separate from Toastify Modern itself. Open the Lyrics Plus settings inside Spotify and check the configured provider.
+That is separate from Toastify Reloaded itself. Open the Lyrics Plus settings inside Spotify and check the configured provider.
 
 ## License
 

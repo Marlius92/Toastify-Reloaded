@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Threading;
-using ToastifyModern.Models;
+using ToastifyReloaded.Models;
 
-namespace ToastifyModern;
+namespace ToastifyReloaded;
 
 public partial class ToastWindow : Window
 {

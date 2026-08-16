@@ -23,7 +23,7 @@ Uses Win32 `SendInput` for volume up/down/mute keys.
 
 ### `SettingsService`
 
-Serializes settings to `%APPDATA%\ToastifyModern\settings.json` with `System.Text.Json`.
+Serializes settings to `%APPDATA%\ToastifyReloaded\settings.json` with `System.Text.Json`.
 
 ### `StartupService`
 

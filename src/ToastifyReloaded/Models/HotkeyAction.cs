@@ -1,4 +1,4 @@
-namespace ToastifyModern.Models;
+namespace ToastifyReloaded.Models;
 
 public enum HotkeyAction
 {

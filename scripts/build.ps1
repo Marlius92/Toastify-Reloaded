@@ -8,5 +8,5 @@ $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 Set-Location $repo
 
-dotnet restore .\ToastifyModern.sln
-dotnet build .\ToastifyModern.sln -c $Configuration --no-restore
+dotnet restore .\ToastifyReloaded.sln
+dotnet build .\ToastifyReloaded.sln -c $Configuration --no-restore

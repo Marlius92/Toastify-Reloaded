@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using ToastifyModern.Native;
+using ToastifyReloaded.Native;
 
-namespace ToastifyModern.Services;
+namespace ToastifyReloaded.Services;
 
 public static class MediaKeyService
 {

@@ -2,7 +2,7 @@
 param()
 
 $ErrorActionPreference = 'Continue'
-Write-Host "Toastify Modern - Diagnostica" -ForegroundColor Green
+Write-Host "Toastify Reloaded - Diagnostica" -ForegroundColor Green
 Write-Host "Data: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
 Write-Host "Windows: $([Environment]::OSVersion.VersionString)"
 Write-Host "PowerShell: $($PSVersionTable.PSVersion)"
@@ -28,8 +28,8 @@ if (Get-Command spicetify -ErrorAction SilentlyContinue) {
     Write-Host "Spicetify non trovato nel PATH."
 }
 
-Write-Host "`n--- Toastify Modern ---" -ForegroundColor Cyan
-$config = Join-Path $env:APPDATA 'ToastifyModern\settings.json'
+Write-Host "`n--- Toastify Reloaded ---" -ForegroundColor Cyan
+$config = Join-Path $env:APPDATA 'ToastifyReloaded\settings.json'
 Write-Host "Config: $config"
 if (Test-Path $config) {
     Get-Content $config

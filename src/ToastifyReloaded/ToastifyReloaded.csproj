@@ -7,12 +7,12 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <AssemblyName>ToastifyModern</AssemblyName>
-    <RootNamespace>ToastifyModern</RootNamespace>
+    <AssemblyName>ToastifyReloaded</AssemblyName>
+    <RootNamespace>ToastifyReloaded</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.0.0</Version>
-    <Authors>Toastify Modern contributors</Authors>
-    <Description>Modern Windows companion for Spotify: global hotkeys, track popups and Spicetify Lyrics Plus helper.</Description>
+    <Version>1.0.3</Version>
+    <Authors>Toastify Reloaded contributors</Authors>
+    <Description>Toastify Reloaded - Windows companion for Spotify with global hotkeys, track popups and Spicetify Lyrics Plus integration.</Description>
   </PropertyGroup>
 
   <ItemGroup>

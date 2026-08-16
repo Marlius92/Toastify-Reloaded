@@ -9,14 +9,14 @@ $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 Set-Location $repo
 
-$outDir = Join-Path $repo "dist\ToastifyModern-$Runtime"
-$zipPath = Join-Path $repo "dist\ToastifyModern-$Runtime.zip"
+$outDir = Join-Path $repo "dist\ToastifyReloaded-$Runtime"
+$zipPath = Join-Path $repo "dist\ToastifyReloaded-$Runtime.zip"
 
 if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
-dotnet publish .\src\ToastifyModern\ToastifyModern.csproj `
+dotnet publish .\src\ToastifyReloaded\ToastifyReloaded.csproj `
     -c Release `
     -r $Runtime `
     --self-contained $SelfContained `

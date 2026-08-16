@@ -2,7 +2,7 @@
 param()
 
 $ErrorActionPreference = 'Stop'
-Write-Host "Toastify Modern - Rimozione Lyrics Plus" -ForegroundColor Yellow
+Write-Host "Toastify Reloaded - Rimozione Lyrics Plus" -ForegroundColor Yellow
 
 if (-not (Get-Command spicetify -ErrorAction SilentlyContinue)) {
     throw "Spicetify non è installato o non è nel PATH."

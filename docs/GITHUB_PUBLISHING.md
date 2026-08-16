@@ -2,14 +2,14 @@
 
 ## First push
 
-Create an empty repository named `ToastifyModern`, then from the project folder:
+Create an empty repository named `Toastify-Reloaded`, then from the project folder:
 
 ```powershell
 git init
 git add .
 git commit -m "Initial release"
 git branch -M main
-git remote add origin https://github.com/YOUR-USER/ToastifyModern.git
+git remote add origin https://github.com/Marlius92/Toastify-Reloaded.git
 git push -u origin main
 ```
 

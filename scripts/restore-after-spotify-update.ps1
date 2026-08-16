@@ -7,7 +7,7 @@ function Write-Step([string]$Message) {
     Write-Host "`n==> $Message" -ForegroundColor Cyan
 }
 
-Write-Host "Toastify Modern - Ripristino Spicetify/Lyrics dopo aggiornamento Spotify" -ForegroundColor Green
+Write-Host "Toastify Reloaded - Ripristino Spicetify/Lyrics dopo aggiornamento Spotify" -ForegroundColor Green
 
 if (-not (Get-Command spicetify -ErrorAction SilentlyContinue)) {
     throw "Spicetify non è installato o non è nel PATH."

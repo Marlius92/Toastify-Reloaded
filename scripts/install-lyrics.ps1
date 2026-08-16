@@ -9,7 +9,7 @@ function Write-Step([string]$Message) {
     Write-Host "`n==> $Message" -ForegroundColor Cyan
 }
 
-Write-Host "Toastify Modern - Installazione Lyrics Plus" -ForegroundColor Green
+Write-Host "Toastify Reloaded - Installazione Lyrics Plus" -ForegroundColor Green
 Write-Host "Questo script abilita la Custom App 'lyrics-plus' inclusa in Spicetify." 
 Write-Host "Non scarica né incorpora testi musicali nel repository." 
 

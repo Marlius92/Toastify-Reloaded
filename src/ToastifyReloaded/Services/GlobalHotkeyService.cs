@@ -1,9 +1,9 @@
 using System.Windows.Input;
 using System.Windows.Interop;
-using ToastifyModern.Models;
-using ToastifyModern.Native;
+using ToastifyReloaded.Models;
+using ToastifyReloaded.Native;
 
-namespace ToastifyModern.Services;
+namespace ToastifyReloaded.Services;
 
 public sealed class GlobalHotkeyService : IDisposable
 {

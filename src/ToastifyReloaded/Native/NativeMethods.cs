@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace ToastifyModern.Native;
+namespace ToastifyReloaded.Native;
 
 internal static class NativeMethods
 {

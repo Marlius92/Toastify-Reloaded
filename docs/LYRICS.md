@@ -1,6 +1,6 @@
 # Lyrics integration
 
-Toastify Modern does not scrape, store or redistribute song lyrics.
+Toastify Reloaded does not scrape, store or redistribute song lyrics.
 
 The project enables the **Lyrics Plus** Custom App bundled with Spicetify:
 

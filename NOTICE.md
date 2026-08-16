@@ -1,6 +1,6 @@
 # Notices and third-party names
 
-Toastify Modern is an independent open-source Windows companion for Spotify. It is not affiliated with, endorsed by, or sponsored by Spotify AB.
+Toastify Reloaded is an independent open-source Windows companion for Spotify. It is not affiliated with, endorsed by, or sponsored by Spotify AB.
 
 The project is a clean implementation and does **not** include source code from the discontinued Toastify repositories.
 

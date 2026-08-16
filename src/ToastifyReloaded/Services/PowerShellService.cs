@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace ToastifyModern.Services;
+namespace ToastifyReloaded.Services;
 
 public static class PowerShellService
 {
@@ -9,7 +9,7 @@ public static class PowerShellService
     {
         var scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts", scriptName);
         if (!File.Exists(scriptPath))
-            throw new FileNotFoundException("Script non trovato nella cartella di Toastify Modern.", scriptPath);
+            throw new FileNotFoundException("Script non trovato nella cartella di Toastify Reloaded.", scriptPath);
 
         // Current bundled arguments are PowerShell switches without spaces.
         // Keeping them separate from scriptPath avoids quoting the path incorrectly.

@@ -1,15 +1,15 @@
-# Guida completa — Toastify Modern
+# Guida completa — Toastify Reloaded
 
 ## 1. Cos'è
 
-Toastify Modern è un'applicazione Windows pensata per controllare Spotify senza dover portare la sua finestra in primo piano. Rimane nell'area di notifica e registra scorciatoie globali utilizzabili da qualunque programma o gioco.
+Toastify Reloaded è un'applicazione Windows pensata per controllare Spotify senza dover portare la sua finestra in primo piano. Rimane nell'area di notifica e registra scorciatoie globali utilizzabili da qualunque programma o gioco.
 
 È composta da due parti indipendenti:
 
-1. **Toastify Modern**, l'eseguibile Windows per controlli, hotkey e popup.
+1. **Toastify Reloaded**, l'eseguibile Windows per controlli, hotkey e popup.
 2. **Lyrics Plus tramite Spicetify**, che modifica l'interfaccia locale di Spotify per aggiungere la pagina/pulsante Lyrics.
 
-Questa separazione è importante: se Spotify si aggiorna e sostituisce i file modificati da Spicetify, le hotkey di Toastify Modern non dipendono da quelle modifiche.
+Questa separazione è importante: se Spotify si aggiorna e sostituisce i file modificati da Spicetify, le hotkey di Toastify Reloaded non dipendono da quelle modifiche.
 
 ---
 
@@ -33,7 +33,7 @@ I controlli volume agiscono sul volume multimediale di Windows. I controlli di r
 
 ### Popup brano
 
-Toastify Modern controlla periodicamente il brano attuale. Quando rileva un cambio, visualizza un piccolo popup in basso a destra con:
+Toastify Reloaded controlla periodicamente il brano attuale. Quando rileva un cambio, visualizza un piccolo popup in basso a destra con:
 
 - titolo;
 - artista;
@@ -47,7 +47,7 @@ Chiudendo la finestra con la X, il programma resta attivo nella tray. Dal menu d
 
 ### Avvio automatico
 
-L'opzione “Avvia Toastify Modern con Windows” registra l'eseguibile nella chiave utente di avvio automatico. Non richiede privilegi amministrativi.
+L'opzione “Avvia Toastify Reloaded con Windows” registra l'eseguibile nella chiave utente di avvio automatico. Non richiede privilegi amministrativi.
 
 ---
 
@@ -77,7 +77,7 @@ Lo script `install-lyrics.ps1` può tentare di installare Spicetify tramite WinG
 
 1. Avvia Spotify.
 2. Avvia un brano.
-3. Esegui `ToastifyModern.exe`.
+3. Esegui `ToastifyReloaded.exe`.
 4. Nella scheda principale verifica che lo stato mostri una sessione contenente “Spotify”.
 5. Prova `Ctrl+Alt+Space`.
 6. Prova `Ctrl+Alt+T` per mostrare manualmente il popup.
@@ -106,7 +106,7 @@ Sono riconosciuti i modificatori:
 - `Shift`
 - `Win`
 
-Dopo una modifica premi **Salva hotkey**. Se Windows o un altro programma ha già registrato quella combinazione, Toastify Modern lo segnala e lascia inattiva solo la combinazione in conflitto.
+Dopo una modifica premi **Salva hotkey**. Se Windows o un altro programma ha già registrato quella combinazione, Toastify Reloaded lo segnala e lascia inattiva solo la combinazione in conflitto.
 
 ---
 
@@ -116,7 +116,7 @@ La soluzione usata dal progetto è **Lyrics Plus**, Custom App inclusa in Spicet
 
 ### Metodo dall'interfaccia
 
-1. Apri Toastify Modern.
+1. Apri Toastify Reloaded.
 2. Vai alla scheda **Lyrics**.
 3. Premi **Installa / abilita Lyrics Plus**.
 4. PowerShell si apre e verifica Spicetify.
@@ -140,7 +140,7 @@ Lyrics Plus compare nell'interfaccia di Spotify come applicazione di navigazione
 
 ## 7. Quando Spotify si aggiorna e Lyrics sparisce
 
-Spotify può sostituire i file modificati da Spicetify durante un aggiornamento. In questo caso **non è necessario reinstallare Toastify Modern**.
+Spotify può sostituire i file modificati da Spicetify durante un aggiornamento. In questo caso **non è necessario reinstallare Toastify Reloaded**.
 
 Apri la scheda **Lyrics** e premi:
 
@@ -209,7 +209,7 @@ Il volume viene modificato simulando i tasti multimediali standard di Windows tr
 Le preferenze sono salvate in:
 
 ```text
-%APPDATA%\ToastifyModern\settings.json
+%APPDATA%\ToastifyReloaded\settings.json
 ```
 
 Il file può essere cancellato per tornare ai valori predefiniti.
@@ -227,8 +227,8 @@ Apri PowerShell nella cartella del repository:
 Equivalente manuale:
 
 ```powershell
-dotnet restore .\ToastifyModern.sln
-dotnet build .\ToastifyModern.sln -c Release --no-restore
+dotnet restore .\ToastifyReloaded.sln
+dotnet build .\ToastifyReloaded.sln -c Release --no-restore
 ```
 
 ---
@@ -260,7 +260,7 @@ git init
 git add .
 git commit -m "Initial release"
 git branch -M main
-git remote add origin https://github.com/TUO-NOME/ToastifyModern.git
+git remote add origin https://github.com/Marlius92/Toastify-Reloaded.git
 git push -u origin main
 ```
 
@@ -293,7 +293,7 @@ Mostra:
 - versione Spicetify;
 - percorso della configurazione Spicetify;
 - configurazione Spicetify;
-- configurazione Toastify Modern.
+- configurazione Toastify Reloaded.
 
 Prima di pubblicare l'output in una issue GitHub, controlla se contiene percorsi personali che preferisci rimuovere.
 
@@ -311,8 +311,8 @@ Scegli una combinazione diversa: `RegisterHotKey` non può sottrarre in modo aff
 
 ### Lyrics sparita dopo un update
 
-Esegui il ripristino Spicetify. Non reinstallare Toastify Modern.
+Esegui il ripristino Spicetify. Non reinstallare Toastify Reloaded.
 
 ### Lyrics Plus apre la pagina ma non mostra testo
 
-L'applicazione Toastify Modern non gestisce i provider Lyrics. Apri le impostazioni di Lyrics Plus dentro Spotify e verifica il provider disponibile.
+L'applicazione Toastify Reloaded non gestisce i provider Lyrics. Apri le impostazioni di Lyrics Plus dentro Spotify e verifica il provider disponibile.

@@ -5,11 +5,11 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using System.IO;
-using ToastifyModern.Models;
-using ToastifyModern.Services;
+using ToastifyReloaded.Models;
+using ToastifyReloaded.Services;
 using Forms = System.Windows.Forms;
 
-namespace ToastifyModern;
+namespace ToastifyReloaded;
 
 public partial class MainWindow : Window
 {
@@ -70,13 +70,13 @@ public partial class MainWindow : Window
     {
         _trayIcon = new Forms.NotifyIcon
         {
-            Text = "Toastify Modern",
+            Text = "Toastify Reloaded",
             Icon = System.Drawing.SystemIcons.Application,
             Visible = true
         };
 
         var menu = new Forms.ContextMenuStrip();
-        menu.Items.Add("Apri Toastify Modern", null, (_, _) => ShowFromTray());
+        menu.Items.Add("Apri Toastify Reloaded", null, (_, _) => ShowFromTray());
         menu.Items.Add("Mostra popup", null, async (_, _) => await ShowCurrentToastAsync());
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Esci", null, (_, _) => ExitApplication());
@@ -166,7 +166,7 @@ public partial class MainWindow : Window
         }
         else if (showSuccess)
         {
-            System.Windows.MessageBox.Show("Hotkey salvate e registrate.", "Toastify Modern", MessageBoxButton.OK, MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("Hotkey salvate e registrate.", "Toastify Reloaded", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
@@ -239,7 +239,7 @@ public partial class MainWindow : Window
         try
         {
             SaveSettingsFromUi();
-            System.Windows.MessageBox.Show("Impostazioni salvate.", "Toastify Modern", MessageBoxButton.OK, MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("Impostazioni salvate.", "Toastify Reloaded", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {

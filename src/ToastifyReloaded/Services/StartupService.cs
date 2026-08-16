@@ -1,11 +1,11 @@
 using Microsoft.Win32;
 
-namespace ToastifyModern.Services;
+namespace ToastifyReloaded.Services;
 
 public static class StartupService
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string ValueName = "ToastifyModern";
+    private const string ValueName = "ToastifyReloaded";
 
     public static bool IsEnabled()
     {

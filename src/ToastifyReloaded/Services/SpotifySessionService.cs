@@ -1,7 +1,7 @@
-using ToastifyModern.Models;
+using ToastifyReloaded.Models;
 using Windows.Media.Control;
 
-namespace ToastifyModern.Services;
+namespace ToastifyReloaded.Services;
 
 public sealed class SpotifySessionService
 {

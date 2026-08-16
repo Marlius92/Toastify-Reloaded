@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Windows;
 
-namespace ToastifyModern;
+namespace ToastifyReloaded;
 
 public partial class App : System.Windows.Application
 {
@@ -12,13 +12,13 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
-        _singleInstanceMutex = new Mutex(true, "ToastifyModern.SingleInstance", out var createdNew);
+        _singleInstanceMutex = new Mutex(true, "ToastifyReloaded.SingleInstance", out var createdNew);
         _ownsSingleInstanceMutex = createdNew;
         if (!createdNew)
         {
             System.Windows.MessageBox.Show(
-                "Toastify Modern è già in esecuzione.",
-                "Toastify Modern",
+                "Toastify Reloaded è già in esecuzione.",
+                "Toastify Reloaded",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             Shutdown();

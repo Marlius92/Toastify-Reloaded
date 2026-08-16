@@ -4,12 +4,12 @@ This package is ready to be committed as a Git repository.
 
 ## Source
 
-- `src/ToastifyModern/App.xaml(.cs)` — application startup and single-instance guard
-- `src/ToastifyModern/MainWindow.xaml(.cs)` — settings UI, tray, dispatch and polling
-- `src/ToastifyModern/ToastWindow.xaml(.cs)` — track popup
-- `src/ToastifyModern/Models/*` — settings, hotkeys and track model
-- `src/ToastifyModern/Services/*` — Spotify media session, hotkeys, media keys, settings, startup and PowerShell integration
-- `src/ToastifyModern/Native/NativeMethods.cs` — Win32 interop declarations
+- `src/ToastifyReloaded/App.xaml(.cs)` — application startup and single-instance guard
+- `src/ToastifyReloaded/MainWindow.xaml(.cs)` — settings UI, tray, dispatch and polling
+- `src/ToastifyReloaded/ToastWindow.xaml(.cs)` — track popup
+- `src/ToastifyReloaded/Models/*` — settings, hotkeys and track model
+- `src/ToastifyReloaded/Services/*` — Spotify media session, hotkeys, media keys, settings, startup and PowerShell integration
+- `src/ToastifyReloaded/Native/NativeMethods.cs` — Win32 interop declarations
 
 ## PowerShell
 
