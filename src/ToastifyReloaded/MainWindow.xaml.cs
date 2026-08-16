@@ -12,6 +12,8 @@ using System.Windows.Threading;
 using MediaColor = System.Windows.Media.Color;
 using MediaColors = System.Windows.Media.Colors;
 using MediaColorConverter = System.Windows.Media.ColorConverter;
+using WpfMessageBox = System.Windows.MessageBox;
+using WpfSaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using Microsoft.Win32;
 using ToastifyReloaded.Models;
 using ToastifyReloaded.Native;
@@ -313,11 +315,11 @@ public partial class MainWindow : Window
         var errors = _globalHotkeys.RegisterAll(_hotkeys);
         if (errors.Count > 0)
         {
-            MessageBox.Show(string.Join(Environment.NewLine, errors), "Some hotkeys could not be registered", MessageBoxButton.OK, MessageBoxImage.Warning);
+            WpfMessageBox.Show(string.Join(Environment.NewLine, errors), "Some hotkeys could not be registered", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         else if (showSuccess)
         {
-            MessageBox.Show("Settings saved.", "Toastify Reloaded", MessageBoxButton.OK, MessageBoxImage.Information);
+            WpfMessageBox.Show("Settings saved.", "Toastify Reloaded", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
@@ -640,7 +642,7 @@ public partial class MainWindow : Window
 
     private void SelectTrackFile_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new SaveFileDialog
+        var dialog = new WpfSaveFileDialog
         {
             Title = "Select track output file",
             Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
@@ -662,7 +664,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Settings not saved", MessageBoxButton.OK, MessageBoxImage.Warning);
+            WpfMessageBox.Show(ex.Message, "Settings not saved", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -819,7 +821,7 @@ public partial class MainWindow : Window
     }
 
     private static void ShowScriptError(Exception ex) =>
-        MessageBox.Show(ex.Message, "Unable to start helper", MessageBoxButton.OK, MessageBoxImage.Error);
+        WpfMessageBox.Show(ex.Message, "Unable to start helper", MessageBoxButton.OK, MessageBoxImage.Error);
 
     private void TryMinimizeSpotify()
     {
