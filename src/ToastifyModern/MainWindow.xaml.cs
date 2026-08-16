@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
+using System.IO;
 using ToastifyModern.Models;
 using ToastifyModern.Services;
 using Forms = System.Windows.Forms;
