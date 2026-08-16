@@ -26,6 +26,7 @@ Require-Text $main 'Width="47"' 'historical Save button width'
 Require-Text $main 'Margin="0,32,10,0"' 'historical Default split-button position'
 Require-Text $main 'Width="73"' 'historical Default split-button width'
 Require-Text $main 'Height="120" Width="120"' 'historical General-tab logo geometry'
+Require-Text $main 'Text="{}{0}"' 'historical clipboard template must escape XAML markup-extension syntax'
 
 $topTabs = [regex]::Matches($main, '<TabItem\s+Header="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
 $expected = @('General','Hotkeys','Toast','Advanced','Reloaded')

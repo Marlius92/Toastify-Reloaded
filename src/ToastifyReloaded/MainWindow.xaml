@@ -75,7 +75,7 @@
                             <ColumnDefinition Width="421*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Width="119">Clipboard Template:</TextBlock>
-                        <TextBox x:Name="TbClipboardTemplate" VerticalContentAlignment="Center" Grid.Column="1" Text="{0}" />
+                        <TextBox x:Name="TbClipboardTemplate" VerticalContentAlignment="Center" Grid.Column="1" Text="{}{0}" />
                         <TextBlock TextWrapping="Wrap" Foreground="{StaticResource InfoTextColorBrush}" Margin="0,8,0,0" Grid.Column="1" Grid.Row="1"
                                    Text="This is the text that will be copied to the clipboard when you hit the &quot;Copy to Clipboard&quot; hotkey. &quot;{0}&quot; will be replaced with the name of the currently playing song." />
                     </Grid>
