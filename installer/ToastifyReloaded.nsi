@@ -31,9 +31,7 @@ Unicode True
 Name "${APP_NAME}"
 OutFile "${OUT_FILE}"
 InstallDir "$PROGRAMFILES64\${APP_NAME}"
-InstallDirRegKey HKLM "${APP_KEY}" "InstallDir"
 RequestExecutionLevel admin
-SetRegView 64
 SetCompressor /SOLID lzma
 BrandingText "${APP_NAME}"
 ShowInstDetails show
@@ -68,7 +66,15 @@ Var UpdatePid
 Var IsUpdate
 
 Function .onInit
+    ; Registry commands must run inside a Function/Section. Select the 64-bit
+    ; view here and restore the existing install folder explicitly. NSIS
+    ; InstallDirRegKey does not honor SetRegView, so ReadRegStr is used instead.
     SetRegView 64
+    ReadRegStr $R2 HKLM "${APP_KEY}" "InstallDir"
+    ${If} $R2 != ""
+        StrCpy $INSTDIR $R2
+    ${EndIf}
+
     StrCpy $IsUpdate "0"
     StrCpy $UpdatePid ""
 
