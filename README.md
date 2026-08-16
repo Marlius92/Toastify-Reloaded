@@ -22,8 +22,8 @@
 - Optional automatic re-enable of Lyrics Plus.
 - Automatic Spotify restart through `spicetify auto` after recovery.
 - Repair-loop protection: a failed automatic repair is not repeated endlessly for the same Spotify version.
-- Automatic Toastify Reloaded updates from this repository's GitHub Releases.
-- Architecture-aware update downloads for Windows x64 and ARM64.
+- Automatic Toastify Reloaded updates through signed-style Windows Setup packages from this repository's GitHub Releases.
+- Native installer packages for Windows x64 and ARM64, with Start menu and uninstall registration.
 - Local JSON configuration in `%APPDATA%\ToastifyReloaded\settings.json`.
 
 ## Compatibility Guard (v1.1.0)
@@ -43,16 +43,18 @@ At startup and periodically while the app is running, the Compatibility Guard ch
 
 If Spicetify does not yet support a brand-new Spotify release, Toastify Reloaded reports the failure and avoids an automatic retry loop for that same version. The user can force another attempt later from **Aggiornamenti → Ripara Spotify / Lyrics ora**.
 
-## Automatic Toastify Reloaded updates
+## Installation and automatic updates
 
-When enabled, Toastify Reloaded checks the public GitHub Latest Release endpoint for `Marlius92/Toastify-Reloaded`. If a newer version exists, it selects the matching asset:
+Starting with **v1.2.0**, Toastify Reloaded is distributed as a normal Windows application instead of a portable ZIP. GitHub Releases provide:
 
-- `ToastifyReloaded-win-x64.zip`
-- `ToastifyReloaded-win-arm64.zip`
+- `ToastifyReloaded-Setup-win-x64.exe`
+- `ToastifyReloaded-Setup-win-arm64.exe`
 
-The update is downloaded to a temporary directory. A small local PowerShell updater waits for the running process to exit, replaces the portable application files and starts the new `ToastifyReloaded.exe`. User settings remain in `%APPDATA%` and are not overwritten.
+The Setup installs Toastify Reloaded in `C:\Program Files\Toastify Reloaded`, creates Start-menu shortcuts, registers the app in Windows **Installed apps**, and provides a normal uninstaller. Maintenance scripts remain embedded inside `ToastifyReloaded.exe`; there is no public `scripts` folder.
 
-The updater can be disabled from the application without disabling Spotify compatibility checks.
+The built-in updater now downloads the matching Setup executable. Windows displays the normal UAC confirmation, the installer waits for the running Toastify process to close, updates the installed files and restarts the application. User settings remain in `%APPDATA%\ToastifyReloaded` and are preserved.
+
+> **One-time migration:** users of portable 1.1.x builds should manually run the v1.2.0 Setup once. Future versions then update through the installed-app mechanism.
 
 ## Default hotkeys
 
@@ -98,11 +100,13 @@ cd Toastify-Reloaded
 .\scripts\build.ps1
 ```
 
-Self-contained x64 package:
+Build the installable x64 Setup:
 
 ```powershell
-.\scripts\publish.ps1 -Runtime win-x64 -SelfContained $true
+.\scripts\build-installer.ps1 -Runtime win-x64
 ```
+
+NSIS must be installed on the build machine.
 
 ## GitHub Releases
 
@@ -113,7 +117,7 @@ git tag v1.1.0
 git push origin v1.1.0
 ```
 
-The release workflow publishes both x64 and ARM64 ZIPs. Those exact asset names are also used by the built-in updater.
+The release workflow publishes x64 and ARM64 Setup executables. Those installer asset names are also used by the built-in updater.
 
 ## Repository structure
 
@@ -121,6 +125,7 @@ The release workflow publishes both x64 and ARM64 ZIPs. Those exact asset names 
 Toastify-Reloaded/
 ├─ .github/workflows/
 ├─ docs/
+├─ installer/
 ├─ scripts/
 ├─ src/ToastifyReloaded/
 │  ├─ Models/
@@ -134,7 +139,7 @@ Toastify-Reloaded/
 
 ## Notes and limitations
 
-- The automatic updater assumes a portable installation location writable by the current user. If Toastify Reloaded is placed in a protected system directory, Windows permissions may prevent in-place updates.
+- Installed updates use the Windows UAC prompt because the default install path is under Program Files.
 - GitHub network access is required for Toastify Reloaded auto-update checks.
 - Spicetify may temporarily lag behind a newly released Spotify version. In that case the Compatibility Guard intentionally stops retrying automatically for that version.
 - Microsoft Store Spotify detection is supported for version reporting, but Spicetify itself recommends the regular desktop Spotify installation on Windows when Store-specific configuration problems occur.

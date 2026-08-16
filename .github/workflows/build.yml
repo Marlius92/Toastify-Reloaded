@@ -25,12 +25,16 @@ jobs:
       - name: Build
         run: dotnet build .\ToastifyReloaded.sln -c Release --no-restore
 
-      - name: Publish x64
+      - name: Install NSIS
         shell: pwsh
-        run: .\scripts\publish.ps1 -Runtime win-x64 -SelfContained $true
+        run: choco install nsis -y --no-progress
 
-      - name: Upload artifact
+      - name: Build Windows x64 installer
+        shell: pwsh
+        run: .\scripts\build-installer.ps1 -Runtime win-x64
+
+      - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ToastifyReloaded-win-x64
-          path: dist/ToastifyReloaded-win-x64.zip
+          name: ToastifyReloaded-Setup-win-x64
+          path: dist/ToastifyReloaded-Setup-win-x64.exe

@@ -1,6 +1,6 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -29,9 +29,7 @@ public sealed class UpdateService
                 cancellationToken);
 
             if (!response.IsSuccessStatusCode)
-            {
                 return Failure($"GitHub ha risposto {(int)response.StatusCode} ({response.ReasonPhrase}).");
-            }
 
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
             var release = await JsonSerializer.DeserializeAsync<GitHubRelease>(stream, cancellationToken: cancellationToken);
@@ -49,7 +47,7 @@ public sealed class UpdateService
             var available = latest > current;
             var message = available
                 ? asset is null
-                    ? $"È disponibile Toastify Reloaded {latestText}, ma manca l'asset {assetName}."
+                    ? $"È disponibile Toastify Reloaded {latestText}, ma manca l'installer {assetName}."
                     : $"È disponibile Toastify Reloaded {latestText}."
                 : $"Toastify Reloaded è aggiornato ({CurrentVersion}).";
 
@@ -82,50 +80,51 @@ public sealed class UpdateService
         if (!update.UpdateAvailable || string.IsNullOrWhiteSpace(update.DownloadUrl))
             return false;
 
-        var targetDirectory = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
-        var updateRoot = Path.Combine(Path.GetTempPath(), "ToastifyReloaded", "update-" + Guid.NewGuid().ToString("N"));
-        var zipPath = Path.Combine(updateRoot, "package.zip");
-        var payloadDirectory = Path.Combine(updateRoot, "payload");
-        Directory.CreateDirectory(payloadDirectory);
+        var updateRoot = Path.Combine(
+            Path.GetTempPath(),
+            "ToastifyReloaded",
+            "installer-update-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(updateRoot);
 
-        using (var response = await Client.GetAsync(update.DownloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+        var installerName = string.IsNullOrWhiteSpace(update.AssetName)
+            ? GetExpectedAssetName()
+            : Path.GetFileName(update.AssetName);
+        var installerPath = Path.Combine(updateRoot, installerName);
+
+        using (var response = await Client.GetAsync(
+                   update.DownloadUrl,
+                   HttpCompletionOption.ResponseHeadersRead,
+                   cancellationToken))
         {
             response.EnsureSuccessStatusCode();
             await using var source = await response.Content.ReadAsStreamAsync(cancellationToken);
-            await using var destination = File.Create(zipPath);
+            await using var destination = File.Create(installerPath);
             await source.CopyToAsync(destination, cancellationToken);
         }
 
-        ZipFile.ExtractToDirectory(zipPath, payloadDirectory, overwriteFiles: true);
-        var newExecutable = Path.Combine(payloadDirectory, "ToastifyReloaded.exe");
-        if (!File.Exists(newExecutable))
-            throw new InvalidDataException("Il pacchetto della Release non contiene ToastifyReloaded.exe.");
+        ValidatePortableExecutable(installerPath);
 
-        var updaterScript = Path.Combine(updateRoot, "install-update.ps1");
-        File.WriteAllText(updaterScript, BuildUpdaterScript());
-
+        // The installer is signed/packaged separately from the running process.
+        // UseShellExecute + runas gives Windows control of the UAC prompt. /S
+        // performs the upgrade silently after approval; /UPDATEPID lets NSIS wait
+        // for this process to close before replacing the installed executable.
         var startInfo = new ProcessStartInfo
         {
-            FileName = "powershell.exe",
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            WorkingDirectory = updateRoot
+            FileName = installerPath,
+            Arguments = $"/S /UPDATEPID={currentProcessId}",
+            WorkingDirectory = updateRoot,
+            UseShellExecute = true,
+            Verb = "runas"
         };
-        startInfo.ArgumentList.Add("-NoProfile");
-        startInfo.ArgumentList.Add("-ExecutionPolicy");
-        startInfo.ArgumentList.Add("Bypass");
-        startInfo.ArgumentList.Add("-File");
-        startInfo.ArgumentList.Add(updaterScript);
-        startInfo.ArgumentList.Add("-ProcessId");
-        startInfo.ArgumentList.Add(currentProcessId.ToString());
-        startInfo.ArgumentList.Add("-Source");
-        startInfo.ArgumentList.Add(payloadDirectory);
-        startInfo.ArgumentList.Add("-Target");
-        startInfo.ArgumentList.Add(targetDirectory);
-        startInfo.ArgumentList.Add("-Root");
-        startInfo.ArgumentList.Add(updateRoot);
 
-        return Process.Start(startInfo) is not null;
+        try
+        {
+            return Process.Start(startInfo) is not null;
+        }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            throw new OperationCanceledException("Aggiornamento annullato nel controllo account utente (UAC).", ex);
+        }
     }
 
     private UpdateCheckResult Failure(string message) =>
@@ -135,7 +134,7 @@ public sealed class UpdateService
     private static HttpClient CreateClient()
     {
         var client = new HttpClient { Timeout = TimeSpan.FromSeconds(25) };
-        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("ToastifyReloaded", "1.1"));
+        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("ToastifyReloaded", "1.2"));
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
         client.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2026-03-10");
         return client;
@@ -144,7 +143,14 @@ public sealed class UpdateService
     private static string GetExpectedAssetName()
     {
         var runtime = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "win-arm64" : "win-x64";
-        return $"ToastifyReloaded-{runtime}.zip";
+        return $"ToastifyReloaded-Setup-{runtime}.exe";
+    }
+
+    private static void ValidatePortableExecutable(string path)
+    {
+        using var stream = File.OpenRead(path);
+        if (stream.Length < 2 || stream.ReadByte() != 'M' || stream.ReadByte() != 'Z')
+            throw new InvalidDataException("L'asset scaricato non è un installer Windows valido.");
     }
 
     private static string NormalizeVersion(string raw)
@@ -152,6 +158,7 @@ public sealed class UpdateService
         var value = raw.Trim();
         if (value.StartsWith('v') || value.StartsWith('V'))
             value = value[1..];
+
         var dash = value.IndexOf('-');
         if (dash >= 0)
             value = value[..dash];
@@ -161,35 +168,6 @@ public sealed class UpdateService
 
         return value;
     }
-
-    private static string BuildUpdaterScript() => """
-param(
-    [Parameter(Mandatory=$true)][int]$ProcessId,
-    [Parameter(Mandatory=$true)][string]$Source,
-    [Parameter(Mandatory=$true)][string]$Target,
-    [Parameter(Mandatory=$true)][string]$Root
-)
-$ErrorActionPreference = 'Stop'
-$log = Join-Path $env:TEMP 'ToastifyReloaded-update.log'
-try {
-    "[$(Get-Date -Format o)] Update start -> $Target" | Set-Content -Path $log
-    try { Wait-Process -Id $ProcessId -Timeout 90 -ErrorAction Stop } catch { Start-Sleep -Seconds 2 }
-    Start-Sleep -Milliseconds 750
-
-    Get-ChildItem -LiteralPath $Source -Force | ForEach-Object {
-        Copy-Item -LiteralPath $_.FullName -Destination $Target -Recurse -Force
-    }
-
-    $exe = Join-Path $Target 'ToastifyReloaded.exe'
-    if (-not (Test-Path -LiteralPath $exe)) { throw 'ToastifyReloaded.exe non trovato dopo la copia.' }
-    "[$(Get-Date -Format o)] Update copied successfully" | Add-Content -Path $log
-    Start-Process -FilePath $exe
-    Start-Sleep -Seconds 2
-    Remove-Item -LiteralPath $Root -Recurse -Force -ErrorAction SilentlyContinue
-} catch {
-    "[$(Get-Date -Format o)] ERROR: $($_.Exception.Message)" | Add-Content -Path $log
-}
-""";
 
     private sealed class GitHubRelease
     {

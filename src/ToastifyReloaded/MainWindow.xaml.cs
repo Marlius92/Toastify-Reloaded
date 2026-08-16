@@ -104,7 +104,6 @@ public partial class MainWindow : Window
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Apri Toastify Reloaded", null, (_, _) => ShowFromTray());
         menu.Items.Add("Mostra popup", null, async (_, _) => await ShowCurrentToastAsync());
-        menu.Items.Add("Controlla compatibilità", null, async (_, _) => await RunCompatibilityCheckAsync(automatic: false));
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Esci", null, (_, _) => ExitApplication());
         _trayIcon.ContextMenuStrip = menu;

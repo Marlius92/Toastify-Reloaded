@@ -18,13 +18,17 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Publish x64
+      - name: Install NSIS
         shell: pwsh
-        run: .\scripts\publish.ps1 -Runtime win-x64 -SelfContained $true
+        run: choco install nsis -y --no-progress
 
-      - name: Publish ARM64
+      - name: Build x64 installer
         shell: pwsh
-        run: .\scripts\publish.ps1 -Runtime win-arm64 -SelfContained $true
+        run: .\scripts\build-installer.ps1 -Runtime win-x64
+
+      - name: Build ARM64 installer
+        shell: pwsh
+        run: .\scripts\build-installer.ps1 -Runtime win-arm64
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -32,5 +36,5 @@ jobs:
           name: Toastify Reloaded ${{ github.ref_name }}
           generate_release_notes: true
           files: |
-            dist/ToastifyReloaded-win-x64.zip
-            dist/ToastifyReloaded-win-arm64.zip
+            dist/ToastifyReloaded-Setup-win-x64.exe
+            dist/ToastifyReloaded-Setup-win-arm64.exe
