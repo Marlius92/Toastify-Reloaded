@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace ToastifyReloaded.Services;
@@ -11,11 +12,42 @@ public sealed record PowerShellCommandResult(int ExitCode, string StandardOutput
 
 public static class PowerShellService
 {
+    private const string EmbeddedScriptPrefix = "ToastifyReloaded.Scripts.";
+
+    /// <summary>
+    /// Estrae in una cartella temporanea uno script PowerShell incorporato
+    /// nell'EXE e lo avvia. In questo modo la Release può contenere un solo EXE
+    /// pur mantenendo gli helper Lyrics/diagnostica disponibili nell'app.
+    /// </summary>
     public static void RunScript(string scriptName, params string[] arguments)
     {
-        var scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts", scriptName);
-        if (!File.Exists(scriptPath))
-            throw new FileNotFoundException("Script non trovato nella cartella di Toastify Reloaded.", scriptPath);
+        if (string.IsNullOrWhiteSpace(scriptName) ||
+            !string.Equals(scriptName, Path.GetFileName(scriptName), StringComparison.Ordinal))
+        {
+            throw new ArgumentException("Nome script non valido.", nameof(scriptName));
+        }
+
+        var resourceName = EmbeddedScriptPrefix + scriptName;
+        var assembly = Assembly.GetExecutingAssembly();
+        using var resourceStream = assembly.GetManifestResourceStream(resourceName);
+        if (resourceStream is null)
+        {
+            throw new FileNotFoundException(
+                $"Script incorporato non trovato: {scriptName}. La build di Toastify Reloaded potrebbe essere incompleta.");
+        }
+
+        var scriptDirectory = Path.Combine(
+            Path.GetTempPath(),
+            "ToastifyReloaded",
+            "embedded-scripts",
+            GetAssemblyVersion());
+        Directory.CreateDirectory(scriptDirectory);
+
+        var scriptPath = Path.Combine(scriptDirectory, scriptName);
+        using (var destination = new FileStream(scriptPath, FileMode.Create, FileAccess.Write, FileShare.Read))
+        {
+            resourceStream.CopyTo(destination);
+        }
 
         var startInfo = new ProcessStartInfo
         {
@@ -31,7 +63,8 @@ public static class PowerShellService
         foreach (var argument in arguments)
             startInfo.ArgumentList.Add(argument);
 
-        Process.Start(startInfo);
+        if (Process.Start(startInfo) is null)
+            throw new InvalidOperationException("Impossibile avviare PowerShell.");
     }
 
     public static async Task<PowerShellCommandResult> RunHiddenCommandAsync(
@@ -87,5 +120,13 @@ public static class PowerShellService
         }
 
         return new PowerShellCommandResult(process.ExitCode, await outputTask, await errorTask);
+    }
+
+    private static string GetAssemblyVersion()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        return version is null
+            ? "unknown"
+            : $"{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
     }
 }

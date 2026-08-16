@@ -15,10 +15,18 @@
     <Description>Toastify Reloaded - Windows companion for Spotify with global hotkeys, track popups and Spicetify Lyrics Plus integration.</Description>
   </PropertyGroup>
 
+  <!--
+    Gli helper PowerShell restano file sorgente nella repository, ma vengono
+    incorporati nell'assembly. Non vengono più copiati accanto all'EXE.
+  -->
   <ItemGroup>
-    <None Include="..\..\scripts\install-lyrics.ps1" Link="scripts\install-lyrics.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="..\..\scripts\restore-after-spotify-update.ps1" Link="scripts\restore-after-spotify-update.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="..\..\scripts\remove-lyrics.ps1" Link="scripts\remove-lyrics.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="..\..\scripts\diagnose.ps1" Link="scripts\diagnose.ps1" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <EmbeddedResource Include="..\..\scripts\install-lyrics.ps1"
+                      LogicalName="ToastifyReloaded.Scripts.install-lyrics.ps1" />
+    <EmbeddedResource Include="..\..\scripts\restore-after-spotify-update.ps1"
+                      LogicalName="ToastifyReloaded.Scripts.restore-after-spotify-update.ps1" />
+    <EmbeddedResource Include="..\..\scripts\remove-lyrics.ps1"
+                      LogicalName="ToastifyReloaded.Scripts.remove-lyrics.ps1" />
+    <EmbeddedResource Include="..\..\scripts\diagnose.ps1"
+                      LogicalName="ToastifyReloaded.Scripts.diagnose.ps1" />
   </ItemGroup>
 </Project>
