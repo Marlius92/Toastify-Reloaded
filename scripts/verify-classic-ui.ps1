@@ -7,6 +7,7 @@ $appPath = Join-Path $repo 'src\ToastifyReloaded\App.xaml'
 $hotkeyPath = Join-Path $repo 'src\ToastifyReloaded\Services\GlobalHotkeyService.cs'
 $themeServicePath = Join-Path $repo 'src\ToastifyReloaded\Services\ApplicationThemeService.cs'
 $presetPath = Join-Path $repo 'src\ToastifyReloaded\Models\ToastThemePreset.cs'
+$localizationPath = Join-Path $repo 'src\ToastifyReloaded\Services\LocalizationService.cs'
 
 $main = Get-Content -Raw -LiteralPath $mainPath
 $toast = Get-Content -Raw -LiteralPath $toastPath
@@ -14,6 +15,7 @@ $app = Get-Content -Raw -LiteralPath $appPath
 $hotkeys = Get-Content -Raw -LiteralPath $hotkeyPath
 $themeService = Get-Content -Raw -LiteralPath $themeServicePath
 $presets = Get-Content -Raw -LiteralPath $presetPath
+$localization = Get-Content -Raw -LiteralPath $localizationPath
 
 function Require-Text([string]$Content, [string]$Needle, [string]$Description) {
     if (-not $Content.Contains($Needle)) {
@@ -22,7 +24,7 @@ function Require-Text([string]$Content, [string]$Needle, [string]$Description) {
 }
 
 # v1.3.0 deliberately expands the historical shell to avoid visible scrollbars.
-Require-Text $main 'Height="700" Width="840" ResizeMode="NoResize"' 'expanded fixed-size settings window'
+Require-Text $main 'Height="760" Width="1000" ResizeMode="NoResize"' 'expanded DPI-safe fixed-size settings window'
 Require-Text $main '<TabItem Header="General" x:Name="General"' 'historical General tab'
 Require-Text $main '<TabItem Header="Hotkeys" x:Name="Hotkeys"' 'historical Hotkeys tab'
 Require-Text $main '<TabItem Header="Toast" x:Name="TabToast"' 'historical Toast tab'
@@ -65,6 +67,14 @@ Require-Text $main 'Click="ImportSettings_Click"' 'settings import action'
 Require-Text $main 'Click="CopyDiagnostics_Click"' 'diagnostic report copy action'
 Require-Text $main 'Click="ExportDiagnostics_Click"' 'diagnostic report export action'
 
+# v1.3.3 localization and dark-tab readability.
+Require-Text $main 'xmlns:svc="clr-namespace:ToastifyReloaded.Services"' 'localization converter namespace'
+Require-Text $main 'Converter={StaticResource LocalizedTextConverter}' 'localized hotkey labels'
+Require-Text $main 'x:Name="TabHeaderBorder"' 'theme-aware TabItem header template'
+Require-Text $localization 'ApplyToTree' 'full logical-tree localization'
+Require-Text $localization '["Enable Spotify WebAPI"] = "Abilita Spotify WebAPI"' 'Italian Advanced controls localization'
+Require-Text $localization '["Automatically resize Toast to Track / Artist"]' 'Italian Toast controls localization'
+
 # The actual popup preserves the classic minimum geometry and visual lineage.
 Require-Text $toast 'Width="250" Height="70"' 'historical toast default size'
 Require-Text $toast 'BorderBrush="#FF292929"' 'historical toast border color'
@@ -101,4 +111,4 @@ foreach ($text in $forbidden) {
     if ($main.Contains($text)) { throw "UI contract failed: old Reloaded dashboard text reintroduced: $text" }
 }
 
-Write-Host 'Toastify Reloaded v1.3.2 UI + roadmap contract: PASS'
+Write-Host 'Toastify Reloaded v1.3.3 UI + localization contract: PASS'

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.3
+
+### Localization, dark tabs and layout
+- Expanded the fixed Settings window to 1000 × 760 to prevent right-side clipping in Toast General and Colors & Font at common Windows DPI scales.
+- Replaced the native TabItem header rendering with a theme-aware template so selected tabs remain readable in both Light and Dark themes, including the left-side Toast sub-tabs.
+- Extended Italian localization from tab names to the complete static Settings interface: labels, group headers, checkboxes, buttons, combo options, help text, tooltips and Reloaded controls.
+- Added runtime localization for generated monitor labels and tray menu commands.
+- Added localized hotkey action labels through a binding converter.
+- Preserved English as a fully reversible runtime language option.
+
 ## 1.3.2 - Preset workflow, optional song time and independent slide in/out
 
 ### Changed

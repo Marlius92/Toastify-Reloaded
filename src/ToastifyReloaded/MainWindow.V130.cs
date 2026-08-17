@@ -71,6 +71,8 @@ public partial class MainWindow
     {
         string L(string key, string english) => LocalizationService.Get(_settings.ApplicationLanguage, key, english);
 
+        Title = LocalizationService.TranslateText(_settings.ApplicationLanguage, "Toastify Reloaded - Settings");
+
         General.Header = L("General", "General");
         Hotkeys.Header = L("Hotkeys", "Hotkeys");
         TabToast.Header = L("Toast", "Toast");
@@ -120,6 +122,36 @@ public partial class MainWindow
         PositionPresetLabel.Text = L("PositionPreset", "Position preset:");
         MonitorLabel.Text = L("Monitor", "Monitor:");
         ScreenMarginLabel.Text = L("ScreenMargin", "Screen margin:");
+
+        // Translate every static label/content in the complete logical tree, not
+        // only the tab headers. The translator also normalizes Italian text back
+        // to English when the language is switched at runtime.
+        LocalizationService.ApplyToTree(this, _settings.ApplicationLanguage);
+
+        // Bound hotkey labels use the localization converter; refresh them after
+        // changing the active language.
+        LstHotKeys.Items.Refresh();
+
+        // Monitor labels are generated at runtime, so rebuild them in the active
+        // language while preserving the selected display.
+        var monitorIndex = ToastMonitorComboBox.SelectedIndex;
+        PopulateMonitors();
+        if (monitorIndex >= 0 && monitorIndex < ToastMonitorComboBox.Items.Count)
+            ToastMonitorComboBox.SelectedIndex = monitorIndex;
+
+        UpdateToastThemePreview();
+        ApplyTrayLocalization();
+    }
+
+    private void ApplyTrayLocalization()
+    {
+        var menu = _trayIcon?.ContextMenuStrip;
+        if (menu is null || menu.Items.Count < 4)
+            return;
+
+        menu.Items[0].Text = LocalizationService.TranslateText(_settings.ApplicationLanguage, "Settings");
+        menu.Items[1].Text = LocalizationService.TranslateText(_settings.ApplicationLanguage, "Show Toast");
+        menu.Items[3].Text = LocalizationService.TranslateText(_settings.ApplicationLanguage, "Exit");
     }
 
     private void PopulateToastThemePresets()
@@ -192,7 +224,7 @@ public partial class MainWindow
         ThemePreviewProgressFill.Background = new SolidColorBrush(ParseColor(progressFg, System.Windows.Media.Colors.LightGray));
 
         ToastThemeNameText.Text = preset?.Name ?? ToastThemePresets.CustomName;
-        ToastThemeDescriptionText.Text = preset?.Description ?? "Current manual Colors & Font configuration.";
+        ToastThemeDescriptionText.Text = LocalizationService.TranslateText(_settings.ApplicationLanguage, preset?.Description ?? "Current manual Colors & Font configuration.");
     }
 
     private void ToastAnimationStyle_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -219,13 +251,16 @@ public partial class MainWindow
     private void PopulateMonitors()
     {
         ToastMonitorComboBox.Items.Clear();
-        ToastMonitorComboBox.Items.Add("Primary monitor");
+
+        var primaryMonitor = LocalizationService.TranslateText(_settings.ApplicationLanguage, "Primary monitor");
+        var primaryWord = LocalizationService.TranslateText(_settings.ApplicationLanguage, "Primary");
+        ToastMonitorComboBox.Items.Add(primaryMonitor);
 
         var screens = Forms.Screen.AllScreens;
         for (var i = 0; i < screens.Length; i++)
         {
             var screen = screens[i];
-            var primary = screen.Primary ? " • Primary" : string.Empty;
+            var primary = screen.Primary ? $" • {primaryWord}" : string.Empty;
             ToastMonitorComboBox.Items.Add($"{i + 1}: {screen.DeviceName} — {screen.WorkingArea.Width}×{screen.WorkingArea.Height}{primary}");
         }
     }
