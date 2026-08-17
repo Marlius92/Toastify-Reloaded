@@ -226,10 +226,10 @@ public partial class ToastWindow : Window
         var formatted = new FormattedText(
             textBlock.Text,
             CultureInfo.CurrentUICulture,
-            FlowDirection.LeftToRight,
+            System.Windows.FlowDirection.LeftToRight,
             typeface,
             textBlock.FontSize,
-            Brushes.White,
+            System.Windows.Media.Brushes.White,
             dpi);
 
         return formatted.WidthIncludingTrailingWhitespace;
