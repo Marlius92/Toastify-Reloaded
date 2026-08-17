@@ -25,6 +25,13 @@ public sealed class AppSettings
     public string ToastTitlesOrder { get; set; } = "TrackArtist";
     public double ToastWidth { get; set; } = 250;
     public double ToastHeight { get; set; } = 70;
+    // Reloaded additions: adaptive toast width and configurable artwork source.
+    public bool ToastAutoWidth { get; set; } = true;
+    public double ToastMinWidth { get; set; } = 250;
+    public double ToastMaxWidth { get; set; } = 600;
+    // AlbumCover | ToastifyIcon | None
+    public string ToastImageMode { get; set; } = "AlbumCover";
+    public bool ToastImageFallbackToIcon { get; set; } = true;
     public double PositionLeft { get; set; } = -1;
     public double PositionTop { get; set; } = -1;
     public double ToastBorderThickness { get; set; } = 1;

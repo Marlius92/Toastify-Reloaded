@@ -152,6 +152,16 @@ public partial class MainWindow : Window
         CbToastTitlesOrder.SelectedIndex = _settings.ToastTitlesOrder.Equals("ArtistTrack", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
         ToastWidthUpDown.Value = _settings.ToastWidth;
         ToastHeightUpDown.Value = _settings.ToastHeight;
+        CbToastAutoWidth.IsChecked = _settings.ToastAutoWidth;
+        ToastMinWidthUpDown.Value = _settings.ToastMinWidth;
+        ToastMaxWidthUpDown.Value = _settings.ToastMaxWidth;
+        CbToastImageMode.SelectedIndex = _settings.ToastImageMode switch
+        {
+            "ToastifyIcon" => 1,
+            "None" => 2,
+            _ => 0
+        };
+        CbToastImageFallback.IsChecked = _settings.ToastImageFallbackToIcon;
         PositionLeftUpDown.Value = _settings.PositionLeft;
         PositionTopUpDown.Value = _settings.PositionTop;
         BorderThicknessUpDown.Value = _settings.ToastBorderThickness;
@@ -368,6 +378,16 @@ public partial class MainWindow : Window
         _settings.ToastTitlesOrder = CbToastTitlesOrder.SelectedIndex == 1 ? "ArtistTrack" : "TrackArtist";
         _settings.ToastWidth = ToastWidthUpDown.Value ?? 250;
         _settings.ToastHeight = ToastHeightUpDown.Value ?? 70;
+        _settings.ToastAutoWidth = CbToastAutoWidth.IsChecked == true;
+        _settings.ToastMinWidth = Math.Max(150, ToastMinWidthUpDown.Value ?? 250);
+        _settings.ToastMaxWidth = Math.Max(_settings.ToastMinWidth, ToastMaxWidthUpDown.Value ?? 600);
+        _settings.ToastImageMode = CbToastImageMode.SelectedIndex switch
+        {
+            1 => "ToastifyIcon",
+            2 => "None",
+            _ => "AlbumCover"
+        };
+        _settings.ToastImageFallbackToIcon = CbToastImageFallback.IsChecked == true;
         _settings.PositionLeft = PositionLeftUpDown.Value ?? -1;
         _settings.PositionTop = PositionTopUpDown.Value ?? -1;
         _settings.ToastBorderThickness = BorderThicknessUpDown.Value ?? 1;
@@ -678,6 +698,11 @@ public partial class MainWindow : Window
                 _settings.ToastFadeOutMs = defaults.ToastFadeOutMs;
                 _settings.ToastWidth = defaults.ToastWidth;
                 _settings.ToastHeight = defaults.ToastHeight;
+                _settings.ToastAutoWidth = defaults.ToastAutoWidth;
+                _settings.ToastMinWidth = defaults.ToastMinWidth;
+                _settings.ToastMaxWidth = defaults.ToastMaxWidth;
+                _settings.ToastImageMode = defaults.ToastImageMode;
+                _settings.ToastImageFallbackToIcon = defaults.ToastImageFallbackToIcon;
                 _settings.PositionLeft = defaults.PositionLeft;
                 _settings.PositionTop = defaults.PositionTop;
                 _settings.ToastBorderThickness = defaults.ToastBorderThickness;

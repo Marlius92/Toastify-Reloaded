@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.3
+
+- Added optional automatic toast width based on the real track title and artist text.
+- Added configurable minimum and maximum automatic toast widths (250 / 600 px defaults).
+- Added album-cover artwork from the Windows Spotify media session.
+- Added Toastify Reloaded icon fallback when Spotify artwork is unavailable.
+- Added selectable toast image mode: Album cover, Toastify Reloaded icon, or None.
+- Preserved the historical 60 x 60 artwork slot and 250 x 70 minimum classic toast geometry.
+- Kept manual Toast Width behavior available when automatic width is disabled.
+
 ## 1.2.2 - 2026-08-16
 
 ### Fixed

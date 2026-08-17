@@ -142,7 +142,7 @@
                         <TabControl.Resources><Style TargetType="TabItem"><Setter Property="Padding" Value="5,3,8,3" /></Style></TabControl.Resources>
                         <TabItem Header="General">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                <Grid MinHeight="505" Margin="0,0,4,6">
+                                <Grid MinHeight="680" Margin="0,0,4,6">
                                     <CheckBox x:Name="CbOnlyShowToastOnHotkey" Height="21" HorizontalAlignment="Left" Margin="12,10,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
                                               Content="Only Show Toast when Hotkey is pressed" />
                                     <CheckBox x:Name="CbDisableToastFullscreen" Height="21" HorizontalAlignment="Left" Margin="12,34,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
@@ -183,7 +183,38 @@
                                         </ComboBox>
                                     </StackPanel>
 
-                                    <StackPanel VerticalAlignment="Top" Margin="12,221,12,0">
+                                    <!-- Reloaded addition: adaptive width while preserving the historical 250 px minimum. -->
+                                    <CheckBox x:Name="CbToastAutoWidth" Height="21" HorizontalAlignment="Left" Margin="12,209,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
+                                              Content="Automatically resize Toast to Track / Artist" />
+                                    <Grid VerticalAlignment="Top" Margin="37,237,12,0" Height="28" IsEnabled="{Binding IsChecked, ElementName=CbToastAutoWidth}">
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock VerticalAlignment="Center">Min width :</TextBlock>
+                                            <wpft:DoubleUpDown x:Name="ToastMinWidthUpDown" Width="72" Height="24" Margin="6,0,0,0"
+                                                                Minimum="150" Maximum="1000" Increment="10" DefaultValue="250" Value="250" FormatString="F0" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock VerticalAlignment="Center">Max width :</TextBlock>
+                                            <wpft:DoubleUpDown x:Name="ToastMaxWidthUpDown" Width="72" Height="24" Margin="6,0,0,0"
+                                                                Minimum="150" Maximum="1600" Increment="10" DefaultValue="600" Value="600" FormatString="F0" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock Margin="37,267,12,0" VerticalAlignment="Top" Foreground="{StaticResource InfoTextColorBrush}" TextWrapping="Wrap"
+                                               Text="Auto width measures the real Track and Artist text. Long text is still trimmed at the configured maximum width." />
+
+                                    <!-- Reloaded addition: choose the artwork shown in the historical 60 x 60 image slot. -->
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="12,303,12,0" Height="26">
+                                        <TextBlock VerticalAlignment="Center">Toast image :</TextBlock>
+                                        <ComboBox x:Name="CbToastImageMode" VerticalContentAlignment="Center" Width="190" Margin="6,0,0,0" SelectedIndex="0">
+                                            <ComboBoxItem Content="Album cover" />
+                                            <ComboBoxItem Content="Toastify Reloaded icon" />
+                                            <ComboBoxItem Content="None" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <CheckBox x:Name="CbToastImageFallback" Height="21" HorizontalAlignment="Left" Margin="37,333,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"
+                                              Content="Use Toastify icon when album cover is unavailable" />
+
+                                    <StackPanel VerticalAlignment="Top" Margin="12,369,12,0">
                                         <Grid Height="60">
                                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="30"/></Grid.RowDefinitions>
@@ -204,7 +235,7 @@
                                         </Grid>
                                     </StackPanel>
 
-                                    <StackPanel VerticalAlignment="Top" Margin="12,385,12,0">
+                                    <StackPanel VerticalAlignment="Top" Margin="12,535,12,0">
                                         <StackPanel Orientation="Horizontal">
                                             <Label Height="26" VerticalContentAlignment="Center">Border Thickness :</Label>
                                             <wpft:DoubleUpDown x:Name="BorderThicknessUpDown" Width="60" Height="24" VerticalContentAlignment="Center" Margin="6,0,0,0" FormatString="F1" Minimum="0" Maximum="100" Increment="0.1" DefaultValue="1" Value="1" />

@@ -1,8 +1,12 @@
+using System.Globalization;
+using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using MediaColor = System.Windows.Media.Color;
 using MediaColors = System.Windows.Media.Colors;
@@ -22,7 +26,6 @@ public partial class ToastWindow : Window
         _settings = settings;
         InitializeComponent();
 
-        Width = Math.Max(150, settings.ToastWidth);
         Height = Math.Max(50, settings.ToastHeight);
 
         if (settings.ToastTitlesOrder.Equals("ArtistTrack", StringComparison.OrdinalIgnoreCase))
@@ -51,15 +54,20 @@ public partial class ToastWindow : Window
         Title2.Foreground = new SolidColorBrush(ParseColor(settings.ToastTitle2Color, MediaColor.FromArgb(255, 240, 240, 240)));
         Title1.FontSize = Math.Clamp(settings.ToastTitle1FontSize, 6, 40);
         Title2.FontSize = Math.Clamp(settings.ToastTitle2FontSize, 6, 40);
+
         if (settings.ToastTitle1DropShadow)
             Title1.Effect = new DropShadowEffect { ShadowDepth = Math.Clamp(settings.ToastTitle1ShadowDepth, 0, 8), BlurRadius = Math.Clamp(settings.ToastTitle1ShadowBlur, 0, 24), Opacity = 0.8 };
         if (settings.ToastTitle2DropShadow)
             Title2.Effect = new DropShadowEffect { ShadowDepth = Math.Clamp(settings.ToastTitle2ShadowDepth, 0, 8), BlurRadius = Math.Clamp(settings.ToastTitle2ShadowBlur, 0, 24), Opacity = 0.8 };
+
         SongProgressBarContainer.Background = new SolidColorBrush(ParseColor(settings.SongProgressBarBackgroundColor, MediaColor.FromArgb(255, 51, 51, 51)));
         var progressBrush = new SolidColorBrush(ParseColor(settings.SongProgressBarForegroundColor, MediaColor.FromArgb(255, 160, 160, 160)));
         SongProgressBarLine.Background = progressBrush;
         SongProgressBarLineEllipse.Fill = progressBrush;
         SongProgressBar.Visibility = settings.ShowSongProgressBar ? Visibility.Visible : Visibility.Collapsed;
+
+        ApplyArtwork(track);
+        ApplyWidth();
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(Math.Clamp(settings.ToastDurationMs, 500, 30000)) };
         _timer.Tick += (_, _) =>
@@ -122,6 +130,109 @@ public partial class ToastWindow : Window
         };
         fadeOut.Completed += (_, _) => Close();
         BeginAnimation(OpacityProperty, fadeOut);
+    }
+
+    private void ApplyArtwork(TrackInfo track)
+    {
+        var mode = _settings.ToastImageMode?.Trim() ?? "AlbumCover";
+
+        if (mode.Equals("None", StringComparison.OrdinalIgnoreCase))
+        {
+            HideArtwork();
+            return;
+        }
+
+        if (mode.Equals("ToastifyIcon", StringComparison.OrdinalIgnoreCase))
+        {
+            // The historical Toastify logo is already loaded by the XAML resource.
+            return;
+        }
+
+        // AlbumCover is the default. Use the Windows media-session thumbnail supplied by Spotify.
+        if (track.ArtworkBytes is { Length: > 0 } && TryLoadArtwork(track.ArtworkBytes))
+            return;
+
+        if (!_settings.ToastImageFallbackToIcon)
+            HideArtwork();
+    }
+
+    private bool TryLoadArtwork(byte[] bytes)
+    {
+        try
+        {
+            using var stream = new MemoryStream(bytes, writable: false);
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            bitmap.StreamSource = stream;
+            bitmap.EndInit();
+            bitmap.Freeze();
+            AlbumArt.Source = bitmap;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void HideArtwork()
+    {
+        AlbumArt.Visibility = Visibility.Collapsed;
+        ArtworkColumn.Width = new GridLength(0);
+        ToastContentGrid.Margin = new Thickness(10, 15, 8, 4);
+    }
+
+    private void ApplyWidth()
+    {
+        if (!_settings.ToastAutoWidth)
+        {
+            Width = Math.Max(150, _settings.ToastWidth);
+            return;
+        }
+
+        var minimum = Math.Max(150, _settings.ToastMinWidth);
+        var maximum = Math.Max(minimum, _settings.ToastMaxWidth);
+
+        var textWidth = Math.Max(
+            MeasureTextWidth(Title1),
+            MeasureTextWidth(Title2));
+
+        var artworkSpace = AlbumArt.Visibility == Visibility.Visible
+            ? ArtworkColumn.Width.Value
+            : 0;
+
+        var horizontalContentMargin = ToastContentGrid.Margin.Left + ToastContentGrid.Margin.Right;
+        var borderSpace = Math.Max(0, ToastBorder.BorderThickness.Left) * 2;
+        const double trailingSafetyPadding = 14;
+
+        var desired = artworkSpace + horizontalContentMargin + textWidth + trailingSafetyPadding + borderSpace;
+        Width = Math.Clamp(Math.Ceiling(desired), minimum, maximum);
+    }
+
+    private double MeasureTextWidth(TextBlock textBlock)
+    {
+        if (string.IsNullOrEmpty(textBlock.Text))
+            return 0;
+
+        var dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+        var typeface = new Typeface(
+            textBlock.FontFamily,
+            textBlock.FontStyle,
+            textBlock.FontWeight,
+            textBlock.FontStretch);
+
+        var formatted = new FormattedText(
+            textBlock.Text,
+            CultureInfo.CurrentUICulture,
+            FlowDirection.LeftToRight,
+            typeface,
+            textBlock.FontSize,
+            Brushes.White,
+            dpi);
+
+        return formatted.WidthIncludingTrailingWhitespace;
     }
 
     private void PositionToast()

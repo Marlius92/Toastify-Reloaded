@@ -1,11 +1,16 @@
 using ToastifyReloaded.Models;
 using Windows.Media.Control;
+using Windows.Storage.Streams;
 
 namespace ToastifyReloaded.Services;
 
 public sealed class SpotifySessionService
 {
+    private const ulong MaxArtworkBytes = 8UL * 1024UL * 1024UL;
+
     private GlobalSystemMediaTransportControlsSessionManager? _manager;
+    private string? _cachedArtworkIdentity;
+    private byte[]? _cachedArtwork;
 
     public async Task InitializeAsync()
     {
@@ -21,10 +26,32 @@ public sealed class SpotifySessionService
         try
         {
             var properties = await session.TryGetMediaPropertiesAsync();
-            return new TrackInfo(
-                string.IsNullOrWhiteSpace(properties.Title) ? "Titolo sconosciuto" : properties.Title,
-                string.IsNullOrWhiteSpace(properties.Artist) ? "Artista sconosciuto" : properties.Artist,
-                properties.AlbumTitle ?? string.Empty);
+            var title = string.IsNullOrWhiteSpace(properties.Title) ? "Titolo sconosciuto" : properties.Title;
+            var artist = string.IsNullOrWhiteSpace(properties.Artist) ? "Artista sconosciuto" : properties.Artist;
+            var album = properties.AlbumTitle ?? string.Empty;
+            var identity = $"{title}\u001f{artist}\u001f{album}";
+
+            byte[]? artwork;
+            if (identity.Equals(_cachedArtworkIdentity, StringComparison.Ordinal) && _cachedArtwork is not null)
+            {
+                artwork = _cachedArtwork;
+            }
+            else
+            {
+                artwork = await TryReadArtworkAsync(properties.Thumbnail);
+                if (artwork is not null)
+                {
+                    _cachedArtworkIdentity = identity;
+                    _cachedArtwork = artwork;
+                }
+                else if (!identity.Equals(_cachedArtworkIdentity, StringComparison.Ordinal))
+                {
+                    _cachedArtworkIdentity = null;
+                    _cachedArtwork = null;
+                }
+            }
+
+            return new TrackInfo(title, artist, album, artwork);
         }
         catch
         {
@@ -58,7 +85,6 @@ public sealed class SpotifySessionService
 
         var timeline = session.GetTimelineProperties();
         var target = timeline.Position + delta;
-
         if (target < TimeSpan.Zero)
             target = TimeSpan.Zero;
         if (timeline.EndTime > TimeSpan.Zero && target > timeline.EndTime)
@@ -73,6 +99,34 @@ public sealed class SpotifySessionService
         return session is null
             ? "Spotify non rilevato"
             : $"Connesso: {session.SourceAppUserModelId}";
+    }
+
+    private static async Task<byte[]?> TryReadArtworkAsync(IRandomAccessStreamReference? thumbnail)
+    {
+        if (thumbnail is null)
+            return null;
+
+        try
+        {
+            using var stream = await thumbnail.OpenReadAsync();
+            if (stream.Size == 0 || stream.Size > MaxArtworkBytes || stream.Size > uint.MaxValue)
+                return null;
+
+            var requested = (uint)stream.Size;
+            using var reader = new DataReader(stream.GetInputStreamAt(0));
+            var loaded = await reader.LoadAsync(requested);
+            if (loaded == 0)
+                return null;
+
+            var bytes = new byte[(int)loaded];
+            reader.ReadBytes(bytes);
+            return bytes;
+        }
+        catch
+        {
+            // Artwork is optional. A missing/broken thumbnail must never break media controls.
+            return null;
+        }
     }
 
     private async Task<GlobalSystemMediaTransportControlsSession?> GetSpotifySessionAsync()

@@ -15,7 +15,7 @@
         </Border.Background>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="70" />
+                <ColumnDefinition x:Name="ArtworkColumn" Width="70" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Image x:Name="AlbumArt" Source="Resources/SpotifyToastifyLogo.png" HorizontalAlignment="Right"
@@ -25,7 +25,7 @@
                     <DropShadowEffect ShadowDepth="1" BlurRadius="2" />
                 </Image.Effect>
             </Image>
-            <Grid Grid.Column="1" Margin="15,15,0,4">
+            <Grid x:Name="ToastContentGrid" Grid.Column="1" Margin="15,15,0,4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="19" />
                     <RowDefinition Height="19" />
