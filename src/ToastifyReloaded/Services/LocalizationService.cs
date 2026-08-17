@@ -282,5 +282,5 @@ public sealed class LocalizedTextConverter : IValueConverter
         LocalizationService.TranslateText(LocalizationService.CurrentLanguage, value?.ToString());
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
-        Binding.DoNothing;
+        global::System.Windows.Data.Binding.DoNothing;
 }
