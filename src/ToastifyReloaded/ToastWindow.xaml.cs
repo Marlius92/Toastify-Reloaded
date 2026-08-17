@@ -21,13 +21,22 @@ namespace ToastifyReloaded;
 public partial class ToastWindow : Window
 {
     private readonly DispatcherTimer _timer;
+    private readonly DispatcherTimer _timelineTimer;
     private readonly AppSettings _settings;
+    private readonly TimeSpan _timelineStartPosition;
+    private readonly TimeSpan _trackDuration;
+    private readonly bool _timelineIsPlaying;
+    private readonly DateTimeOffset _timelineSnapshotAt;
     private bool _fadeOutStarted;
     private bool _secondPositionPassScheduled;
 
     public ToastWindow(TrackInfo track, AppSettings settings)
     {
         _settings = settings;
+        _timelineStartPosition = track.Position < TimeSpan.Zero ? TimeSpan.Zero : track.Position;
+        _trackDuration = track.Duration < TimeSpan.Zero ? TimeSpan.Zero : track.Duration;
+        _timelineIsPlaying = track.IsPlaying;
+        _timelineSnapshotAt = DateTimeOffset.UtcNow;
         InitializeComponent();
 
         Height = Math.Max(50, settings.ToastHeight);
@@ -69,6 +78,12 @@ public partial class ToastWindow : Window
         SongProgressBarLine.Background = progressBrush;
         SongProgressBarLineEllipse.Fill = progressBrush;
         SongProgressBar.Visibility = settings.ShowSongProgressBar ? Visibility.Visible : Visibility.Collapsed;
+        SongDurationText.Visibility = settings.ShowSongDuration ? Visibility.Visible : Visibility.Collapsed;
+        SongDurationText.Foreground = Title2.Foreground;
+        SongTimelineGrid.Visibility = settings.ShowSongProgressBar || settings.ShowSongDuration
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+        UpdateTimelineDisplay();
 
         ApplyArtwork(track);
         ApplyWidth();
@@ -80,12 +95,23 @@ public partial class ToastWindow : Window
             StartExitAnimation();
         };
 
+        _timelineTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+        _timelineTimer.Tick += (_, _) => UpdateTimelineDisplay();
+        SongProgressBarContainer.SizeChanged += (_, _) => UpdateTimelineDisplay();
+
         Loaded += (_, _) =>
         {
+            UpdateTimelineDisplay();
+            if (settings.ShowSongProgressBar || settings.ShowSongDuration)
+                _timelineTimer.Start();
             PositionToast();
             ScheduleSecondPositionPass();
         };
-        Closed += (_, _) => _timer.Stop();
+        Closed += (_, _) =>
+        {
+            _timer.Stop();
+            _timelineTimer.Stop();
+        };
     }
 
     public void ShowTimed()
@@ -188,6 +214,7 @@ public partial class ToastWindow : Window
             return;
 
         _fadeOutStarted = true;
+        _timelineTimer.Stop();
         var style = NormalizeAnimationStyle(_settings.ToastAnimationStyle);
         if (style == "None")
         {
@@ -242,8 +269,9 @@ public partial class ToastWindow : Window
 
     private (double X, double Y) GetEnterOffset()
     {
-        var distance = Math.Clamp(_settings.ToastSlideDistance, 0, 300);
-        return NormalizeAnimationDirection(_settings.ToastAnimationDirection) switch
+        var distance = Math.Clamp(_settings.ToastSlideInDistance ?? _settings.ToastSlideDistance, 0, 300);
+        var direction = _settings.ToastSlideInDirection ?? _settings.ToastAnimationDirection;
+        return NormalizeAnimationDirection(direction) switch
         {
             "Down" => (0, -distance),
             "Left" => (distance, 0),
@@ -254,8 +282,9 @@ public partial class ToastWindow : Window
 
     private (double X, double Y) GetExitOffset()
     {
-        var distance = Math.Clamp(_settings.ToastSlideDistance, 0, 300);
-        return NormalizeAnimationDirection(_settings.ToastAnimationDirection) switch
+        var distance = Math.Clamp(_settings.ToastSlideOutDistance ?? _settings.ToastSlideDistance, 0, 300);
+        var direction = _settings.ToastSlideOutDirection ?? _settings.ToastAnimationDirection;
+        return NormalizeAnimationDirection(direction) switch
         {
             "Down" => (0, distance),
             "Left" => (-distance, 0),
@@ -290,6 +319,50 @@ public partial class ToastWindow : Window
                 action();
         };
         timer.Start();
+    }
+
+    private void UpdateTimelineDisplay()
+    {
+        var position = GetEstimatedPosition();
+
+        if (_settings.ShowSongDuration)
+        {
+            SongDurationText.Text = _trackDuration > TimeSpan.Zero
+                ? $"{FormatTimeline(position)} / {FormatTimeline(_trackDuration)}"
+                : $"{FormatTimeline(position)} / --:--";
+        }
+
+        if (_settings.ShowSongProgressBar)
+        {
+            var available = Math.Max(0, SongProgressBarContainer.ActualWidth);
+            var ratio = _trackDuration > TimeSpan.Zero
+                ? Math.Clamp(position.TotalMilliseconds / _trackDuration.TotalMilliseconds, 0, 1)
+                : 0;
+            SongProgressBarFill.Width = available * ratio;
+        }
+    }
+
+    private TimeSpan GetEstimatedPosition()
+    {
+        var position = _timelineStartPosition;
+        if (_timelineIsPlaying)
+            position += DateTimeOffset.UtcNow - _timelineSnapshotAt;
+
+        if (position < TimeSpan.Zero)
+            position = TimeSpan.Zero;
+        if (_trackDuration > TimeSpan.Zero && position > _trackDuration)
+            position = _trackDuration;
+        return position;
+    }
+
+    private static string FormatTimeline(TimeSpan value)
+    {
+        if (value < TimeSpan.Zero)
+            value = TimeSpan.Zero;
+
+        return value.TotalHours >= 1
+            ? $"{(int)value.TotalHours}:{value.Minutes:00}:{value.Seconds:00}"
+            : $"{(int)value.TotalMinutes}:{value.Seconds:00}";
     }
 
     private void ApplyArtwork(TrackInfo track)
@@ -358,6 +431,12 @@ public partial class ToastWindow : Window
         var textWidth = Math.Max(
             MeasureTextWidth(Title1),
             MeasureTextWidth(Title2));
+
+        if (_settings.ShowSongDuration && SongDurationText.Visibility == Visibility.Visible)
+        {
+            var timelineWidth = MeasureTextWidth(SongDurationText) + (_settings.ShowSongProgressBar ? 90 : 0);
+            textWidth = Math.Max(textWidth, timelineWidth);
+        }
 
         var artworkSpace = AlbumArt.Visibility == Visibility.Visible
             ? ArtworkColumn.Width.Value

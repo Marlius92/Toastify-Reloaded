@@ -109,12 +109,14 @@ public partial class MainWindow
         ToolsGroupBox.Header = L("Tools", "Tools");
 
         ToastThemePresetLabel.Text = L("Preset", "Theme preset:");
-        ApplyToastThemeButton.Content = L("ApplyPreset", "Apply preset");
         AnimationStyleLabel.Text = L("AnimationStyle", "Animation style:");
-        AnimationDirectionLabel.Text = L("AnimationDirection", "Slide direction:");
+        SlideInDirectionLabel.Text = L("SlideInDirection", "Slide in direction:");
+        SlideOutDirectionLabel.Text = L("SlideOutDirection", "Slide out direction:");
         FadeInLabel.Text = L("FadeIn", "Fade / enter time:");
         FadeOutLabel.Text = L("FadeOut", "Fade / exit time:");
-        SlideDistanceLabel.Text = L("SlideDistance", "Slide distance:");
+        SlideInDistanceLabel.Text = L("SlideInDistance", "Slide in distance:");
+        SlideOutDistanceLabel.Text = L("SlideOutDistance", "Slide out distance:");
+        CbShowSongDuration.Content = L("ShowSongDuration", "Show song time / duration");
         PositionPresetLabel.Text = L("PositionPreset", "Position preset:");
         MonitorLabel.Text = L("Monitor", "Monitor:");
         ScreenMarginLabel.Text = L("ScreenMargin", "Screen margin:");
@@ -132,17 +134,14 @@ public partial class MainWindow
 
     private void ToastThemePreset_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        UpdateToastThemePreview();
-    }
+        if (!_loadingSettings)
+        {
+            var name = ToastThemePresetComboBox.SelectedItem?.ToString();
+            var preset = ToastThemePresets.Find(name);
+            if (preset is not null)
+                ApplyToastThemePresetToUi(preset);
+        }
 
-    private void ApplyToastTheme_Click(object sender, RoutedEventArgs e)
-    {
-        var name = ToastThemePresetComboBox.SelectedItem?.ToString();
-        var preset = ToastThemePresets.Find(name);
-        if (preset is null)
-            return;
-
-        ApplyToastThemePresetToUi(preset);
         UpdateToastThemePreview();
     }
 
@@ -209,8 +208,10 @@ public partial class MainWindow
         var style = ToastAnimationStyleComboBox.SelectedIndex;
         var hasSlide = style is 1 or 2;
         var animated = style != 3;
-        ToastAnimationDirectionComboBox.IsEnabled = hasSlide;
-        ToastSlideDistanceUpDown.IsEnabled = hasSlide;
+        ToastSlideInDirectionComboBox.IsEnabled = hasSlide;
+        ToastSlideOutDirectionComboBox.IsEnabled = hasSlide;
+        ToastSlideInDistanceUpDown.IsEnabled = hasSlide;
+        ToastSlideOutDistanceUpDown.IsEnabled = hasSlide;
         FadeInUpDown.IsEnabled = animated;
         FadeOutUpDown.IsEnabled = animated;
     }
@@ -379,8 +380,15 @@ public partial class MainWindow
         sb.AppendLine($"  Last repair attempt UTC: {_settings.LastAutoRepairAttemptUtc?.ToString("O") ?? "Never"}");
         sb.AppendLine();
         sb.AppendLine("Toast");
+        var slideInDirection = _settings.ToastSlideInDirection ?? _settings.ToastAnimationDirection;
+        var slideOutDirection = _settings.ToastSlideOutDirection ?? _settings.ToastAnimationDirection;
+        var slideInDistance = _settings.ToastSlideInDistance ?? _settings.ToastSlideDistance;
+        var slideOutDistance = _settings.ToastSlideOutDistance ?? _settings.ToastSlideDistance;
         sb.AppendLine($"  Theme preset: {_settings.ToastThemePreset}");
-        sb.AppendLine($"  Animation: {_settings.ToastAnimationStyle} / {_settings.ToastAnimationDirection}");
+        sb.AppendLine($"  Animation: {_settings.ToastAnimationStyle}");
+        sb.AppendLine($"  Slide in: {slideInDirection} / {slideInDistance:0} px");
+        sb.AppendLine($"  Slide out: {slideOutDirection} / {slideOutDistance:0} px");
+        sb.AppendLine($"  Song progress bar: {_settings.ShowSongProgressBar}; song time/duration: {_settings.ShowSongDuration}");
         sb.AppendLine($"  Position preset: {_settings.ToastPositionPreset}");
         sb.AppendLine($"  Monitor index: {_settings.ToastMonitorIndex}");
         sb.AppendLine($"  Adaptive width: {_settings.ToastAutoWidth} ({_settings.ToastMinWidth:0}–{_settings.ToastMaxWidth:0})");

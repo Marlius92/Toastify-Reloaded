@@ -1,25 +1,41 @@
 # Changelog
 
-## 1.3.0 - 2026-08-17
-
-### Added
-- Added a larger fixed **840 x 700** settings window so the expanded feature set fits without visible settings scrollbars.
-- Added application appearance modes: **Light**, **Dark**, and **Follow Windows**. Light remains the historical default.
-- Added local dark-mode palette handling plus Windows title-bar dark-mode integration.
-- Added an English/Italian localization foundation for navigation and Reloaded/new feature surfaces.
-- Added **13 built-in colored Toast themes** plus Custom: Classic Toastify, Spotify Green, Midnight Blue, Neon Purple, Cyberpunk, Crimson Night, Amber Gold, Emerald, Ocean, Sakura, Arctic, Monochrome, and Retro Synthwave.
-- Added live theme preview and one-click preset application while keeping manual Colors & Font controls.
-- Added toast animation modes: **Fade**, **Slide**, **Fade + Slide**, and **None**, with direction and slide-distance controls.
-- Added nine screen-position presets plus Custom positioning.
-- Added monitor selection and working-area-aware multi-monitor placement.
-- Added full JSON **settings import/export**, including hotkeys, toast appearance, UI theme and maintenance options.
-- Added copy/export **diagnostic & compatibility reports** containing app, Windows, DPI, monitor, Spotify, Spicetify and Compatibility Guard information without song history or credentials.
-- Expanded the CI UI contract to protect the historical toast geometry and the new v1.3.0 feature surfaces.
+## 1.3.2 - Preset workflow, optional song time and independent slide in/out
 
 ### Changed
-- Reorganized Toast settings into General, Colors & Font, Themes, Animations and Position pages.
-- Kept the classic 250 x 70 toast and Classic Toastify theme as the default/minimum visual baseline.
-- Kept global hotkeys, album-art fallback, adaptive toast width, installer updates, Lyrics Plus and Compatibility Guard unchanged.
+- Removed the non-functional **Apply preset** button from `Toast -> Themes`.
+- Selecting a built-in Toast theme now loads that preset directly into the editable controls; the change is persisted only when the main **Save** button is pressed.
+- Saving settings no longer shows a success confirmation dialog. Validation/hotkey errors can still display warnings.
+
+### Added
+- Added optional **Show song time / duration** to the Toast (`current / total`, for example `1:26 / 3:20`).
+- Enabled and completed the song progress bar so it reflects the current track timeline while the Toast is visible.
+- Added independent **Slide In** and **Slide Out** directions.
+- Added independent **Slide In** and **Slide Out** distances.
+- Existing v1.3.x animation settings remain backward-compatible through the legacy direction/distance fields.
+
+
+## 1.3.1 - Dark theme rendering fix
+
+### Fixed
+- Fixed the Dark application theme leaving the main TabControl/content surface white while text switched to a light foreground.
+- Applied theme palette resources at both Window and Application scope so native WPF controls resolve dark SystemColors consistently.
+- Added explicit dark-aware surfaces for TabControl, GroupBox, ComboBox, TextBox and ListBox.
+- Added a dark-aware ComboBox template and dropdown item styling so closed controls and popup lists remain readable in Dark mode.
+- Added dynamic hover, pressed and disabled foreground brushes for both Light and Dark themes.
+- Preserved Light as the default historical appearance and kept toast themes independent from the application theme.
+
+## 1.3.0
+
+### Added
+- Added Light, Dark and Follow Windows application themes.
+- Expanded the fixed Settings window to 840x700 to accommodate Reloaded features without scrollbars.
+- Added 13 built-in colored toast presets plus Custom.
+- Added Fade, Slide, Fade + Slide and None animation modes.
+- Added position presets and multi-monitor targeting.
+- Added JSON settings import/export.
+- Added advanced diagnostics and compatibility report export.
+- Added English/Italian localization infrastructure.
 
 ## 1.2.3
 

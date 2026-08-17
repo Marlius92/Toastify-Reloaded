@@ -25,14 +25,22 @@ public sealed class AppSettings
     public bool OnlyShowToastOnHotkey { get; set; }
     public bool DisableToastWithFullscreenApps { get; set; }
     public bool ShowSongProgressBar { get; set; } = true;
+    // Optional "current / total" song time shown beside the progress bar.
+    public bool ShowSongDuration { get; set; }
     public int ToastDurationMs { get; set; } = 3500;
     public int ToastFadeInMs { get; set; } = 250;
     public int ToastFadeOutMs { get; set; } = 250;
     // Fade | Slide | FadeSlide | None
     public string ToastAnimationStyle { get; set; } = "Fade";
+    // Legacy v1.3.0 fields retained for settings-file compatibility.
+    // New builds use independent Slide In / Slide Out values below.
     // Up | Down | Left | Right
     public string ToastAnimationDirection { get; set; } = "Up";
     public double ToastSlideDistance { get; set; } = 28;
+    public string? ToastSlideInDirection { get; set; }
+    public string? ToastSlideOutDirection { get; set; }
+    public double? ToastSlideInDistance { get; set; }
+    public double? ToastSlideOutDistance { get; set; }
 
     public string ToastTitlesOrder { get; set; } = "TrackArtist";
     public double ToastWidth { get; set; } = 250;

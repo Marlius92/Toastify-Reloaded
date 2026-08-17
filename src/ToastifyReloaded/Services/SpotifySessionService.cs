@@ -51,7 +51,16 @@ public sealed class SpotifySessionService
                 }
             }
 
-            return new TrackInfo(title, artist, album, artwork);
+            var timeline = session.GetTimelineProperties();
+            var start = timeline.StartTime;
+            var rawPosition = timeline.Position - start;
+            var rawDuration = timeline.EndTime - start;
+            var position = rawPosition < TimeSpan.Zero ? TimeSpan.Zero : rawPosition;
+            var duration = rawDuration > TimeSpan.Zero ? rawDuration : TimeSpan.Zero;
+            var playback = session.GetPlaybackInfo();
+            var isPlaying = playback?.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+
+            return new TrackInfo(title, artist, album, artwork, position, duration, isPlaying);
         }
         catch
         {

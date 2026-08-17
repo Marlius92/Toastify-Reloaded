@@ -32,11 +32,18 @@ Require-Text $main 'x:Name="BtnSave"' 'Save button'
 Require-Text $main 'x:Name="BtnDefault"' 'Default split button'
 Require-Text $main 'Text="{}{0}"' 'escaped historical clipboard template'
 
-if ($main -match '<ScrollViewer\b') {
-    throw 'UI contract failed: v1.3.0 settings window must not depend on visible ScrollViewer surfaces.'
+# One ScrollViewer is intentionally used inside the Dark-mode ComboBox popup template.
+# User-facing settings pages themselves must not depend on scrollable surfaces.
+$scrollViewerCount = ([regex]::Matches($main, '<ScrollViewer\b')).Count
+if ($scrollViewerCount -gt 1) {
+    throw "UI contract failed: unexpected user-facing ScrollViewer surfaces detected ($scrollViewerCount)."
 }
 if ($main -match '(?i)proxy') {
     throw 'UI contract failed: obsolete Proxy controls were reintroduced.'
+}
+
+if ($main.Contains('ApplyToastThemeButton') -or $main.Contains('Apply preset')) {
+    throw 'UI contract failed: obsolete Apply preset workflow was reintroduced.'
 }
 
 # New v1.3.0 user-facing roadmap features.
@@ -47,6 +54,11 @@ Require-Text $main 'x:Name="ToastAnimationsTab"' 'Toast animation tab'
 Require-Text $main 'x:Name="ToastPositionTab"' 'Toast positioning tab'
 Require-Text $main 'x:Name="ToastThemePresetComboBox"' 'Toast theme preset selector'
 Require-Text $main 'x:Name="ToastAnimationStyleComboBox"' 'Toast animation style selector'
+Require-Text $main 'x:Name="ToastSlideInDirectionComboBox"' 'independent Slide In direction selector'
+Require-Text $main 'x:Name="ToastSlideOutDirectionComboBox"' 'independent Slide Out direction selector'
+Require-Text $main 'x:Name="ToastSlideInDistanceUpDown"' 'independent Slide In distance'
+Require-Text $main 'x:Name="ToastSlideOutDistanceUpDown"' 'independent Slide Out distance'
+Require-Text $main 'x:Name="CbShowSongDuration"' 'optional song time/duration selector'
 Require-Text $main 'x:Name="ToastMonitorComboBox"' 'multi-monitor selector'
 Require-Text $main 'Click="ExportSettings_Click"' 'settings export action'
 Require-Text $main 'Click="ImportSettings_Click"' 'settings import action'
@@ -64,6 +76,8 @@ Require-Text $toast 'Height="60" Width="60"' 'historical artwork geometry'
 Require-Text $toast 'FontSize="16"' 'historical first title size'
 Require-Text $toast 'FontSize="12"' 'historical second title size'
 Require-Text $toast 'x:Name="ToastTranslate"' 'slide animation transform'
+Require-Text $toast 'x:Name="SongDurationText"' 'optional current / total song time'
+Require-Text $toast 'x:Name="SongTimelineGrid"' 'shared song timeline row'
 
 Require-Text $hotkeys 'ToastifyReloaded.GlobalHotkeySink' 'dedicated global hotkey message sink'
 Require-Text $hotkeys 'RegisterHotKey' 'system-wide hotkey registration'
@@ -87,4 +101,4 @@ foreach ($text in $forbidden) {
     if ($main.Contains($text)) { throw "UI contract failed: old Reloaded dashboard text reintroduced: $text" }
 }
 
-Write-Host 'Toastify Reloaded v1.3.0 UI + roadmap contract: PASS'
+Write-Host 'Toastify Reloaded v1.3.2 UI + roadmap contract: PASS'

@@ -83,7 +83,7 @@ public partial class MainWindow : Window
         AppVersionText.Text = _updateService.CurrentVersion;
 
         CreateTrayIcon();
-        RegisterHotkeys(showSuccess: false);
+        RegisterHotkeys();
         await RefreshSpotifyStatusAsync();
         _pollTimer.Start();
         _compatibilityTimer.Start();
@@ -161,12 +161,18 @@ public partial class MainWindow : Window
             CbOnlyShowToastOnHotkey.IsChecked = _settings.OnlyShowToastOnHotkey;
             CbDisableToastFullscreen.IsChecked = _settings.DisableToastWithFullscreenApps;
             CbShowSongProgressBar.IsChecked = _settings.ShowSongProgressBar;
+            CbShowSongDuration.IsChecked = _settings.ShowSongDuration;
             DisplayTimeUpDown.Value = _settings.ToastDurationMs;
             FadeInUpDown.Value = _settings.ToastFadeInMs;
             FadeOutUpDown.Value = _settings.ToastFadeOutMs;
             ToastAnimationStyleComboBox.SelectedIndex = AnimationStyleToIndex(_settings.ToastAnimationStyle);
-            ToastAnimationDirectionComboBox.SelectedIndex = AnimationDirectionToIndex(_settings.ToastAnimationDirection);
-            ToastSlideDistanceUpDown.Value = _settings.ToastSlideDistance;
+            var legacyDirection = string.IsNullOrWhiteSpace(_settings.ToastAnimationDirection) ? "Up" : _settings.ToastAnimationDirection;
+            var slideInDirection = string.IsNullOrWhiteSpace(_settings.ToastSlideInDirection) ? legacyDirection : _settings.ToastSlideInDirection;
+            var slideOutDirection = string.IsNullOrWhiteSpace(_settings.ToastSlideOutDirection) ? legacyDirection : _settings.ToastSlideOutDirection;
+            ToastSlideInDirectionComboBox.SelectedIndex = AnimationDirectionToIndex(slideInDirection);
+            ToastSlideOutDirectionComboBox.SelectedIndex = AnimationDirectionToIndex(slideOutDirection);
+            ToastSlideInDistanceUpDown.Value = _settings.ToastSlideInDistance ?? _settings.ToastSlideDistance;
+            ToastSlideOutDistanceUpDown.Value = _settings.ToastSlideOutDistance ?? _settings.ToastSlideDistance;
 
             CbToastTitlesOrder.SelectedIndex = string.Equals(_settings.ToastTitlesOrder, "ArtistTrack", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
             ToastWidthUpDown.Value = _settings.ToastWidth;
@@ -352,7 +358,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void RegisterHotkeys(bool showSuccess)
+    private void RegisterHotkeys()
     {
         if (_globalHotkeys is null)
             return;
@@ -367,10 +373,6 @@ public partial class MainWindow : Window
         if (errors.Count > 0)
         {
             WpfMessageBox.Show(string.Join(Environment.NewLine, errors), "Some hotkeys could not be registered", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-        else if (showSuccess)
-        {
-            WpfMessageBox.Show("Settings saved.", "Toastify Reloaded", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
@@ -426,12 +428,18 @@ public partial class MainWindow : Window
         _settings.OnlyShowToastOnHotkey = CbOnlyShowToastOnHotkey.IsChecked == true;
         _settings.DisableToastWithFullscreenApps = CbDisableToastFullscreen.IsChecked == true;
         _settings.ShowSongProgressBar = CbShowSongProgressBar.IsChecked == true;
+        _settings.ShowSongDuration = CbShowSongDuration.IsChecked == true;
         _settings.ToastDurationMs = Math.Clamp(DisplayTimeUpDown.Value ?? 3500, 500, 30000);
         _settings.ToastFadeInMs = Math.Clamp(FadeInUpDown.Value ?? 250, 0, 5000);
         _settings.ToastFadeOutMs = Math.Clamp(FadeOutUpDown.Value ?? 250, 0, 5000);
         _settings.ToastAnimationStyle = AnimationStyleFromIndex(ToastAnimationStyleComboBox.SelectedIndex);
-        _settings.ToastAnimationDirection = AnimationDirectionFromIndex(ToastAnimationDirectionComboBox.SelectedIndex);
-        _settings.ToastSlideDistance = Math.Clamp(ToastSlideDistanceUpDown.Value ?? 28, 0, 300);
+        _settings.ToastSlideInDirection = AnimationDirectionFromIndex(ToastSlideInDirectionComboBox.SelectedIndex);
+        _settings.ToastSlideOutDirection = AnimationDirectionFromIndex(ToastSlideOutDirectionComboBox.SelectedIndex);
+        _settings.ToastSlideInDistance = Math.Clamp(ToastSlideInDistanceUpDown.Value ?? 28, 0, 300);
+        _settings.ToastSlideOutDistance = Math.Clamp(ToastSlideOutDistanceUpDown.Value ?? 28, 0, 300);
+        // Keep the legacy fields synchronized for older settings/readers.
+        _settings.ToastAnimationDirection = _settings.ToastSlideInDirection ?? "Up";
+        _settings.ToastSlideDistance = _settings.ToastSlideInDistance ?? 28;
 
         _settings.ToastTitlesOrder = CbToastTitlesOrder.SelectedIndex == 1 ? "ArtistTrack" : "TrackArtist";
         _settings.ToastWidth = ToastWidthUpDown.Value ?? 250;
@@ -738,7 +746,7 @@ public partial class MainWindow : Window
         try
         {
             SaveSettingsFromUi();
-            RegisterHotkeys(showSuccess: true);
+            RegisterHotkeys();
         }
         catch (Exception ex)
         {
@@ -761,12 +769,17 @@ public partial class MainWindow : Window
                 _settings.OnlyShowToastOnHotkey = defaults.OnlyShowToastOnHotkey;
                 _settings.DisableToastWithFullscreenApps = defaults.DisableToastWithFullscreenApps;
                 _settings.ShowSongProgressBar = defaults.ShowSongProgressBar;
+                _settings.ShowSongDuration = defaults.ShowSongDuration;
                 _settings.ToastDurationMs = defaults.ToastDurationMs;
                 _settings.ToastFadeInMs = defaults.ToastFadeInMs;
                 _settings.ToastFadeOutMs = defaults.ToastFadeOutMs;
                 _settings.ToastAnimationStyle = defaults.ToastAnimationStyle;
                 _settings.ToastAnimationDirection = defaults.ToastAnimationDirection;
                 _settings.ToastSlideDistance = defaults.ToastSlideDistance;
+                _settings.ToastSlideInDirection = defaults.ToastSlideInDirection;
+                _settings.ToastSlideOutDirection = defaults.ToastSlideOutDirection;
+                _settings.ToastSlideInDistance = defaults.ToastSlideInDistance;
+                _settings.ToastSlideOutDistance = defaults.ToastSlideOutDistance;
                 _settings.ToastTitlesOrder = defaults.ToastTitlesOrder;
                 _settings.ToastWidth = defaults.ToastWidth;
                 _settings.ToastHeight = defaults.ToastHeight;

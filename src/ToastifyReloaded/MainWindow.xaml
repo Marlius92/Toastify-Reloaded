@@ -16,6 +16,9 @@
         <SolidColorBrush x:Key="InfoTextColorBrush" Color="#FF575757" />
         <SolidColorBrush x:Key="AppBorderBrush" Color="#FFABADB3" />
         <SolidColorBrush x:Key="AppAccentBrush" Color="#FF0078D4" />
+        <SolidColorBrush x:Key="AppHoverBrush" Color="#FFE8F2FB" />
+        <SolidColorBrush x:Key="AppPressedBrush" Color="#FFD5E8F7" />
+        <SolidColorBrush x:Key="AppDisabledForegroundBrush" Color="#FF777777" />
 
         <DataTemplate x:Key="GroupBoxHeaderTemplate">
             <TextBlock Text="{Binding}" Margin="1,2" Padding="0,2" Foreground="{DynamicResource AppForegroundBrush}" />
@@ -26,7 +29,11 @@
         <Style TargetType="{x:Type Label}"><Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" /></Style>
         <Style TargetType="{x:Type CheckBox}"><Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" /></Style>
         <Style TargetType="{x:Type RadioButton}"><Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" /></Style>
-        <Style TargetType="{x:Type GroupBox}"><Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" /></Style>
+        <Style TargetType="{x:Type GroupBox}">
+            <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+        </Style>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
             <Setter Property="Background" Value="{DynamicResource AppControlBrush}" />
@@ -42,20 +49,132 @@
             <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
             <Setter Property="Background" Value="{DynamicResource AppControlBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="7,2,26,2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid SnapsToDevicePixels="True">
+                            <Border x:Name="ComboBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="1" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
+                            <Border HorizontalAlignment="Right" Width="25"
+                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,0,0,0"
+                                    Background="{DynamicResource AppControlBrush}" IsHitTestVisible="False">
+                                <Path Width="8" Height="5" Stretch="Fill"
+                                      Fill="{DynamicResource AppForegroundBrush}"
+                                      Data="M 0 0 L 8 0 L 4 5 Z"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ToggleButton Focusable="False" ClickMode="Press"
+                                          Background="Transparent" BorderThickness="0"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="PART_Popup" Placement="Bottom"
+                                   AllowsTransparency="True" Focusable="False"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource AppPanelBrush}"
+                                        BorderBrush="{DynamicResource AppBorderBrush}"
+                                        BorderThickness="1" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ScrollViewer MaxHeight="300" CanContentScroll="True">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ComboBorder" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.58" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="Padding" Value="7,4" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource AppAccentBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource AppDisabledForegroundBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <Style TargetType="{x:Type ListBox}">
             <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
             <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
         </Style>
-        <Style TargetType="{x:Type TabControl}"><Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" /></Style>
-        <Style TargetType="{x:Type TabItem}"><Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" /></Style>
+        <Style TargetType="{x:Type TabControl}">
+            <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+        </Style>
+        <Style TargetType="{x:Type TabItem}">
+            <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppControlBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{DynamicResource AppDisabledForegroundBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="{x:Type wpft:IntegerUpDown}">
             <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
             <Setter Property="Background" Value="{DynamicResource AppControlBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
         </Style>
         <Style TargetType="{x:Type wpft:DoubleUpDown}">
+            <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppControlBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+        </Style>
+        <Style TargetType="{x:Type wpft:ColorPicker}">
             <Setter Property="Foreground" Value="{DynamicResource AppForegroundBrush}" />
             <Setter Property="Background" Value="{DynamicResource AppControlBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
@@ -224,7 +343,7 @@
                               Content="Disable Toast" Checked="ToastEnabledState_Changed" Unchecked="ToastEnabledState_Changed" />
 
                     <TabControl x:Name="ToastOptionsTabControl" TabStripPlacement="Left" Margin="6,52,6,10">
-                        <TabControl.Resources><Style TargetType="TabItem"><Setter Property="Padding" Value="7,4,11,4" /></Style></TabControl.Resources>
+                        <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}"><Setter Property="Padding" Value="7,4,11,4" /></Style></TabControl.Resources>
 
                         <TabItem Header="General" x:Name="ToastGeneralTab">
                             <Grid Margin="10">
@@ -235,7 +354,8 @@
                                     <StackPanel>
                                         <CheckBox x:Name="CbOnlyShowToastOnHotkey" Height="24" Content="Only Show Toast when Hotkey is pressed" />
                                         <CheckBox x:Name="CbDisableToastFullscreen" Height="24" Content="Disable Toast when a fullscreen app is running" />
-                                        <CheckBox x:Name="CbShowSongProgressBar" Height="24" IsEnabled="False" Content="Show song progress bar" />
+                                        <CheckBox x:Name="CbShowSongProgressBar" Height="24" Content="Show song progress bar" />
+                                        <CheckBox x:Name="CbShowSongDuration" Height="24" Content="Show song time / duration" />
                                         <Grid Margin="0,10,0,0">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="135"/><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                             <TextBlock VerticalAlignment="Center" Text="Display Time:" />
@@ -388,11 +508,10 @@
                             <Grid Margin="12">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="270"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="270"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <TextBlock x:Name="ToastThemePresetLabel" VerticalAlignment="Center" Text="Theme preset:" />
                                     <ComboBox x:Name="ToastThemePresetComboBox" Grid.Column="1" Height="27" SelectionChanged="ToastThemePreset_SelectionChanged" />
-                                    <Button x:Name="ApplyToastThemeButton" Grid.Column="2" Margin="10,0,0,0" Padding="12,4" Content="Apply preset" Click="ApplyToastTheme_Click" />
-                                    <Button Grid.Column="3" Margin="8,0,0,0" Padding="12,4" Content="Test Toast" Click="TestToast_Click" />
+                                    <Button Grid.Column="2" Margin="10,0,0,0" Padding="12,4" Content="Test Toast" Click="TestToast_Click" />
                                 </Grid>
 
                                 <Grid Grid.Row="1" Margin="0,18,0,14">
@@ -440,7 +559,10 @@
                                 <GroupBox Header="Animation" Padding="12" Margin="0,0,10,0">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions><RowDefinition Height="38"/><RowDefinition Height="38"/><RowDefinition Height="38"/><RowDefinition Height="38"/><RowDefinition Height="38"/></Grid.RowDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="36"/><RowDefinition Height="36"/><RowDefinition Height="36"/>
+                                            <RowDefinition Height="36"/><RowDefinition Height="36"/><RowDefinition Height="36"/><RowDefinition Height="36"/>
+                                        </Grid.RowDefinitions>
                                         <TextBlock x:Name="AnimationStyleLabel" VerticalAlignment="Center" Text="Animation style:" />
                                         <ComboBox x:Name="ToastAnimationStyleComboBox" Grid.Column="1" Grid.ColumnSpan="2" Height="27" SelectionChanged="ToastAnimationStyle_SelectionChanged">
                                             <ComboBoxItem Content="Fade" />
@@ -448,22 +570,38 @@
                                             <ComboBoxItem Content="Fade + Slide" />
                                             <ComboBoxItem Content="None" />
                                         </ComboBox>
-                                        <TextBlock x:Name="AnimationDirectionLabel" Grid.Row="1" VerticalAlignment="Center" Text="Slide direction:" />
-                                        <ComboBox x:Name="ToastAnimationDirectionComboBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Height="27">
+
+                                        <TextBlock x:Name="SlideInDirectionLabel" Grid.Row="1" VerticalAlignment="Center" Text="Slide in direction:" />
+                                        <ComboBox x:Name="ToastSlideInDirectionComboBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Height="27">
                                             <ComboBoxItem Content="Up" />
                                             <ComboBoxItem Content="Down" />
                                             <ComboBoxItem Content="Left" />
                                             <ComboBoxItem Content="Right" />
                                         </ComboBox>
-                                        <TextBlock x:Name="FadeInLabel" Grid.Row="2" VerticalAlignment="Center" Text="Fade / enter time:" />
-                                        <wpft:IntegerUpDown x:Name="FadeInUpDown" Grid.Row="2" Grid.Column="1" Height="24" Minimum="0" Maximum="5000" Increment="50" Value="250" />
-                                        <TextBlock Grid.Row="2" Grid.Column="2" Margin="6,0,0,0" VerticalAlignment="Center" Text="ms" />
-                                        <TextBlock x:Name="FadeOutLabel" Grid.Row="3" VerticalAlignment="Center" Text="Fade / exit time:" />
-                                        <wpft:IntegerUpDown x:Name="FadeOutUpDown" Grid.Row="3" Grid.Column="1" Height="24" Minimum="0" Maximum="5000" Increment="50" Value="250" />
+
+                                        <TextBlock x:Name="SlideOutDirectionLabel" Grid.Row="2" VerticalAlignment="Center" Text="Slide out direction:" />
+                                        <ComboBox x:Name="ToastSlideOutDirectionComboBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Height="27">
+                                            <ComboBoxItem Content="Up" />
+                                            <ComboBoxItem Content="Down" />
+                                            <ComboBoxItem Content="Left" />
+                                            <ComboBoxItem Content="Right" />
+                                        </ComboBox>
+
+                                        <TextBlock x:Name="FadeInLabel" Grid.Row="3" VerticalAlignment="Center" Text="Fade / enter time:" />
+                                        <wpft:IntegerUpDown x:Name="FadeInUpDown" Grid.Row="3" Grid.Column="1" Height="24" Minimum="0" Maximum="5000" Increment="50" Value="250" />
                                         <TextBlock Grid.Row="3" Grid.Column="2" Margin="6,0,0,0" VerticalAlignment="Center" Text="ms" />
-                                        <TextBlock x:Name="SlideDistanceLabel" Grid.Row="4" VerticalAlignment="Center" Text="Slide distance:" />
-                                        <wpft:DoubleUpDown x:Name="ToastSlideDistanceUpDown" Grid.Row="4" Grid.Column="1" Height="24" Minimum="0" Maximum="300" Increment="2" Value="28" FormatString="F0" />
-                                        <TextBlock Grid.Row="4" Grid.Column="2" Margin="6,0,0,0" VerticalAlignment="Center" Text="px" />
+
+                                        <TextBlock x:Name="FadeOutLabel" Grid.Row="4" VerticalAlignment="Center" Text="Fade / exit time:" />
+                                        <wpft:IntegerUpDown x:Name="FadeOutUpDown" Grid.Row="4" Grid.Column="1" Height="24" Minimum="0" Maximum="5000" Increment="50" Value="250" />
+                                        <TextBlock Grid.Row="4" Grid.Column="2" Margin="6,0,0,0" VerticalAlignment="Center" Text="ms" />
+
+                                        <TextBlock x:Name="SlideInDistanceLabel" Grid.Row="5" VerticalAlignment="Center" Text="Slide in distance:" />
+                                        <wpft:DoubleUpDown x:Name="ToastSlideInDistanceUpDown" Grid.Row="5" Grid.Column="1" Height="24" Minimum="0" Maximum="300" Increment="2" Value="28" FormatString="F0" />
+                                        <TextBlock Grid.Row="5" Grid.Column="2" Margin="6,0,0,0" VerticalAlignment="Center" Text="px" />
+
+                                        <TextBlock x:Name="SlideOutDistanceLabel" Grid.Row="6" VerticalAlignment="Center" Text="Slide out distance:" />
+                                        <wpft:DoubleUpDown x:Name="ToastSlideOutDistanceUpDown" Grid.Row="6" Grid.Column="1" Height="24" Minimum="0" Maximum="300" Increment="2" Value="28" FormatString="F0" />
+                                        <TextBlock Grid.Row="6" Grid.Column="2" Margin="6,0,0,0" VerticalAlignment="Center" Text="px" />
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox Grid.Column="1" Header="Preview &amp; behaviour" Padding="14" Margin="10,0,0,0">
@@ -471,7 +609,7 @@
                                         <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource InfoTextColorBrush}"
                                                    Text="Fade keeps the classic dissolve. Slide moves the toast in and out. Fade + Slide combines both effects. None shows and hides immediately." />
                                         <TextBlock Margin="0,16,0,0" TextWrapping="Wrap" Foreground="{DynamicResource InfoTextColorBrush}"
-                                                   Text="Enter/exit time is shared with Fade In/Fade Out so existing configurations remain compatible. Display Time is still the fully-visible duration between the two animations." />
+                                                   Text="Slide In and Slide Out can use different directions and distances. Fade In/Fade Out keep independent timing. Display Time is still the fully-visible duration between the two animations." />
                                         <Button Margin="0,24,0,0" Width="120" HorizontalAlignment="Left" Padding="10,5" Content="Test Toast" Click="TestToast_Click" />
                                     </StackPanel>
                                 </GroupBox>

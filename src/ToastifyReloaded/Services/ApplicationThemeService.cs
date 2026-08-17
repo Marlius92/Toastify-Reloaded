@@ -40,6 +40,9 @@ public static class ApplicationThemeService
                 Secondary: "#FFB8B8B8",
                 Border: "#FF4A4A4A",
                 Accent: "#FF3D6E9E",
+                Hover: "#FF3A3A3A",
+                Pressed: "#FF444444",
+                DisabledForeground: "#FF8D8D8D",
                 HighlightText: "#FFFFFFFF")
             : new Palette(
                 Background: "#FFF0F0F0",
@@ -49,9 +52,33 @@ public static class ApplicationThemeService
                 Secondary: "#FF575757",
                 Border: "#FFABADB3",
                 Accent: "#FF0078D4",
+                Hover: "#FFE8F2FB",
+                Pressed: "#FFD5E8F7",
+                DisabledForeground: "#FF777777",
                 HighlightText: "#FFFFFFFF");
 
-        var resources = window.Resources;
+        // Apply the palette both locally and at application scope. Some native
+        // WPF templates resolve SystemColors from Application resources when they
+        // are first materialized, so updating only Window.Resources left white
+        // TabControl/ComboBox surfaces behind in Dark mode.
+        ApplyPalette(window.Resources, palette, dark);
+        if (Application.Current is not null)
+            ApplyPalette(Application.Current.Resources, palette, dark);
+
+        window.Tag = resolved;
+        window.Background = (WpfBrush)window.Resources["AppBackgroundBrush"];
+        window.Foreground = (WpfBrush)window.Resources["AppForegroundBrush"];
+
+        ApplyExplicitSurfaces(window, palette);
+
+        var handle = new WindowInteropHelper(window).Handle;
+        if (handle != IntPtr.Zero)
+            TrySetDarkTitleBar(handle, dark);
+    }
+
+
+    private static void ApplyPalette(ResourceDictionary resources, Palette palette, bool dark)
+    {
         resources["AppBackgroundBrush"] = Brush(palette.Background);
         resources["AppPanelBrush"] = Brush(palette.Panel);
         resources["AppControlBrush"] = Brush(palette.Control);
@@ -59,25 +86,66 @@ public static class ApplicationThemeService
         resources["InfoTextColorBrush"] = Brush(palette.Secondary);
         resources["AppBorderBrush"] = Brush(palette.Border);
         resources["AppAccentBrush"] = Brush(palette.Accent);
+        resources["AppHoverBrush"] = Brush(palette.Hover);
+        resources["AppPressedBrush"] = Brush(palette.Pressed);
+        resources["AppDisabledForegroundBrush"] = Brush(palette.DisabledForeground);
 
-        // Override the system brush keys locally so native WPF templates also
-        // become readable in Dark mode without replacing the historical control templates.
         resources[WpfSystemColors.WindowBrushKey] = Brush(palette.Panel);
         resources[WpfSystemColors.WindowTextBrushKey] = Brush(palette.Foreground);
         resources[WpfSystemColors.ControlBrushKey] = Brush(palette.Control);
         resources[WpfSystemColors.ControlTextBrushKey] = Brush(palette.Foreground);
-        resources[WpfSystemColors.GrayTextBrushKey] = Brush(dark ? "#FF8B8B8B" : "#FF6D6D6D");
+        resources[WpfSystemColors.GrayTextBrushKey] = Brush(palette.DisabledForeground);
         resources[WpfSystemColors.HighlightBrushKey] = Brush(palette.Accent);
         resources[WpfSystemColors.HighlightTextBrushKey] = Brush(palette.HighlightText);
         resources[WpfSystemColors.InactiveSelectionHighlightBrushKey] = Brush(dark ? "#FF3B4C5E" : "#FFD6E9F8");
         resources[WpfSystemColors.InactiveSelectionHighlightTextBrushKey] = Brush(palette.Foreground);
+    }
 
-        window.Background = (WpfBrush)resources["AppBackgroundBrush"];
-        window.Foreground = (WpfBrush)resources["AppForegroundBrush"];
+    private static void ApplyExplicitSurfaces(DependencyObject root, Palette palette)
+    {
+        var panel = Brush(palette.Panel);
+        var control = Brush(palette.Control);
+        var foreground = Brush(palette.Foreground);
+        var border = Brush(palette.Border);
 
-        var handle = new WindowInteropHelper(window).Handle;
-        if (handle != IntPtr.Zero)
-            TrySetDarkTitleBar(handle, dark);
+        void Walk(DependencyObject node)
+        {
+            switch (node)
+            {
+                case System.Windows.Controls.TabControl tabControl:
+                    tabControl.Background = panel;
+                    tabControl.Foreground = foreground;
+                    tabControl.BorderBrush = border;
+                    break;
+                case System.Windows.Controls.GroupBox groupBox:
+                    groupBox.Background = panel;
+                    groupBox.Foreground = foreground;
+                    groupBox.BorderBrush = border;
+                    break;
+                case System.Windows.Controls.ComboBox comboBox:
+                    comboBox.Background = control;
+                    comboBox.Foreground = foreground;
+                    comboBox.BorderBrush = border;
+                    break;
+                case System.Windows.Controls.TextBox textBox:
+                    textBox.Background = control;
+                    textBox.Foreground = foreground;
+                    textBox.BorderBrush = border;
+                    textBox.CaretBrush = foreground;
+                    break;
+                case System.Windows.Controls.ListBox listBox:
+                    listBox.Background = panel;
+                    listBox.Foreground = foreground;
+                    listBox.BorderBrush = border;
+                    break;
+            }
+
+            var count = VisualTreeHelper.GetChildrenCount(node);
+            for (var i = 0; i < count; i++)
+                Walk(VisualTreeHelper.GetChild(node, i));
+        }
+
+        Walk(root);
     }
 
     public static bool IsWindowsAppThemeDark()
@@ -132,5 +200,8 @@ public static class ApplicationThemeService
         string Secondary,
         string Border,
         string Accent,
+        string Hover,
+        string Pressed,
+        string DisabledForeground,
         string HighlightText);
 }
