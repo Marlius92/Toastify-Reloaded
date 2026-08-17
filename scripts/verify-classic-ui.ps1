@@ -24,7 +24,7 @@ function Require-Text([string]$Content, [string]$Needle, [string]$Description) {
 }
 
 # v1.3.0 deliberately expands the historical shell to avoid visible scrollbars.
-Require-Text $main 'Height="760" Width="1000" ResizeMode="NoResize"' 'expanded DPI-safe fixed-size settings window'
+Require-Text $main 'Height="700" Width="1120" ResizeMode="NoResize"' 'wide compact fixed-size settings window'
 Require-Text $main '<TabItem Header="General" x:Name="General"' 'historical General tab'
 Require-Text $main '<TabItem Header="Hotkeys" x:Name="Hotkeys"' 'historical Hotkeys tab'
 Require-Text $main '<TabItem Header="Toast" x:Name="TabToast"' 'historical Toast tab'
@@ -111,4 +111,7 @@ foreach ($text in $forbidden) {
     if ($main.Contains($text)) { throw "UI contract failed: old Reloaded dashboard text reintroduced: $text" }
 }
 
-Write-Host 'Toastify Reloaded v1.3.3 UI + localization contract: PASS'
+Require-Text $main '<Grid.ColumnDefinitions><ColumnDefinition Width="0.9*"/><ColumnDefinition Width="1.1*"/></Grid.ColumnDefinitions>' 'adaptive artwork section receives extra horizontal room'
+Require-Text $main '<ColumnDefinition Width="110"/><ColumnDefinition Width="90"/><ColumnDefinition Width="125"/><ColumnDefinition Width="90"/>' 'localized adaptive width controls have enough horizontal space'
+
+Write-Host 'Toastify Reloaded v1.3.4 UI + localization contract: PASS'

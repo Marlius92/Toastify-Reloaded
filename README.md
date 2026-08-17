@@ -24,7 +24,7 @@ The project keeps the recognizable Toastify workflow and notification style whil
 
 > **Independent community project.** Toastify Reloaded is not affiliated with Spotify AB and is not an official release maintained by the original Toastify developers.
 
-**Current documented feature set: v1.3.2.**
+**Current documented feature set: v1.3.4.**
 
 ---
 
@@ -40,6 +40,107 @@ Windows installer packages are provided for:
 - **Windows ARM64** — `ToastifyReloaded-Setup-win-arm64.exe`
 
 Toastify Reloaded installs as a normal Windows application, with Start-menu integration, Installed Apps registration, uninstall support and in-place updates.
+
+---
+
+# What's new in v1.3.4
+
+Version **1.3.4** refines the enlarged Settings interface introduced in the previous releases.
+
+### Wider, shorter Settings window
+
+The fixed Settings shell is now:
+
+```text
+1120 × 700
+```
+
+Compared with the v1.3.3 `1000 × 760` shell, this revision uses more horizontal space and less vertical space.
+
+The result is a more balanced desktop layout, especially on the Toast pages where translated labels and numeric controls need additional width.
+
+### Better spacing for adaptive toast controls
+
+The **Toast → General → Adaptive size & artwork** section now gives dedicated room to:
+
+- minimum toast width;
+- maximum toast width;
+- localized labels such as **Larghezza min** and **Larghezza max**;
+- the corresponding numeric controls;
+- a slightly wider Adaptive size & artwork panel than the Behaviour panel.
+
+This prevents the maximum-width label from sitting directly against the `600` field in the Italian interface.
+
+### No return of page scrollbars
+
+The application remains a fixed-layout desktop UI. The v1.3.4 geometry is designed to keep the main settings pages fully visible without depending on user-facing scrollbars.
+
+---
+
+# What's new in v1.3.3
+
+Version **1.3.3** focuses on readability, localization and layout stability across the enlarged Reloaded interface.
+
+### Larger Settings window
+
+The fixed Settings window was expanded in v1.3.3 to:
+
+```text
+1000 × 760
+```
+
+It is refined again in **v1.3.4** to a wider and shorter `1120 × 700` layout.
+
+This provides additional horizontal and vertical room for the growing Toastify Reloaded feature set without bringing back unnecessary scrollbars.
+
+The larger layout specifically improves:
+
+- **Toast → General**
+- **Toast → Colors & Font**
+- **Toast → Themes**
+- **Toast → Animations**
+- **Toast → Position**
+- **Advanced**
+- **Reloaded**
+
+Controls such as minimum / maximum toast width, border-radius fields, color pickers and advanced diagnostics no longer need to be compressed into the historical 580-pixel-wide layout.
+
+### Full English / Italian localization
+
+Localization now applies to substantially more than the top-level tab names.
+
+The selected interface language is applied to:
+
+- top-level tabs;
+- Toast sub-tabs;
+- group-box titles;
+- buttons;
+- check boxes;
+- labels;
+- explanatory text;
+- animation settings;
+- positioning controls;
+- import / export settings;
+- diagnostics and compatibility text;
+- Reloaded maintenance controls;
+- tray-related labels where supported.
+
+The language infrastructure remains designed so additional interface languages can be added later.
+
+### Selected-tab readability
+
+The Light and Dark application themes now explicitly style the active tab state.
+
+This fixes cases where a selected tab used a light background together with a light foreground, making labels such as **Advanced**, **Colors & Font** or other selected tabs difficult or impossible to read.
+
+The active tab now remains readable in both:
+
+- **Light**
+- **Dark**
+
+### Layout validation
+
+The historical-UI verification checks were updated for the enlarged v1.3.3 shell and localization layer, while still protecting the recognizable Toastify tab structure and toast geometry.
 
 ---
 
@@ -139,13 +240,13 @@ Version **1.3.0** is the largest Reloaded UI and customization update so far.
 
 ### Application interface
 
-- Larger fixed Settings window to prevent crowded controls and unnecessary scrollbars.
+- Larger fixed Settings window to prevent crowded controls and unnecessary scrollbars; expanded further to **1000 × 760** in v1.3.3.
 - **Light** application theme.
 - **Dark** application theme.
 - **Follow Windows** theme mode.
 - Dark title-bar integration where supported by Windows.
 - DPI-safe layouts.
-- English and Italian localization infrastructure.
+- English and Italian localization infrastructure, expanded to much broader interface coverage in v1.3.3.
 
 ### Toast customization
 
@@ -390,6 +491,23 @@ Available application modes:
 
 This keeps the historical Toastify appearance available while allowing a modern dark interface.
 
+The current v1.3.4 Settings shell uses a fixed **1120 × 700** layout to provide more horizontal room while reducing the vertical footprint in both Light and Dark themes.
+
+---
+
+# Interface localization
+
+Toastify Reloaded currently includes:
+
+- **English**
+- **Italiano**
+
+Starting with **v1.3.3**, localization covers the main static interface rather than only the top-level navigation labels.
+
+Changing the language updates the text used throughout the Settings interface while leaving saved toast colors, hotkeys, themes and playback behavior unchanged.
+
+The localization service is structured so more languages can be added without redesigning the application.
+
 ---
 
 # Lyrics Plus
@@ -516,6 +634,9 @@ Network access is mainly used for update checks and components such as Spicetify
 | Light interface | Supported |
 | Dark interface | Supported |
 | Follow Windows theme | Supported |
+| English interface | Supported |
+| Italian interface | Supported |
+| Wide 1120×700 Settings UI | Supported |
 | Spicetify / Lyrics Plus | Supported when compatible with the installed Spotify build |
 
 Very new Spotify versions may temporarily require a newer Spicetify release before injected UI modifications can be restored.
@@ -546,7 +667,7 @@ Its goal is to keep the classic application recognizable while replacing obsolet
 
 # Completed roadmap
 
-## Completed before / through v1.3.2
+## Completed before / through v1.3.4
 
 - [x] Historical Toastify-style interface
 - [x] Global hotkeys independent of the focused window
@@ -576,6 +697,12 @@ Its goal is to keep the classic application recognizable while replacing obsolet
 - [x] Live song progress-bar timeline
 - [x] Independent Slide In / Slide Out directions
 - [x] Independent Slide In / Slide Out distances
+- [x] Enlarged 1000×760 Settings window
+- [x] Broader full-interface English / Italian localization
+- [x] Selected-tab readability in Light and Dark themes
+- [x] Layout fixes for clipped Toast controls
+- [x] Wider 1120×700 compact Settings shell
+- [x] Extra spacing for localized minimum / maximum toast-width controls
 
 ---
 
@@ -583,7 +710,7 @@ Its goal is to keep the classic application recognizable while replacing obsolet
 
 - [ ] User-created toast presets that can be saved and shared
 - [ ] Import / export individual toast themes
-- [ ] Additional interface languages
+- [ ] Additional interface languages beyond English and Italian
 - [ ] More animation styles and easing curves
 - [ ] Per-monitor toast profiles
 - [ ] More accessibility and keyboard-navigation options
@@ -609,6 +736,9 @@ When opening an Issue, useful information includes:
 - whether song progress and song duration are enabled when the issue concerns the toast timeline
 - Compatibility Guard status
 - screenshots when the issue is visual
+- selected interface language when the issue concerns localization
+- Windows display scaling / DPI when the issue concerns clipped or misaligned controls
+- whether the issue is visible at the default 1120×700 Settings size
 
 Please avoid posting passwords, tokens or other private information.
 

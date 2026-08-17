@@ -4,7 +4,7 @@
         xmlns:wpft="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:svc="clr-namespace:ToastifyReloaded.Services"
         Title="Toastify Reloaded - Settings"
-        Height="760" Width="1000" ResizeMode="NoResize"
+        Height="700" Width="1120" ResizeMode="NoResize"
         Background="{DynamicResource AppBackgroundBrush}"
         Foreground="{DynamicResource AppForegroundBrush}"
         Icon="Resources/ToastifyIcon.ico" Activated="MainWindow_Activated">
@@ -372,7 +372,7 @@
 
                         <TabItem Header="General" x:Name="ToastGeneralTab">
                             <Grid Margin="10">
-                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="0.9*"/><ColumnDefinition Width="1.1*"/></Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
 
                                 <GroupBox Header="Behaviour" Padding="10" Margin="0,0,8,8">
@@ -402,10 +402,10 @@
                                     <StackPanel>
                                         <CheckBox x:Name="CbToastAutoWidth" Height="24" Content="Automatically resize Toast to Track / Artist" />
                                         <Grid Margin="22,5,0,0" IsEnabled="{Binding IsChecked, ElementName=CbToastAutoWidth}">
-                                            <Grid.ColumnDefinitions><ColumnDefinition Width="85"/><ColumnDefinition Width="75"/><ColumnDefinition Width="85"/><ColumnDefinition Width="75"/></Grid.ColumnDefinitions>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="90"/><ColumnDefinition Width="125"/><ColumnDefinition Width="90"/></Grid.ColumnDefinitions>
                                             <TextBlock VerticalAlignment="Center" Text="Min width:" />
                                             <wpft:DoubleUpDown x:Name="ToastMinWidthUpDown" Grid.Column="1" Height="24" Minimum="150" Maximum="1000" Increment="10" DefaultValue="250" Value="250" FormatString="F0" />
-                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0" Text="Max width:" />
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="12,0,0,0" Text="Max width:" />
                                             <wpft:DoubleUpDown x:Name="ToastMaxWidthUpDown" Grid.Column="3" Height="24" Minimum="150" Maximum="1600" Increment="10" DefaultValue="600" Value="600" FormatString="F0" />
                                         </Grid>
                                         <Grid Margin="0,14,0,0">

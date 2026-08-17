@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.4
+
+### Wider, shorter Settings layout
+- Refined the v1.3.3 Settings shell from 1000 × 760 to **1120 × 700**.
+- Reduced unnecessary vertical footprint while adding horizontal breathing room for translated labels and wider controls.
+- Expanded the adaptive Toast width grid and gives its right-hand panel extra horizontal space so Italian labels such as **Larghezza min** / **Larghezza max** no longer sit against or clip into the numeric controls.
+- Preserved the fixed-size, no-user-scrollbar design and the existing Light/Dark tab structure.
+- Kept all v1.3.3 localization and selected-tab readability fixes.
+
+
 ## 1.3.3
 
 ### Localization, dark tabs and layout
