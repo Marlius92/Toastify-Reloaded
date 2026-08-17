@@ -57,18 +57,18 @@ public static class ApplicationThemeService
 
         // Override the system brush keys locally so native WPF templates also
         // become readable in Dark mode without replacing the historical control templates.
-        resources[SystemColors.WindowBrushKey] = Brush(palette.Panel);
-        resources[SystemColors.WindowTextBrushKey] = Brush(palette.Foreground);
-        resources[SystemColors.ControlBrushKey] = Brush(palette.Control);
-        resources[SystemColors.ControlTextBrushKey] = Brush(palette.Foreground);
-        resources[SystemColors.GrayTextBrushKey] = Brush(dark ? "#FF8B8B8B" : "#FF6D6D6D");
-        resources[SystemColors.HighlightBrushKey] = Brush(palette.Accent);
-        resources[SystemColors.HighlightTextBrushKey] = Brush(palette.HighlightText);
-        resources[SystemColors.InactiveSelectionHighlightBrushKey] = Brush(dark ? "#FF3B4C5E" : "#FFD6E9F8");
-        resources[SystemColors.InactiveSelectionHighlightTextBrushKey] = Brush(palette.Foreground);
+        resources[System.Windows.SystemColors.WindowBrushKey] = Brush(palette.Panel);
+        resources[System.Windows.SystemColors.WindowTextBrushKey] = Brush(palette.Foreground);
+        resources[System.Windows.SystemColors.ControlBrushKey] = Brush(palette.Control);
+        resources[System.Windows.SystemColors.ControlTextBrushKey] = Brush(palette.Foreground);
+        resources[System.Windows.SystemColors.GrayTextBrushKey] = Brush(dark ? "#FF8B8B8B" : "#FF6D6D6D");
+        resources[System.Windows.SystemColors.HighlightBrushKey] = Brush(palette.Accent);
+        resources[System.Windows.SystemColors.HighlightTextBrushKey] = Brush(palette.HighlightText);
+        resources[System.Windows.SystemColors.InactiveSelectionHighlightBrushKey] = Brush(dark ? "#FF3B4C5E" : "#FFD6E9F8");
+        resources[System.Windows.SystemColors.InactiveSelectionHighlightTextBrushKey] = Brush(palette.Foreground);
 
-        window.Background = (Brush)resources["AppBackgroundBrush"];
-        window.Foreground = (Brush)resources["AppForegroundBrush"];
+        window.Background = (System.Windows.Media.Brush)resources["AppBackgroundBrush"];
+        window.Foreground = (System.Windows.Media.Brush)resources["AppForegroundBrush"];
 
         var handle = new WindowInteropHelper(window).Handle;
         if (handle != IntPtr.Zero)
@@ -92,7 +92,7 @@ public static class ApplicationThemeService
 
     private static SolidColorBrush Brush(string hex)
     {
-        var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)!);
+        var brush = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex)!);
         brush.Freeze();
         return brush;
     }

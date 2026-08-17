@@ -308,7 +308,7 @@ public partial class MainWindow
         try
         {
             var report = await BuildDiagnosticReportAsync();
-            Clipboard.SetText(report);
+            System.Windows.Clipboard.SetText(report);
             System.Windows.MessageBox.Show("Diagnostic report copied to the clipboard.", "Toastify Reloaded", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
