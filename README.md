@@ -53,32 +53,32 @@ They show the real application interface rather than promotional mockups.
 
 | General | Hotkeys |
 |---|---|
-| ![General](assets/readme/app/app-01-generale.png) | ![Hotkeys](assets/readme/app/app-02-hotkeys.png) |
+| ![General](assets/readme/app-01-generale.png) | ![Hotkeys](assets/readme/app-02-hotkeys.png) |
 
 ### Toast settings
 
 | General | Colors & Font |
 |---|---|
-| ![Toast General](assets/readme/app/app-03-toast-generale.png) | ![Toast Colors and Font](assets/readme/app/app-04-toast-colori-font.png) |
+| ![Toast General](assets/readme/app-03-toast-generale.png) | ![Toast Colors and Font](assets/readme/app-04-toast-colori-font.png) |
 
 | Themes | Animations |
 |---|---|
-| ![Toast Themes](assets/readme/app/app-05-toast-temi.png) | ![Toast Animations](assets/readme/app/app-06-toast-animazioni.png) |
+| ![Toast Themes](assets/readme/app-05-toast-temi.png) | ![Toast Animations](assets/readme/app-06-toast-animazioni.png) |
 
 | Position | Advanced |
 |---|---|
-| ![Toast Position](assets/readme/app/app-07-toast-posizione.png) | ![Advanced](assets/readme/app/app-08-avanzate.png) |
+| ![Toast Position](assets/readme/app-07-toast-posizione.png) | ![Advanced](assets/readme/app-08-avanzate.png) |
 
 ### Reloaded & Light Theme
 
 | Reloaded | Light Theme |
 |---|---|
-| ![Reloaded](assets/readme/app/app-09-reloaded.png) | ![Light Theme](assets/readme/app/app-10-light-theme.png) |
+| ![Reloaded](assets/readme/app-09-reloaded.png) | ![Light Theme](assets/readme/app-10-light-theme.png) |
 
 ### Toast notification
 
 <p align="center">
-  <img src="assets/readme/app/app-11-toast-popup.png" alt="Toastify Reloaded toast notification" width="650">
+  <img src="assets/readme/app-11-toast-popup.png" alt="Toastify Reloaded toast notification" width="650">
 </p>
 
 ---
