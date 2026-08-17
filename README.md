@@ -43,6 +43,46 @@ Toastify Reloaded installs as a normal Windows application, with Start-menu inte
 
 ---
 
+# Application screenshots
+
+These screenshots are captured directly from **Toastify Reloaded v1.3.4** running on Windows.
+
+They show the real application interface rather than promotional mockups.
+
+### Main settings
+
+| General | Hotkeys |
+|---|---|
+| ![General](assets/readme/app/app-01-generale.png) | ![Hotkeys](assets/readme/app/app-02-hotkeys.png) |
+
+### Toast settings
+
+| General | Colors & Font |
+|---|---|
+| ![Toast General](assets/readme/app/app-03-toast-generale.png) | ![Toast Colors and Font](assets/readme/app/app-04-toast-colori-font.png) |
+
+| Themes | Animations |
+|---|---|
+| ![Toast Themes](assets/readme/app/app-05-toast-temi.png) | ![Toast Animations](assets/readme/app/app-06-toast-animazioni.png) |
+
+| Position | Advanced |
+|---|---|
+| ![Toast Position](assets/readme/app/app-07-toast-posizione.png) | ![Advanced](assets/readme/app/app-08-avanzate.png) |
+
+### Reloaded & Light Theme
+
+| Reloaded | Light Theme |
+|---|---|
+| ![Reloaded](assets/readme/app/app-09-reloaded.png) | ![Light Theme](assets/readme/app/app-10-light-theme.png) |
+
+### Toast notification
+
+<p align="center">
+  <img src="assets/readme/app/app-11-toast-popup.png" alt="Toastify Reloaded toast notification" width="650">
+</p>
+
+---
+
 # What's new in v1.3.4
 
 Version **1.3.4** refines the enlarged Settings interface introduced in the previous releases.
