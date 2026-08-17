@@ -14,6 +14,12 @@ public sealed class AppSettings
     public bool GlobalHotkeysEnabled { get; set; } = true;
     public bool OptInToAnalytics { get; set; }
 
+    // Application appearance. Light remains the historical/default look.
+    // Light | Dark | System
+    public string ApplicationTheme { get; set; } = "Light";
+    // English | Italian
+    public string ApplicationLanguage { get; set; } = "English";
+
     // Toast settings. Defaults reproduce the Toastify 1.11.2 popup geometry.
     public bool ShowToastOnTrackChange { get; set; } = true;
     public bool OnlyShowToastOnHotkey { get; set; }
@@ -22,9 +28,16 @@ public sealed class AppSettings
     public int ToastDurationMs { get; set; } = 3500;
     public int ToastFadeInMs { get; set; } = 250;
     public int ToastFadeOutMs { get; set; } = 250;
+    // Fade | Slide | FadeSlide | None
+    public string ToastAnimationStyle { get; set; } = "Fade";
+    // Up | Down | Left | Right
+    public string ToastAnimationDirection { get; set; } = "Up";
+    public double ToastSlideDistance { get; set; } = 28;
+
     public string ToastTitlesOrder { get; set; } = "TrackArtist";
     public double ToastWidth { get; set; } = 250;
     public double ToastHeight { get; set; } = 70;
+
     // Reloaded additions: adaptive toast width and configurable artwork source.
     public bool ToastAutoWidth { get; set; } = true;
     public double ToastMinWidth { get; set; } = 250;
@@ -32,8 +45,19 @@ public sealed class AppSettings
     // AlbumCover | ToastifyIcon | None
     public string ToastImageMode { get; set; } = "AlbumCover";
     public bool ToastImageFallbackToIcon { get; set; } = true;
+
+    // Positioning. The historical custom coordinates are retained for compatibility.
+    // TopLeft | TopCenter | TopRight | MiddleLeft | Center | MiddleRight |
+    // BottomLeft | BottomCenter | BottomRight | Custom
+    public string ToastPositionPreset { get; set; } = "BottomRight";
+    // -1 = primary monitor; 0..N = Screen.AllScreens index.
+    public int ToastMonitorIndex { get; set; } = -1;
+    public double ToastScreenMargin { get; set; } = 12;
     public double PositionLeft { get; set; } = -1;
     public double PositionTop { get; set; } = -1;
+
+    // Theme preset name. Manual edits are stored as Custom when no preset matches.
+    public string ToastThemePreset { get; set; } = "Classic Toastify";
     public double ToastBorderThickness { get; set; } = 1;
     public double ToastCornerTopLeft { get; set; } = 4;
     public double ToastCornerTopRight { get; set; } = 4;

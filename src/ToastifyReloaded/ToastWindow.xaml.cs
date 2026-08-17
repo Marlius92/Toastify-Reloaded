@@ -1,8 +1,10 @@
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
@@ -12,6 +14,7 @@ using MediaColor = System.Windows.Media.Color;
 using MediaColors = System.Windows.Media.Colors;
 using MediaColorConverter = System.Windows.Media.ColorConverter;
 using ToastifyReloaded.Models;
+using Forms = System.Windows.Forms;
 
 namespace ToastifyReloaded;
 
@@ -20,6 +23,7 @@ public partial class ToastWindow : Window
     private readonly DispatcherTimer _timer;
     private readonly AppSettings _settings;
     private bool _fadeOutStarted;
+    private bool _secondPositionPassScheduled;
 
     public ToastWindow(TrackInfo track, AppSettings settings)
     {
@@ -28,7 +32,7 @@ public partial class ToastWindow : Window
 
         Height = Math.Max(50, settings.ToastHeight);
 
-        if (settings.ToastTitlesOrder.Equals("ArtistTrack", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(settings.ToastTitlesOrder, "ArtistTrack", StringComparison.OrdinalIgnoreCase))
         {
             Title1.Text = track.Artist;
             Title2.Text = track.Title;
@@ -73,36 +77,103 @@ public partial class ToastWindow : Window
         _timer.Tick += (_, _) =>
         {
             _timer.Stop();
-            StartFadeOut();
+            StartExitAnimation();
         };
 
-        Loaded += (_, _) => PositionToast();
+        Loaded += (_, _) =>
+        {
+            PositionToast();
+            ScheduleSecondPositionPass();
+        };
         Closed += (_, _) => _timer.Stop();
     }
 
     public void ShowTimed()
     {
-        var fadeInMs = Math.Clamp(_settings.ToastFadeInMs, 0, 5000);
-        Opacity = fadeInMs > 0 ? 0 : 1;
+        PrepareEnterState();
         Show();
+        StartEnterAnimation();
+    }
 
-        if (fadeInMs == 0)
+    private void PrepareEnterState()
+    {
+        var style = NormalizeAnimationStyle(_settings.ToastAnimationStyle);
+        var fade = style is "Fade" or "FadeSlide";
+        var slide = style is "Slide" or "FadeSlide";
+
+        Opacity = fade ? 0 : 1;
+        var (x, y) = slide ? GetEnterOffset() : (0d, 0d);
+        ToastTranslate.X = x;
+        ToastTranslate.Y = y;
+    }
+
+    private void StartEnterAnimation()
+    {
+        var style = NormalizeAnimationStyle(_settings.ToastAnimationStyle);
+        if (style == "None")
         {
+            Opacity = 1;
+            ToastTranslate.X = 0;
+            ToastTranslate.Y = 0;
             StartDisplayTimer();
             return;
         }
 
-        var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(fadeInMs))
-        {
-            FillBehavior = FillBehavior.Stop
-        };
-        fadeIn.Completed += (_, _) =>
+        var durationMs = Math.Clamp(_settings.ToastFadeInMs, 0, 5000);
+        if (durationMs == 0)
         {
             Opacity = 1;
-            BeginAnimation(OpacityProperty, null);
+            ToastTranslate.X = 0;
+            ToastTranslate.Y = 0;
             StartDisplayTimer();
-        };
-        BeginAnimation(OpacityProperty, fadeIn);
+            return;
+        }
+
+        var fade = style is "Fade" or "FadeSlide";
+        var slide = style is "Slide" or "FadeSlide";
+        var duration = TimeSpan.FromMilliseconds(durationMs);
+        var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
+
+        if (fade)
+        {
+            BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration)
+            {
+                FillBehavior = FillBehavior.HoldEnd,
+                EasingFunction = easing
+            });
+        }
+
+        if (slide)
+        {
+            var (startX, startY) = GetEnterOffset();
+            if (Math.Abs(startX) > 0.001)
+            {
+                ToastTranslate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(startX, 0, duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    EasingFunction = easing
+                });
+            }
+            if (Math.Abs(startY) > 0.001)
+            {
+                ToastTranslate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(startY, 0, duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    EasingFunction = easing
+                });
+            }
+        }
+
+        ScheduleAfter(durationMs, () =>
+        {
+            BeginAnimation(OpacityProperty, null);
+            ToastTranslate.BeginAnimation(TranslateTransform.XProperty, null);
+            ToastTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+            Opacity = 1;
+            ToastTranslate.X = 0;
+            ToastTranslate.Y = 0;
+            StartDisplayTimer();
+        });
     }
 
     private void StartDisplayTimer()
@@ -111,25 +182,114 @@ public partial class ToastWindow : Window
         _timer.Start();
     }
 
-    private void StartFadeOut()
+    private void StartExitAnimation()
     {
         if (_fadeOutStarted)
             return;
 
         _fadeOutStarted = true;
-        var fadeOutMs = Math.Clamp(_settings.ToastFadeOutMs, 0, 5000);
-        if (fadeOutMs == 0)
+        var style = NormalizeAnimationStyle(_settings.ToastAnimationStyle);
+        if (style == "None")
         {
             Close();
             return;
         }
 
-        var fadeOut = new DoubleAnimation(Opacity, 0, TimeSpan.FromMilliseconds(fadeOutMs))
+        var durationMs = Math.Clamp(_settings.ToastFadeOutMs, 0, 5000);
+        if (durationMs == 0)
         {
-            FillBehavior = FillBehavior.Stop
+            Close();
+            return;
+        }
+
+        var fade = style is "Fade" or "FadeSlide";
+        var slide = style is "Slide" or "FadeSlide";
+        var duration = TimeSpan.FromMilliseconds(durationMs);
+        var easing = new CubicEase { EasingMode = EasingMode.EaseIn };
+
+        if (fade)
+        {
+            BeginAnimation(OpacityProperty, new DoubleAnimation(Opacity, 0, duration)
+            {
+                FillBehavior = FillBehavior.HoldEnd,
+                EasingFunction = easing
+            });
+        }
+
+        if (slide)
+        {
+            var (exitX, exitY) = GetExitOffset();
+            if (Math.Abs(exitX) > 0.001)
+            {
+                ToastTranslate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(0, exitX, duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    EasingFunction = easing
+                });
+            }
+            if (Math.Abs(exitY) > 0.001)
+            {
+                ToastTranslate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, exitY, duration)
+                {
+                    FillBehavior = FillBehavior.HoldEnd,
+                    EasingFunction = easing
+                });
+            }
+        }
+
+        ScheduleAfter(durationMs, Close);
+    }
+
+    private (double X, double Y) GetEnterOffset()
+    {
+        var distance = Math.Clamp(_settings.ToastSlideDistance, 0, 300);
+        return NormalizeAnimationDirection(_settings.ToastAnimationDirection) switch
+        {
+            "Down" => (0, -distance),
+            "Left" => (distance, 0),
+            "Right" => (-distance, 0),
+            _ => (0, distance) // Up: enter from below and travel upward.
         };
-        fadeOut.Completed += (_, _) => Close();
-        BeginAnimation(OpacityProperty, fadeOut);
+    }
+
+    private (double X, double Y) GetExitOffset()
+    {
+        var distance = Math.Clamp(_settings.ToastSlideDistance, 0, 300);
+        return NormalizeAnimationDirection(_settings.ToastAnimationDirection) switch
+        {
+            "Down" => (0, distance),
+            "Left" => (-distance, 0),
+            "Right" => (distance, 0),
+            _ => (0, -distance)
+        };
+    }
+
+    private static string NormalizeAnimationStyle(string? value) => value switch
+    {
+        "Slide" => "Slide",
+        "FadeSlide" => "FadeSlide",
+        "None" => "None",
+        _ => "Fade"
+    };
+
+    private static string NormalizeAnimationDirection(string? value) => value switch
+    {
+        "Down" => "Down",
+        "Left" => "Left",
+        "Right" => "Right",
+        _ => "Up"
+    };
+
+    private void ScheduleAfter(int milliseconds, Action action)
+    {
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(Math.Max(1, milliseconds)) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            if (IsLoaded)
+                action();
+        };
+        timer.Start();
     }
 
     private void ApplyArtwork(TrackInfo track)
@@ -237,17 +397,98 @@ public partial class ToastWindow : Window
 
     private void PositionToast()
     {
-        var area = SystemParameters.WorkArea;
-        var left = _settings.PositionLeft;
-        var top = _settings.PositionTop;
+        var preset = string.IsNullOrWhiteSpace(_settings.ToastPositionPreset)
+            ? "BottomRight"
+            : _settings.ToastPositionPreset;
 
-        if (left < area.Left || left + ActualWidth > area.Right)
-            left = area.Right - ActualWidth;
-        if (top < area.Top || top + ActualHeight > area.Bottom)
-            top = area.Bottom - ActualHeight;
+        if (preset.Equals("Custom", StringComparison.OrdinalIgnoreCase) && _settings.ToastMonitorIndex < 0)
+        {
+            // Preserve historical absolute-coordinate behavior when Custom is used without a monitor selection.
+            var area = SystemParameters.WorkArea;
+            var left = _settings.PositionLeft;
+            var top = _settings.PositionTop;
 
-        Left = left;
-        Top = top;
+            if (left < area.Left || left + ActualWidth > area.Right)
+                left = area.Right - ActualWidth;
+            if (top < area.Top || top + ActualHeight > area.Bottom)
+                top = area.Bottom - ActualHeight;
+
+            Left = left;
+            Top = top;
+            return;
+        }
+
+        var screen = ResolveTargetScreen();
+        var areaPx = screen.WorkingArea;
+        var helper = new WindowInteropHelper(this);
+        var hwnd = helper.Handle;
+        if (hwnd == IntPtr.Zero)
+            return;
+
+        GetWindowRect(hwnd, out var rect);
+        var widthPx = Math.Max(1, rect.Right - rect.Left);
+        var heightPx = Math.Max(1, rect.Bottom - rect.Top);
+        var margin = (int)Math.Round(Math.Clamp(_settings.ToastScreenMargin, 0, 200));
+
+        int x;
+        int y;
+
+        if (preset.Equals("Custom", StringComparison.OrdinalIgnoreCase))
+        {
+            x = areaPx.Left + (int)Math.Round(Math.Max(0, _settings.PositionLeft));
+            y = areaPx.Top + (int)Math.Round(Math.Max(0, _settings.PositionTop));
+        }
+        else
+        {
+            var left = areaPx.Left + margin;
+            var centerX = areaPx.Left + (areaPx.Width - widthPx) / 2;
+            var right = areaPx.Right - widthPx - margin;
+            var top = areaPx.Top + margin;
+            var centerY = areaPx.Top + (areaPx.Height - heightPx) / 2;
+            var bottom = areaPx.Bottom - heightPx - margin;
+
+            (x, y) = preset switch
+            {
+                "TopLeft" => (left, top),
+                "TopCenter" => (centerX, top),
+                "TopRight" => (right, top),
+                "MiddleLeft" => (left, centerY),
+                "Center" => (centerX, centerY),
+                "MiddleRight" => (right, centerY),
+                "BottomLeft" => (left, bottom),
+                "BottomCenter" => (centerX, bottom),
+                _ => (right, bottom)
+            };
+        }
+
+        x = Math.Clamp(x, areaPx.Left, Math.Max(areaPx.Left, areaPx.Right - widthPx));
+        y = Math.Clamp(y, areaPx.Top, Math.Max(areaPx.Top, areaPx.Bottom - heightPx));
+
+        _ = SetWindowPos(hwnd, HWND_TOPMOST, x, y, 0, 0,
+            SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+    }
+
+    private Forms.Screen ResolveTargetScreen()
+    {
+        var screens = Forms.Screen.AllScreens;
+        if (_settings.ToastMonitorIndex >= 0 && _settings.ToastMonitorIndex < screens.Length)
+            return screens[_settings.ToastMonitorIndex];
+        return Forms.Screen.PrimaryScreen ?? screens.First();
+    }
+
+    private void ScheduleSecondPositionPass()
+    {
+        if (_secondPositionPassScheduled)
+            return;
+
+        _secondPositionPassScheduled = true;
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(220) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            PositionToast();
+        };
+        timer.Start();
     }
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -264,4 +505,31 @@ public partial class ToastWindow : Window
         try { return (MediaColor)MediaColorConverter.ConvertFromString(value)!; }
         catch { return fallback; }
     }
+
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOACTIVATE = 0x0010;
+    private const uint SWP_NOOWNERZORDER = 0x0200;
+    private static readonly IntPtr HWND_TOPMOST = new(-1);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(
+        IntPtr hWnd,
+        IntPtr hWndInsertAfter,
+        int X,
+        int Y,
+        int cx,
+        int cy,
+        uint uFlags);
 }

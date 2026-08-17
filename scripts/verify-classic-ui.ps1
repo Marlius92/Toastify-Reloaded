@@ -5,77 +5,86 @@ $mainPath = Join-Path $repo 'src\ToastifyReloaded\MainWindow.xaml'
 $toastPath = Join-Path $repo 'src\ToastifyReloaded\ToastWindow.xaml'
 $appPath = Join-Path $repo 'src\ToastifyReloaded\App.xaml'
 $hotkeyPath = Join-Path $repo 'src\ToastifyReloaded\Services\GlobalHotkeyService.cs'
+$themeServicePath = Join-Path $repo 'src\ToastifyReloaded\Services\ApplicationThemeService.cs'
+$presetPath = Join-Path $repo 'src\ToastifyReloaded\Models\ToastThemePreset.cs'
 
 $main = Get-Content -Raw -LiteralPath $mainPath
 $toast = Get-Content -Raw -LiteralPath $toastPath
 $app = Get-Content -Raw -LiteralPath $appPath
 $hotkeys = Get-Content -Raw -LiteralPath $hotkeyPath
+$themeService = Get-Content -Raw -LiteralPath $themeServicePath
+$presets = Get-Content -Raw -LiteralPath $presetPath
 
 function Require-Text([string]$Content, [string]$Needle, [string]$Description) {
     if (-not $Content.Contains($Needle)) {
-        throw "Classic UI guard failed: $Description (`'$Needle`' not found)."
+        throw "UI contract failed: $Description (`'$Needle`' not found)."
     }
 }
 
-Require-Text $main 'Height="570" Width="580" ResizeMode="NoResize"' 'settings window must remain 580x570 and fixed-size'
-Require-Text $main '<TabItem Header="General"' 'historical General tab'
-Require-Text $main '<TabItem Header="Hotkeys"' 'historical Hotkeys tab'
-Require-Text $main '<TabItem Header="Toast"' 'historical Toast tab'
-Require-Text $main '<TabItem Header="Advanced"' 'historical Advanced tab'
-Require-Text $main '<TabItem Header="Reloaded"' 'single added Reloaded tab'
-Require-Text $main 'Margin="0,32,90,0"' 'historical Save button position'
-Require-Text $main 'Width="47"' 'historical Save button width'
-Require-Text $main 'Margin="0,32,10,0"' 'historical Default split-button position'
-Require-Text $main 'Width="73"' 'historical Default split-button width'
-Require-Text $main 'Height="120" Width="120"' 'historical General-tab logo geometry'
-Require-Text $main 'x:Name="FadeInUpDown"' 'Toast fade-in setting'
-Require-Text $main 'x:Name="FadeOutUpDown"' 'Toast fade-out setting'
-Require-Text $main 'x:Name="CbToastAutoWidth"' 'adaptive toast width setting'
-Require-Text $main 'x:Name="ToastMinWidthUpDown"' 'adaptive toast minimum width'
-Require-Text $main 'x:Name="ToastMaxWidthUpDown"' 'adaptive toast maximum width'
-Require-Text $main 'x:Name="CbToastImageMode"' 'toast artwork mode selector'
-Require-Text $main 'x:Name="CbToastImageFallback"' 'toast artwork fallback setting'
-Require-Text $main 'VerticalScrollBarVisibility="Auto"' 'DPI-safe scrollable settings surfaces'
+# v1.3.0 deliberately expands the historical shell to avoid visible scrollbars.
+Require-Text $main 'Height="700" Width="840" ResizeMode="NoResize"' 'expanded fixed-size settings window'
+Require-Text $main '<TabItem Header="General" x:Name="General"' 'historical General tab'
+Require-Text $main '<TabItem Header="Hotkeys" x:Name="Hotkeys"' 'historical Hotkeys tab'
+Require-Text $main '<TabItem Header="Toast" x:Name="TabToast"' 'historical Toast tab'
+Require-Text $main '<TabItem Header="Advanced" x:Name="TabAdvanced"' 'historical Advanced tab'
+Require-Text $main '<TabItem Header="Reloaded" x:Name="TabReloaded"' 'Reloaded extension tab'
+Require-Text $main 'x:Name="BtnSave"' 'Save button'
+Require-Text $main 'x:Name="BtnDefault"' 'Default split button'
 Require-Text $main 'Text="{}{0}"' 'escaped historical clipboard template'
 
+if ($main -match '<ScrollViewer\b') {
+    throw 'UI contract failed: v1.3.0 settings window must not depend on visible ScrollViewer surfaces.'
+}
 if ($main -match '(?i)proxy') {
-    throw 'Classic UI guard failed: obsolete Proxy controls were reintroduced.'
+    throw 'UI contract failed: obsolete Proxy controls were reintroduced.'
 }
 
-$topTabs = [regex]::Matches($main, '<TabItem\s+Header="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
-$expected = @('General','Hotkeys','Toast','Advanced','Reloaded')
-# Nested Toast tabs are also matched, so filter the known nested names before checking order.
-$topTabs = $topTabs | Where-Object { $_ -notin @('Colors &amp; Font') }
-$generalIndexes = @()
-for ($i=0; $i -lt $topTabs.Count; $i++) { if ($topTabs[$i] -eq 'General') { $generalIndexes += $i } }
-if ($generalIndexes.Count -gt 1) { $topTabs = $topTabs | Select-Object -Skip 0 }
-# The first three and final two top-level markers are sufficient to detect accidental reorderings.
-if ($topTabs[0] -ne 'General' -or $topTabs[1] -ne 'Hotkeys' -or $topTabs[2] -ne 'Toast' -or $topTabs[-2] -ne 'Advanced' -or $topTabs[-1] -ne 'Reloaded') {
-    throw "Classic UI guard failed: top-level tab order changed. Found: $($topTabs -join ', ')"
-}
+# New v1.3.0 user-facing roadmap features.
+Require-Text $main 'x:Name="ApplicationThemeComboBox"' 'application Light/Dark/System theme selector'
+Require-Text $main 'x:Name="ApplicationLanguageComboBox"' 'localization selector'
+Require-Text $main 'x:Name="ToastThemesTab"' 'Toast theme presets tab'
+Require-Text $main 'x:Name="ToastAnimationsTab"' 'Toast animation tab'
+Require-Text $main 'x:Name="ToastPositionTab"' 'Toast positioning tab'
+Require-Text $main 'x:Name="ToastThemePresetComboBox"' 'Toast theme preset selector'
+Require-Text $main 'x:Name="ToastAnimationStyleComboBox"' 'Toast animation style selector'
+Require-Text $main 'x:Name="ToastMonitorComboBox"' 'multi-monitor selector'
+Require-Text $main 'Click="ExportSettings_Click"' 'settings export action'
+Require-Text $main 'Click="ImportSettings_Click"' 'settings import action'
+Require-Text $main 'Click="CopyDiagnostics_Click"' 'diagnostic report copy action'
+Require-Text $main 'Click="ExportDiagnostics_Click"' 'diagnostic report export action'
 
-Require-Text $toast 'Width="250" Height="70"' 'historical toast size'
+# The actual popup preserves the classic minimum geometry and visual lineage.
+Require-Text $toast 'Width="250" Height="70"' 'historical toast default size'
 Require-Text $toast 'BorderBrush="#FF292929"' 'historical toast border color'
 Require-Text $toast 'BorderThickness="1" CornerRadius="4"' 'historical toast border geometry'
 Require-Text $toast 'Color="#FF555555" Offset="0"' 'historical toast top gradient'
 Require-Text $toast 'Color="#FF151515" Offset="1"' 'historical toast bottom gradient'
-Require-Text $toast 'x:Name="ArtworkColumn" Width="70"' 'historical toast artwork column'
-Require-Text $toast 'Height="60" Width="60"' 'historical toast artwork size'
-Require-Text $toast 'Margin="15,15,0,4"' 'historical toast content margin'
+Require-Text $toast 'x:Name="ArtworkColumn" Width="70"' 'historical artwork column'
+Require-Text $toast 'Height="60" Width="60"' 'historical artwork geometry'
 Require-Text $toast 'FontSize="16"' 'historical first title size'
 Require-Text $toast 'FontSize="12"' 'historical second title size'
-Require-Text $toast 'Background="#FF333333"' 'historical progress background'
-Require-Text $toast 'Background="#FFA0A0A0"' 'historical progress foreground'
+Require-Text $toast 'x:Name="ToastTranslate"' 'slide animation transform'
+
 Require-Text $hotkeys 'ToastifyReloaded.GlobalHotkeySink' 'dedicated global hotkey message sink'
 Require-Text $hotkeys 'RegisterHotKey' 'system-wide hotkey registration'
+Require-Text $themeService 'AppsUseLightTheme' 'Follow Windows theme detection'
+Require-Text $themeService 'DwmSetWindowAttribute' 'Windows title-bar dark mode support'
+
+$requiredPresets = @(
+    'Classic Toastify','Spotify Green','Midnight Blue','Neon Purple','Cyberpunk',
+    'Crimson Night','Amber Gold','Emerald','Ocean','Sakura','Arctic','Monochrome','Retro Synthwave'
+)
+foreach ($preset in $requiredPresets) {
+    Require-Text $presets ('"' + $preset + '"') "Toast theme preset $preset"
+}
 
 if ($app -match '<Style\b') {
-    throw 'Classic UI guard failed: App.xaml contains a global custom Style. Native WPF styles must remain untouched.'
+    throw 'UI contract failed: App.xaml contains a global custom Style. Theme styling must remain local to the settings window.'
 }
 
 $forbidden = @('Spotify Popup & Lyrics System','Tutti i sistemi operativi','Nascondi nella tray','Stato Spotify')
 foreach ($text in $forbidden) {
-    if ($main.Contains($text)) { throw "Classic UI guard failed: Reloaded dashboard text reintroduced: $text" }
+    if ($main.Contains($text)) { throw "UI contract failed: old Reloaded dashboard text reintroduced: $text" }
 }
 
-Write-Host 'Classic Toastify 1.11.2 UI invariants: PASS'
+Write-Host 'Toastify Reloaded v1.3.0 UI + roadmap contract: PASS'

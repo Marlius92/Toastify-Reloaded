@@ -128,71 +128,117 @@ public partial class MainWindow : Window
         menu.Items.Add("Exit", null, (_, _) => ExitApplication());
         _trayIcon.ContextMenuStrip = menu;
         _trayIcon.DoubleClick += (_, _) => ShowFromTray();
+        ApplyTrayTheme();
     }
 
     private void LoadSettingsIntoUi()
     {
-        StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
-        MinimizeSpotifyCheckBox.IsChecked = _settings.MinimizeSpotifyOnStartup;
-        CloseSpotifyCheckBox.IsChecked = _settings.CloseSpotifyWithToastify;
-        ComboVolumeControlMode.SelectedIndex = _settings.VolumeControlMode.Equals("System media keys", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
-        WindowsMixerIncrementUpDown.Value = _settings.WindowsVolumeMixerIncrement;
-        TbClipboardTemplate.Text = string.IsNullOrWhiteSpace(_settings.ClipboardTemplate) ? "{0}" : _settings.ClipboardTemplate;
-        CbSaveTrackToFile.IsChecked = _settings.SaveTrackToFile;
-        CbAnalytics.IsChecked = _settings.OptInToAnalytics;
-        CbHotkeys.IsChecked = _settings.GlobalHotkeysEnabled;
-
-        CbDisableToast.IsChecked = !_settings.ShowToastOnTrackChange;
-        CbOnlyShowToastOnHotkey.IsChecked = _settings.OnlyShowToastOnHotkey;
-        CbDisableToastFullscreen.IsChecked = _settings.DisableToastWithFullscreenApps;
-        CbShowSongProgressBar.IsChecked = _settings.ShowSongProgressBar;
-        DisplayTimeUpDown.Value = _settings.ToastDurationMs;
-        FadeInUpDown.Value = _settings.ToastFadeInMs;
-        FadeOutUpDown.Value = _settings.ToastFadeOutMs;
-        CbToastTitlesOrder.SelectedIndex = _settings.ToastTitlesOrder.Equals("ArtistTrack", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
-        ToastWidthUpDown.Value = _settings.ToastWidth;
-        ToastHeightUpDown.Value = _settings.ToastHeight;
-        CbToastAutoWidth.IsChecked = _settings.ToastAutoWidth;
-        ToastMinWidthUpDown.Value = _settings.ToastMinWidth;
-        ToastMaxWidthUpDown.Value = _settings.ToastMaxWidth;
-        CbToastImageMode.SelectedIndex = _settings.ToastImageMode switch
+        _loadingSettings = true;
+        try
         {
-            "ToastifyIcon" => 1,
-            "None" => 2,
-            _ => 0
-        };
-        CbToastImageFallback.IsChecked = _settings.ToastImageFallbackToIcon;
-        PositionLeftUpDown.Value = _settings.PositionLeft;
-        PositionTopUpDown.Value = _settings.PositionTop;
-        BorderThicknessUpDown.Value = _settings.ToastBorderThickness;
-        BorderTopLeftUpDown.Value = _settings.ToastCornerTopLeft;
-        BorderTopRightUpDown.Value = _settings.ToastCornerTopRight;
-        BorderBottomLeftUpDown.Value = _settings.ToastCornerBottomLeft;
-        BorderBottomRightUpDown.Value = _settings.ToastCornerBottomRight;
-        ToastColorTopPicker.SelectedColor = ParseColor(_settings.ToastColorTop, MediaColor.FromArgb(255, 85, 85, 85));
-        ToastColorBottomPicker.SelectedColor = ParseColor(_settings.ToastColorBottom, MediaColor.FromArgb(255, 21, 21, 21));
-        ToastBorderColorPicker.SelectedColor = ParseColor(_settings.ToastBorderColor, MediaColor.FromArgb(255, 41, 41, 41));
-        Title1ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle1Color, MediaColors.White);
-        Title2ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle2Color, MediaColor.FromArgb(255, 240, 240, 240));
-        ColorTopUpDown.Value = _settings.ToastColorTopOffset;
-        ColorBottomUpDown.Value = _settings.ToastColorBottomOffset;
-        Title1FontSizeUpDown.Value = _settings.ToastTitle1FontSize;
-        Title2FontSizeUpDown.Value = _settings.ToastTitle2FontSize;
-        CbToastTitle1DropShadow.IsChecked = _settings.ToastTitle1DropShadow;
-        CbToastTitle2DropShadow.IsChecked = _settings.ToastTitle2DropShadow;
-        Title1ShadowDepthUpDown.Value = _settings.ToastTitle1ShadowDepth;
-        Title1ShadowBlurUpDown.Value = _settings.ToastTitle1ShadowBlur;
-        Title2ShadowDepthUpDown.Value = _settings.ToastTitle2ShadowDepth;
-        Title2ShadowBlurUpDown.Value = _settings.ToastTitle2ShadowBlur;
-        SongProgressBackgroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarBackgroundColor, MediaColor.FromArgb(255, 51, 51, 51));
-        SongProgressForegroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarForegroundColor, MediaColor.FromArgb(255, 160, 160, 160));
-        UpdateToastOptionsEnabledState();
+            PopulateToastThemePresets();
+            PopulateMonitors();
 
-        CbEnableSpotifyWebApi.IsChecked = _settings.EnableSpotifyWebApi;
-        CbEnableBroadcaster.IsChecked = _settings.EnableBroadcaster;
+            ApplicationThemeComboBox.SelectedIndex = _settings.ApplicationTheme switch
+            {
+                "Dark" => 1,
+                "System" => 2,
+                _ => 0
+            };
+            ApplicationLanguageComboBox.SelectedIndex = string.Equals(_settings.ApplicationLanguage, "Italian", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
 
-        CbUpdateCheckFrequency.SelectedIndex = _settings.AutoCheckToastifyUpdates ? 1 : 3;
-        CbConfigureAutoUpdates.SelectedIndex = _settings.AutoInstallToastifyUpdates ? 1 : 0;
+            StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
+            MinimizeSpotifyCheckBox.IsChecked = _settings.MinimizeSpotifyOnStartup;
+            CloseSpotifyCheckBox.IsChecked = _settings.CloseSpotifyWithToastify;
+            ComboVolumeControlMode.SelectedIndex = string.Equals(_settings.VolumeControlMode, "System media keys", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            WindowsMixerIncrementUpDown.Value = _settings.WindowsVolumeMixerIncrement;
+            TbClipboardTemplate.Text = string.IsNullOrWhiteSpace(_settings.ClipboardTemplate) ? "{0}" : _settings.ClipboardTemplate;
+            CbSaveTrackToFile.IsChecked = _settings.SaveTrackToFile;
+            CbAnalytics.IsChecked = _settings.OptInToAnalytics;
+            CbHotkeys.IsChecked = _settings.GlobalHotkeysEnabled;
+
+            CbDisableToast.IsChecked = !_settings.ShowToastOnTrackChange;
+            CbOnlyShowToastOnHotkey.IsChecked = _settings.OnlyShowToastOnHotkey;
+            CbDisableToastFullscreen.IsChecked = _settings.DisableToastWithFullscreenApps;
+            CbShowSongProgressBar.IsChecked = _settings.ShowSongProgressBar;
+            DisplayTimeUpDown.Value = _settings.ToastDurationMs;
+            FadeInUpDown.Value = _settings.ToastFadeInMs;
+            FadeOutUpDown.Value = _settings.ToastFadeOutMs;
+            ToastAnimationStyleComboBox.SelectedIndex = AnimationStyleToIndex(_settings.ToastAnimationStyle);
+            ToastAnimationDirectionComboBox.SelectedIndex = AnimationDirectionToIndex(_settings.ToastAnimationDirection);
+            ToastSlideDistanceUpDown.Value = _settings.ToastSlideDistance;
+
+            CbToastTitlesOrder.SelectedIndex = string.Equals(_settings.ToastTitlesOrder, "ArtistTrack", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            ToastWidthUpDown.Value = _settings.ToastWidth;
+            ToastHeightUpDown.Value = _settings.ToastHeight;
+            CbToastAutoWidth.IsChecked = _settings.ToastAutoWidth;
+            ToastMinWidthUpDown.Value = _settings.ToastMinWidth;
+            ToastMaxWidthUpDown.Value = _settings.ToastMaxWidth;
+            CbToastImageMode.SelectedIndex = _settings.ToastImageMode switch
+            {
+                "ToastifyIcon" => 1,
+                "None" => 2,
+                _ => 0
+            };
+            CbToastImageFallback.IsChecked = _settings.ToastImageFallbackToIcon;
+
+            ToastPositionPresetComboBox.SelectedIndex = PositionPresetToIndex(_settings.ToastPositionPreset);
+            var desiredMonitorIndex = _settings.ToastMonitorIndex + 1;
+            ToastMonitorComboBox.SelectedIndex = desiredMonitorIndex >= 0 && desiredMonitorIndex < ToastMonitorComboBox.Items.Count
+                ? desiredMonitorIndex
+                : 0;
+            ToastScreenMarginUpDown.Value = _settings.ToastScreenMargin;
+            PositionLeftUpDown.Value = _settings.PositionLeft;
+            PositionTopUpDown.Value = _settings.PositionTop;
+
+            BorderThicknessUpDown.Value = _settings.ToastBorderThickness;
+            BorderTopLeftUpDown.Value = _settings.ToastCornerTopLeft;
+            BorderTopRightUpDown.Value = _settings.ToastCornerTopRight;
+            BorderBottomLeftUpDown.Value = _settings.ToastCornerBottomLeft;
+            BorderBottomRightUpDown.Value = _settings.ToastCornerBottomRight;
+            ToastColorTopPicker.SelectedColor = ParseColor(_settings.ToastColorTop, MediaColor.FromArgb(255, 85, 85, 85));
+            ToastColorBottomPicker.SelectedColor = ParseColor(_settings.ToastColorBottom, MediaColor.FromArgb(255, 21, 21, 21));
+            ToastBorderColorPicker.SelectedColor = ParseColor(_settings.ToastBorderColor, MediaColor.FromArgb(255, 41, 41, 41));
+            Title1ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle1Color, MediaColors.White);
+            Title2ColorPicker.SelectedColor = ParseColor(_settings.ToastTitle2Color, MediaColor.FromArgb(255, 240, 240, 240));
+            ColorTopUpDown.Value = _settings.ToastColorTopOffset;
+            ColorBottomUpDown.Value = _settings.ToastColorBottomOffset;
+            Title1FontSizeUpDown.Value = _settings.ToastTitle1FontSize;
+            Title2FontSizeUpDown.Value = _settings.ToastTitle2FontSize;
+            CbToastTitle1DropShadow.IsChecked = _settings.ToastTitle1DropShadow;
+            CbToastTitle2DropShadow.IsChecked = _settings.ToastTitle2DropShadow;
+            Title1ShadowDepthUpDown.Value = _settings.ToastTitle1ShadowDepth;
+            Title1ShadowBlurUpDown.Value = _settings.ToastTitle1ShadowBlur;
+            Title2ShadowDepthUpDown.Value = _settings.ToastTitle2ShadowDepth;
+            Title2ShadowBlurUpDown.Value = _settings.ToastTitle2ShadowBlur;
+            SongProgressBackgroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarBackgroundColor, MediaColor.FromArgb(255, 51, 51, 51));
+            SongProgressForegroundColorPicker.SelectedColor = ParseColor(_settings.SongProgressBarForegroundColor, MediaColor.FromArgb(255, 160, 160, 160));
+
+            var themeName = ToastThemePresets.Find(_settings.ToastThemePreset) is not null
+                ? _settings.ToastThemePreset
+                : ToastThemePresets.FindMatchingName(_settings);
+            ToastThemePresetComboBox.SelectedItem = themeName;
+            if (ToastThemePresetComboBox.SelectedIndex < 0)
+                ToastThemePresetComboBox.SelectedItem = ToastThemePresets.CustomName;
+
+            UpdateToastOptionsEnabledState();
+            UpdateAnimationEnabledState();
+            UpdatePositionEnabledState();
+            UpdateToastThemePreview();
+
+            CbEnableSpotifyWebApi.IsChecked = _settings.EnableSpotifyWebApi;
+            CbEnableBroadcaster.IsChecked = _settings.EnableBroadcaster;
+
+            CbUpdateCheckFrequency.SelectedIndex = _settings.AutoCheckToastifyUpdates ? 1 : 3;
+            CbConfigureAutoUpdates.SelectedIndex = _settings.AutoInstallToastifyUpdates ? 1 : 0;
+        }
+        finally
+        {
+            _loadingSettings = false;
+        }
+
+        ApplyApplicationTheme();
+        ApplyLocalization();
     }
 
     private static MediaColor ParseColor(string value, MediaColor fallback)
@@ -358,6 +404,14 @@ public partial class MainWindow : Window
     {
         ApplyHotkeyEditorToSelected();
 
+        _settings.ApplicationTheme = ApplicationThemeComboBox.SelectedIndex switch
+        {
+            1 => "Dark",
+            2 => "System",
+            _ => "Light"
+        };
+        _settings.ApplicationLanguage = ApplicationLanguageComboBox.SelectedIndex == 1 ? "Italian" : "English";
+
         _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
         _settings.MinimizeSpotifyOnStartup = MinimizeSpotifyCheckBox.IsChecked == true;
         _settings.CloseSpotifyWithToastify = CloseSpotifyCheckBox.IsChecked == true;
@@ -375,6 +429,10 @@ public partial class MainWindow : Window
         _settings.ToastDurationMs = Math.Clamp(DisplayTimeUpDown.Value ?? 3500, 500, 30000);
         _settings.ToastFadeInMs = Math.Clamp(FadeInUpDown.Value ?? 250, 0, 5000);
         _settings.ToastFadeOutMs = Math.Clamp(FadeOutUpDown.Value ?? 250, 0, 5000);
+        _settings.ToastAnimationStyle = AnimationStyleFromIndex(ToastAnimationStyleComboBox.SelectedIndex);
+        _settings.ToastAnimationDirection = AnimationDirectionFromIndex(ToastAnimationDirectionComboBox.SelectedIndex);
+        _settings.ToastSlideDistance = Math.Clamp(ToastSlideDistanceUpDown.Value ?? 28, 0, 300);
+
         _settings.ToastTitlesOrder = CbToastTitlesOrder.SelectedIndex == 1 ? "ArtistTrack" : "TrackArtist";
         _settings.ToastWidth = ToastWidthUpDown.Value ?? 250;
         _settings.ToastHeight = ToastHeightUpDown.Value ?? 70;
@@ -388,8 +446,13 @@ public partial class MainWindow : Window
             _ => "AlbumCover"
         };
         _settings.ToastImageFallbackToIcon = CbToastImageFallback.IsChecked == true;
+
+        _settings.ToastPositionPreset = PositionPresetFromIndex(ToastPositionPresetComboBox.SelectedIndex);
+        _settings.ToastMonitorIndex = ToastMonitorComboBox.SelectedIndex <= 0 ? -1 : ToastMonitorComboBox.SelectedIndex - 1;
+        _settings.ToastScreenMargin = Math.Clamp(ToastScreenMarginUpDown.Value ?? 12, 0, 200);
         _settings.PositionLeft = PositionLeftUpDown.Value ?? -1;
         _settings.PositionTop = PositionTopUpDown.Value ?? -1;
+
         _settings.ToastBorderThickness = BorderThicknessUpDown.Value ?? 1;
         _settings.ToastCornerTopLeft = BorderTopLeftUpDown.Value ?? 4;
         _settings.ToastCornerTopRight = BorderTopRightUpDown.Value ?? 4;
@@ -412,6 +475,7 @@ public partial class MainWindow : Window
         _settings.ToastTitle2ShadowBlur = Title2ShadowBlurUpDown.Value ?? 2;
         _settings.SongProgressBarBackgroundColor = ColorToString(SongProgressBackgroundColorPicker.SelectedColor, "#FF333333");
         _settings.SongProgressBarForegroundColor = ColorToString(SongProgressForegroundColorPicker.SelectedColor, "#FFA0A0A0");
+        _settings.ToastThemePreset = ToastThemePresets.FindMatchingName(_settings);
 
         _settings.EnableSpotifyWebApi = CbEnableSpotifyWebApi.IsChecked == true;
         _settings.EnableBroadcaster = CbEnableBroadcaster.IsChecked == true;
@@ -423,6 +487,8 @@ public partial class MainWindow : Window
 
         StartupService.SetEnabled(_settings.StartWithWindows);
         _settingsService.Save(_settings);
+        ApplyApplicationTheme();
+        ApplyLocalization();
     }
 
     private void LoadMaintenanceSettingsIntoUi()
@@ -693,9 +759,15 @@ public partial class MainWindow : Window
             case TabItem tab when tab == TabToast:
                 _settings.ShowToastOnTrackChange = defaults.ShowToastOnTrackChange;
                 _settings.OnlyShowToastOnHotkey = defaults.OnlyShowToastOnHotkey;
+                _settings.DisableToastWithFullscreenApps = defaults.DisableToastWithFullscreenApps;
+                _settings.ShowSongProgressBar = defaults.ShowSongProgressBar;
                 _settings.ToastDurationMs = defaults.ToastDurationMs;
                 _settings.ToastFadeInMs = defaults.ToastFadeInMs;
                 _settings.ToastFadeOutMs = defaults.ToastFadeOutMs;
+                _settings.ToastAnimationStyle = defaults.ToastAnimationStyle;
+                _settings.ToastAnimationDirection = defaults.ToastAnimationDirection;
+                _settings.ToastSlideDistance = defaults.ToastSlideDistance;
+                _settings.ToastTitlesOrder = defaults.ToastTitlesOrder;
                 _settings.ToastWidth = defaults.ToastWidth;
                 _settings.ToastHeight = defaults.ToastHeight;
                 _settings.ToastAutoWidth = defaults.ToastAutoWidth;
@@ -703,8 +775,12 @@ public partial class MainWindow : Window
                 _settings.ToastMaxWidth = defaults.ToastMaxWidth;
                 _settings.ToastImageMode = defaults.ToastImageMode;
                 _settings.ToastImageFallbackToIcon = defaults.ToastImageFallbackToIcon;
+                _settings.ToastPositionPreset = defaults.ToastPositionPreset;
+                _settings.ToastMonitorIndex = defaults.ToastMonitorIndex;
+                _settings.ToastScreenMargin = defaults.ToastScreenMargin;
                 _settings.PositionLeft = defaults.PositionLeft;
                 _settings.PositionTop = defaults.PositionTop;
+                _settings.ToastThemePreset = defaults.ToastThemePreset;
                 _settings.ToastBorderThickness = defaults.ToastBorderThickness;
                 _settings.ToastCornerTopLeft = defaults.ToastCornerTopLeft;
                 _settings.ToastCornerTopRight = defaults.ToastCornerTopRight;
@@ -712,6 +788,8 @@ public partial class MainWindow : Window
                 _settings.ToastCornerBottomRight = defaults.ToastCornerBottomRight;
                 _settings.ToastColorTop = defaults.ToastColorTop;
                 _settings.ToastColorBottom = defaults.ToastColorBottom;
+                _settings.ToastColorTopOffset = defaults.ToastColorTopOffset;
+                _settings.ToastColorBottomOffset = defaults.ToastColorBottomOffset;
                 _settings.ToastBorderColor = defaults.ToastBorderColor;
                 _settings.ToastTitle1Color = defaults.ToastTitle1Color;
                 _settings.ToastTitle2Color = defaults.ToastTitle2Color;
@@ -747,6 +825,8 @@ public partial class MainWindow : Window
                 TbClipboardTemplate.Text = "{0}";
                 CbSaveTrackToFile.IsChecked = false;
                 CbAnalytics.IsChecked = false;
+                ApplicationThemeComboBox.SelectedIndex = 0;
+                ApplicationLanguageComboBox.SelectedIndex = 0;
                 break;
         }
     }

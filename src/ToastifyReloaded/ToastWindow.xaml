@@ -6,7 +6,10 @@
         Title="Toastify Reloaded" WindowStyle="None" ResizeMode="NoResize"
         ShowInTaskbar="False" Cursor="Hand" Topmost="True" ShowActivated="False"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
-    <Border x:Name="ToastBorder" BorderBrush="#FF292929" BorderThickness="1" CornerRadius="4">
+    <Border x:Name="ToastBorder" BorderBrush="#FF292929" BorderThickness="1" CornerRadius="4" RenderTransformOrigin="0.5,0.5">
+        <Border.RenderTransform>
+            <TranslateTransform x:Name="ToastTranslate" />
+        </Border.RenderTransform>
         <Border.Background>
             <LinearGradientBrush x:Name="ToastBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
                 <GradientStop x:Name="TopGradientStop" Color="#FF555555" Offset="0" />
