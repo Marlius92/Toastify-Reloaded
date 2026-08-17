@@ -294,7 +294,7 @@ public partial class MainWindow
             ApplyLocalization();
             StartupService.SetEnabled(_settings.StartWithWindows);
             _settingsService.Save(_settings);
-            RegisterHotkeys(showSuccess: false);
+            RegisterHotkeys();
 
             System.Windows.MessageBox.Show("Settings imported successfully.", "Toastify Reloaded", MessageBoxButton.OK, MessageBoxImage.Information);
         }

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using WpfSystemColors = global::System.Windows.SystemColors;
+using WpfApplication = global::System.Windows.Application;
 using WpfBrush = global::System.Windows.Media.Brush;
 using WpfSolidColorBrush = global::System.Windows.Media.SolidColorBrush;
 using WpfColor = global::System.Windows.Media.Color;
@@ -62,8 +63,8 @@ public static class ApplicationThemeService
         // are first materialized, so updating only Window.Resources left white
         // TabControl/ComboBox surfaces behind in Dark mode.
         ApplyPalette(window.Resources, palette, dark);
-        if (Application.Current is not null)
-            ApplyPalette(Application.Current.Resources, palette, dark);
+        if (WpfApplication.Current is not null)
+            ApplyPalette(WpfApplication.Current.Resources, palette, dark);
 
         window.Tag = resolved;
         window.Background = (WpfBrush)window.Resources["AppBackgroundBrush"];
