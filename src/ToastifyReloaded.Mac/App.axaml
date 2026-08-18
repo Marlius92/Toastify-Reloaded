@@ -1,0 +1,31 @@
+<Application
+    x:Class="ToastifyReloaded.Mac.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    RequestedThemeVariant="Default">
+
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon
+          Icon="/Assets/toastify.png"
+          ToolTipText="Toastify Reloaded"
+          Clicked="TrayIcon_Clicked">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Open settings" Click="TrayOpen_Click"/>
+            <NativeMenuItemSeparator/>
+            <NativeMenuItem Header="Play / Pause" Click="TrayPlayPause_Click"/>
+            <NativeMenuItem Header="Next track" Click="TrayNext_Click"/>
+            <NativeMenuItem Header="Previous track" Click="TrayPrevious_Click"/>
+            <NativeMenuItemSeparator/>
+            <NativeMenuItem Header="Exit" Click="TrayExit_Click"/>
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+</Application>

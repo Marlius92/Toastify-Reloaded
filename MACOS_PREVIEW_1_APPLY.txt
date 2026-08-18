@@ -1,0 +1,57 @@
+Toastify Reloaded — macOS v1.5.0 Preview 1
+==========================================
+
+GOAL
+----
+Fast-track a feature-complete macOS port without changing the existing Toastify Reloaded settings/features.
+Only platform-specific integrations are replaced.
+
+APPLY WITH GITHUB DESKTOP
+-------------------------
+1. Open the local Toastify-Reloaded repository folder.
+2. Extract this ZIP.
+3. Copy the folders/files from the ZIP into the ROOT of the repository.
+4. Merge/replace files when Windows asks.
+5. Open GitHub Desktop.
+6. Confirm the changed files include:
+   - src/ToastifyReloaded.Mac/**
+   - packaging/macos/**
+   - scripts/*macos*.sh
+   - .github/workflows/macos-build.yml
+   - .github/workflows/macos-release.yml
+   - docs/MACOS.md
+   - docs/MACOS_PARITY.md
+7. Commit suggested message:
+   Add feature-complete macOS Preview 1 port
+8. Push origin.
+9. Open GitHub -> Actions -> macOS Build.
+10. Wait for the workflow to finish.
+
+DO NOT CREATE THE macOS RELEASE TAG YET.
+----------------------------------------
+The first target tag is:
+
+v1.5.0-macos-preview.1
+
+Create it only after macOS Build is green.
+
+EXPECTED CI OUTPUT
+------------------
+The macOS Build workflow creates:
+
+- ToastifyReloaded-macOS-x64.zip
+- ToastifyReloaded-macOS-arm64.zip
+- ToastifyReloaded-macOS-x64.dmg
+- ToastifyReloaded-macOS-arm64.dmg
+- SHA256SUMS-macOS.txt
+
+Preview packages are ad-hoc signed unless Apple Developer credentials have been configured as GitHub Actions secrets.
+
+IMPORTANT RUNTIME PERMISSIONS
+-----------------------------
+On a real Mac:
+
+- Spotify control requires macOS Automation / Apple Events permission.
+- Global hotkeys require Privacy & Security -> Accessibility permission.
+
+CI can validate compilation, packaging, architecture and self-tests, but a real Mac with Spotify installed is still required for the final runtime permission test before stable.

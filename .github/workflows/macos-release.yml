@@ -1,0 +1,112 @@
+name: macOS Release
+
+on:
+  push:
+    tags:
+      - "v*-macos"
+      - "v*-macos-preview.*"
+      - "v*-macos-rc.*"
+
+jobs:
+  release-macos:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Prepare scripts
+        run: chmod +x scripts/*macos*.sh
+
+      - name: Verify tag matches the application build
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "public const string CurrentTag = \"${GITHUB_REF_NAME}\";" \
+            src/ToastifyReloaded.Mac/Services/MacUpdateService.cs
+
+      - name: Verify Windows/Linux/macOS feature parity contract
+        run: python3 scripts/validate-macos-parity.py
+
+      - name: Build and run native macOS self-test
+        run: ./scripts/test-macos-ci.sh
+
+      - name: Publish Intel and Apple Silicon
+        run: |
+          ./scripts/build-macos.sh osx-x64
+          ./scripts/build-macos.sh osx-arm64
+
+      - name: Configure optional Developer ID signing
+        env:
+          APPLE_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+        run: ./scripts/setup-macos-signing.sh
+
+      - name: Create signed app bundles
+        run: |
+          ./scripts/package-macos-app.sh osx-x64
+          ./scripts/package-macos-app.sh osx-arm64
+
+      - name: Notarize when Apple credentials are configured
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          ./scripts/notarize-macos-app.sh "dist/macos/osx-x64/Toastify Reloaded.app"
+          ./scripts/notarize-macos-app.sh "dist/macos/osx-arm64/Toastify Reloaded.app"
+
+      - name: Validate app bundles
+        shell: bash
+        run: |
+          set -euo pipefail
+          X64_APP="dist/macos/osx-x64/Toastify Reloaded.app"
+          ARM_APP="dist/macos/osx-arm64/Toastify Reloaded.app"
+          for APP in "$X64_APP" "$ARM_APP"; do
+            plutil -lint "$APP/Contents/Info.plist"
+            codesign --verify --verbose=2 "$APP"
+          done
+          file "$X64_APP/Contents/MacOS/ToastifyReloaded.Mac" | grep -Eiq 'x86_64|x86-64'
+          file "$ARM_APP/Contents/MacOS/ToastifyReloaded.Mac" | grep -Eiq 'arm64|aarch64'
+
+      - name: Package release ZIP and DMG
+        run: |
+          ./scripts/package-macos-zip.sh osx-x64
+          ./scripts/package-macos-zip.sh osx-arm64
+          ./scripts/package-macos-dmg.sh osx-x64
+          ./scripts/package-macos-dmg.sh osx-arm64
+
+      - name: Generate SHA-256 checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          (
+            cd dist
+            shasum -a 256 \
+              ToastifyReloaded-macOS-x64.zip \
+              ToastifyReloaded-macOS-arm64.zip \
+              ToastifyReloaded-macOS-x64.dmg \
+              ToastifyReloaded-macOS-arm64.dmg \
+              > SHA256SUMS-macOS.txt
+          )
+          cat dist/SHA256SUMS-macOS.txt
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: Toastify Reloaded ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-preview.') || contains(github.ref_name, '-rc.') }}
+          generate_release_notes: true
+          files: |
+            dist/ToastifyReloaded-macOS-x64.zip
+            dist/ToastifyReloaded-macOS-arm64.zip
+            dist/ToastifyReloaded-macOS-x64.dmg
+            dist/ToastifyReloaded-macOS-arm64.dmg
+            dist/SHA256SUMS-macOS.txt

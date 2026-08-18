@@ -1,0 +1,145 @@
+name: macOS Build
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "src/ToastifyReloaded.Mac/**"
+      - "packaging/macos/**"
+      - "scripts/build-macos.sh"
+      - "scripts/package-macos-*.sh"
+      - "scripts/test-macos-ci.sh"
+      - "scripts/validate-macos-parity.py"
+      - ".github/workflows/macos-build.yml"
+      - ".github/workflows/macos-release.yml"
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "src/ToastifyReloaded.Mac/**"
+      - "packaging/macos/**"
+      - "scripts/build-macos.sh"
+      - "scripts/package-macos-*.sh"
+      - "scripts/test-macos-ci.sh"
+      - "scripts/validate-macos-parity.py"
+      - ".github/workflows/macos-build.yml"
+      - ".github/workflows/macos-release.yml"
+  workflow_dispatch:
+
+jobs:
+  macos:
+    name: macOS · x64 + Apple Silicon · feature-parity gate
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Prepare scripts
+        run: chmod +x scripts/*macos*.sh
+
+      - name: Verify macOS feature contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROJECT="src/ToastifyReloaded.Mac"
+          grep -Fq 'SharpHook' "$PROJECT/ToastifyReloaded.Mac.csproj"
+          grep -Fq 'SpotifyAppleScriptService' "$PROJECT/MainWindow.axaml.cs"
+          grep -Fq 'MacGlobalHotkeyService' "$PROJECT/MainWindow.axaml.cs"
+          grep -Fq 'CompatibilityGuardService' "$PROJECT/MainWindow.axaml.cs"
+          grep -Fq 'MacUpdateInstallerService' "$PROJECT/MainWindow.axaml.cs"
+          grep -Fq 'SaveFilePickerAsync' "$PROJECT/MainWindow.axaml.cs"
+          grep -Fq 'AutoWidth' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'ShowProgress' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'ShowSongTime' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'ToastTheme' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'SlideInDirection' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'MonitorIndex' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'KeepLyricsPlus' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'EnableCompatibilityGuard' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'AutoCheckMacUpdates' "$PROJECT/Models/MacSettings.cs"
+          grep -Fq 'v1.5.0-macos-preview.1' "$PROJECT/Services/MacUpdateService.cs"
+          grep -Fq 'SELF-TEST RESULT: PASS' "$PROJECT/Services/MacSelfTestService.cs"
+          grep -Fq 'EnableX11GlobalHotkeys' "$PROJECT/Services/MacSettingsService.cs"
+          grep -Fq 'AutoCheckLinuxUpdates' "$PROJECT/Services/MacSettingsService.cs"
+          grep -Fq 'NSAppleEventsUsageDescription' packaging/macos/Info.plist.template
+          grep -Fq 'com.apple.security.cs.allow-jit' packaging/macos/ToastifyReloaded.entitlements
+          grep -Fq 'com.apple.security.automation.apple-events' packaging/macos/ToastifyReloaded.entitlements
+
+      - name: Verify Windows/Linux/macOS feature parity contract
+        run: python3 scripts/validate-macos-parity.py
+
+      - name: Build and run native macOS self-test
+        run: ./scripts/test-macos-ci.sh
+
+      - name: Publish Intel and Apple Silicon
+        run: |
+          ./scripts/build-macos.sh osx-x64
+          ./scripts/build-macos.sh osx-arm64
+
+      - name: Package app bundles
+        run: |
+          ./scripts/package-macos-app.sh osx-x64
+          ./scripts/package-macos-app.sh osx-arm64
+
+      - name: Validate app bundles and architectures
+        shell: bash
+        run: |
+          set -euo pipefail
+          for RID in osx-x64 osx-arm64; do
+            APP="dist/macos/$RID/Toastify Reloaded.app"
+            test -d "$APP"
+            test -x "$APP/Contents/MacOS/ToastifyReloaded.Mac"
+            test -s "$APP/Contents/Resources/ToastifyReloaded.icns"
+            plutil -lint "$APP/Contents/Info.plist"
+            codesign --verify --verbose=2 "$APP"
+            /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Contents/Info.plist" | grep -Fxq 'io.github.Marlius92.ToastifyReloaded'
+            /usr/libexec/PlistBuddy -c 'Print :NSAppleEventsUsageDescription' "$APP/Contents/Info.plist" | grep -Fq 'Spotify'
+          done
+
+          file "dist/macos/osx-x64/Toastify Reloaded.app/Contents/MacOS/ToastifyReloaded.Mac" | tee "$RUNNER_TEMP/x64-file.txt"
+          file "dist/macos/osx-arm64/Toastify Reloaded.app/Contents/MacOS/ToastifyReloaded.Mac" | tee "$RUNNER_TEMP/arm64-file.txt"
+          grep -Eiq 'x86_64|x86-64' "$RUNNER_TEMP/x64-file.txt"
+          grep -Eiq 'arm64|aarch64' "$RUNNER_TEMP/arm64-file.txt"
+
+      - name: Package ZIP and DMG
+        run: |
+          ./scripts/package-macos-zip.sh osx-x64
+          ./scripts/package-macos-zip.sh osx-arm64
+          ./scripts/package-macos-dmg.sh osx-x64
+          ./scripts/package-macos-dmg.sh osx-arm64
+
+      - name: Validate package set
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/ToastifyReloaded-macOS-x64.zip
+          test -s dist/ToastifyReloaded-macOS-arm64.zip
+          test -s dist/ToastifyReloaded-macOS-x64.dmg
+          test -s dist/ToastifyReloaded-macOS-arm64.dmg
+          (
+            cd dist
+            shasum -a 256 \
+              ToastifyReloaded-macOS-x64.zip \
+              ToastifyReloaded-macOS-arm64.zip \
+              ToastifyReloaded-macOS-x64.dmg \
+              ToastifyReloaded-macOS-arm64.dmg \
+              > SHA256SUMS-macOS.txt
+          )
+          cat dist/SHA256SUMS-macOS.txt
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: toastify-reloaded-macos-preview1
+          path: |
+            dist/ToastifyReloaded-macOS-x64.zip
+            dist/ToastifyReloaded-macOS-arm64.zip
+            dist/ToastifyReloaded-macOS-x64.dmg
+            dist/ToastifyReloaded-macOS-arm64.dmg
+            dist/SHA256SUMS-macOS.txt
+            dist/macos-self-test.log
+          if-no-files-found: error

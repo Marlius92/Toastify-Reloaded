@@ -1,0 +1,18 @@
+Toastify Reloaded macOS v1.5.0 Preview 1 - local pre-CI validation
+=================================================================
+
+PASS - Bash syntax: all macOS shell scripts
+PASS - Workflow YAML parse: macos-build.yml, macos-release.yml
+PASS - XML/XAML parse: Avalonia views, csproj, Info.plist, entitlements
+PASS - Linux/macOS settings parity: 49 common settings
+PASS - Settings UI parity: 61 named controls
+PASS - Toast XAML structure parity
+PASS - Toast themes: 13 built-in presets + Custom
+PASS - macOS global modifier normalization self-test included
+PASS - x64 + arm64 package workflows present
+PASS - ZIP + DMG + SHA256 release assets configured
+PASS - optional Developer ID signing + notarization path configured
+
+Not run locally: .NET compilation/native execution (the current container has no dotnet SDK or macOS runtime).
+The GitHub Actions 'macOS Build' job is therefore the first compile/native gate.
+A real Mac with Spotify is still required before stable for Automation and Accessibility runtime permission validation.
