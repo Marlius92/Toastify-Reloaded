@@ -207,14 +207,17 @@ public sealed class MacUpdateInstallerService
             .Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("\"", "\\\"", StringComparison.Ordinal);
 
-        var script = $"""#!/bin/sh
-set -u
-while /bin/kill -0 {pid} 2>/dev/null; do
-  /bin/sleep 0.25
-done
-/usr/bin/osascript -e 'do shell script "{appleScriptCommand}" with administrator privileges'
-/bin/rm -rf {ShellQuote(helperRoot)}
-""";
+        var script = string.Join("\n", new[]
+        {
+            "#!/bin/sh",
+            "set -u",
+            $"while /bin/kill -0 {pid} 2>/dev/null; do",
+            "  /bin/sleep 0.25",
+            "done",
+            $"/usr/bin/osascript -e 'do shell script \"{appleScriptCommand}\" with administrator privileges'",
+            $"/bin/rm -rf {ShellQuote(helperRoot)}",
+            string.Empty
+        });
 
         File.WriteAllText(helper, script);
         File.SetUnixFileMode(

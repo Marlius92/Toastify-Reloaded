@@ -38,25 +38,28 @@ public sealed class MacAutostartService
             return;
 
         var escaped = SecurityElement.Escape(executable) ?? executable;
-        var plist = $"""<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>{Label}</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>{escaped}</string>
-  </array>
-  <key>RunAtLoad</key>
-  <true/>
-  <key>KeepAlive</key>
-  <false/>
-  <key>ProcessType</key>
-  <string>Interactive</string>
-</dict>
-</plist>
-""";
+        var plist = string.Join("\n", new[]
+        {
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+            "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">",
+            "<plist version=\"1.0\">",
+            "<dict>",
+            "  <key>Label</key>",
+            $"  <string>{Label}</string>",
+            "  <key>ProgramArguments</key>",
+            "  <array>",
+            $"    <string>{escaped}</string>",
+            "  </array>",
+            "  <key>RunAtLoad</key>",
+            "  <true/>",
+            "  <key>KeepAlive</key>",
+            "  <false/>",
+            "  <key>ProcessType</key>",
+            "  <string>Interactive</string>",
+            "</dict>",
+            "</plist>",
+            string.Empty
+        });
 
         await File.WriteAllTextAsync(PlistPath, plist);
         await BootoutAsync(uid);
