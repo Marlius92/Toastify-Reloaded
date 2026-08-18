@@ -24,15 +24,16 @@ The project keeps the recognizable Toastify workflow and notification style whil
 
 > **Independent community project.** Toastify Reloaded is not affiliated with Spotify AB and is not an official release maintained by the original Toastify developers.
 
-**Current documented feature set: v1.3.4.**
+**Current stable Windows release: **v1.3.4**.  
+Current Linux preview: **v1.4.0-linux-preview.1**.**
 
 ---
 
 ## Download
 
-### Latest release
+### Windows — stable
 
-**[Download Toastify Reloaded from GitHub Releases](https://github.com/Marlius92/Toastify-Reloaded/releases/latest)**
+[Download Toastify Reloaded from GitHub Releases](https://github.com/Marlius92/Toastify-Reloaded/releases)
 
 Windows installer packages are provided for:
 
@@ -40,6 +41,28 @@ Windows installer packages are provided for:
 - **Windows ARM64** — `ToastifyReloaded-Setup-win-arm64.exe`
 
 Toastify Reloaded installs as a normal Windows application, with Start-menu integration, Installed Apps registration, uninstall support and in-place updates.
+
+Current stable Windows line: **v1.3.4**.
+
+### Linux — Preview
+
+Linux support is now available as an **experimental preview** based on Avalonia and Linux MPRIS media controls.
+
+Current preview tag:
+
+```text
+v1.4.0-linux-preview.1
+```
+
+Linux x64 packages:
+
+- **AppImage** — `ToastifyReloaded-Linux-x64.AppImage`
+- **Debian / Ubuntu** — `toastify-reloaded_1.4.0~preview1_amd64.deb`
+- **Portable archive** — `ToastifyReloaded-Linux-x64.tar.gz`
+
+The Linux Preview is built and smoke-tested automatically on **Ubuntu 24.04** through GitHub Actions before packaging.
+
+> The Linux build is a preview and is not yet at full feature parity with the Windows version.
 
 ---
 
@@ -312,6 +335,119 @@ Version **1.3.0** is the largest Reloaded UI and customization update so far.
 - Advanced compatibility diagnostics.
 - Copy/export diagnostic reports.
 - Compatibility Guard status reporting.
+
+---
+
+# Linux Preview — v1.4.0-linux-preview.1
+
+Toastify Reloaded now includes a separate Linux port designed to preserve the same core experience without changing the existing Windows/WPF application.
+
+The Linux application is built with **Avalonia** and uses the Linux **MPRIS** media-control interface through `playerctl` instead of Windows media-session APIs.
+
+## Current Linux Preview features
+
+The first preview currently includes:
+
+- Spotify Play / Pause;
+- Previous / Next track;
+- Seek ±10 seconds;
+- Spotify volume controls;
+- track metadata through MPRIS;
+- automatic toast when the current track changes;
+- album artwork;
+- Toastify Reloaded icon fallback;
+- adaptive toast width;
+- optional progress bar;
+- optional current time / duration;
+- Fade, Slide and Fade + Slide animations;
+- independent Slide In / Slide Out direction and distance;
+- the built-in Toastify Reloaded toast presets;
+- Light, Dark and Follow System application themes;
+- Linux session autostart;
+- Spicetify detection;
+- Lyrics Plus helper;
+- Spicetify repair using `backup apply`, with `restore backup apply` fallback;
+- Linux diagnostics;
+- custom global hotkeys on X11 through `xbindkeys`.
+
+## Linux packages
+
+The GitHub release workflow produces:
+
+```text
+ToastifyReloaded-Linux-x64.AppImage
+toastify-reloaded_1.4.0~preview1_amd64.deb
+ToastifyReloaded-Linux-x64.tar.gz
+```
+
+### Debian / Ubuntu
+
+The `.deb` package installs Toastify Reloaded as a normal Linux desktop application and declares the required runtime dependencies.
+
+Example:
+
+```bash
+sudo apt install ./toastify-reloaded_1.4.0~preview1_amd64.deb
+```
+
+### AppImage
+
+Make the AppImage executable and run it:
+
+```bash
+chmod +x ToastifyReloaded-Linux-x64.AppImage
+./ToastifyReloaded-Linux-x64.AppImage
+```
+
+`playerctl` is required for Spotify MPRIS control. The first preview also uses `xbindkeys` for custom global hotkeys on X11.
+
+## X11 and Wayland
+
+The current preview uses **xbindkeys** for custom global shortcuts.
+
+- **X11:** custom global hotkeys are supported by the current preview.
+- **Wayland:** the application and MPRIS-based Spotify controls can run, but custom global hotkeys are not yet guaranteed.
+
+A future Linux preview is planned to use the **XDG Global Shortcuts portal** for Wayland-compatible global shortcuts.
+
+## Linux CI validation
+
+The Linux build is validated on **Ubuntu 24.04** with GitHub Actions.
+
+The workflow currently performs:
+
+```text
+Restore
+→ Build .NET / Avalonia
+→ Start the GUI inside a virtual X11 display
+→ Linux GUI smoke test
+→ Build tar.gz
+→ Build and inspect .deb
+→ Build AppImage
+→ Validate release artifacts
+→ Upload artifacts
+```
+
+The GUI smoke test starts the Avalonia application under Xvfb and verifies that it remains alive during the test window rather than crashing during startup.
+
+## Preview limitations
+
+The Linux Preview is still experimental. Compared with Windows v1.3.4, the following areas are still under development:
+
+- Wayland-native global shortcuts;
+- full Windows/Linux feature parity;
+- Linux-native self-updater;
+- complete English / Italian localization parity;
+- complete import / export parity;
+- system-tray behavior across GNOME and KDE;
+- full automatic Compatibility Guard behavior;
+- Linux ARM64 package.
+
+For Linux-specific build and development notes, see:
+
+```text
+docs/LINUX.md
+```
 
 ---
 
@@ -837,6 +973,19 @@ Toastify-Reloaded/
 ├─ SECURITY.md
 └─ ToastifyReloaded.sln
 ```
+
+---
+
+## Platform status
+
+| Platform | Status | Distribution |
+|---|---|---|
+| Windows x64 | Stable | Installer |
+| Windows ARM64 | Stable | Installer |
+| Linux x64 | Preview | AppImage / `.deb` / tar.gz |
+| Linux ARM64 | Not available yet | Planned |
+
+Windows remains the primary stable platform. Linux is currently published as a prerelease while feature parity and Wayland integration are completed.
 
 ---
 
