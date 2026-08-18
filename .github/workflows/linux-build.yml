@@ -9,6 +9,7 @@ on:
       - "scripts/build-linux*.sh"
       - "scripts/package-linux-*.sh"
       - "scripts/test-linux-ci.sh"
+      - "scripts/test-linux-rc.sh"
       - ".github/workflows/linux-build.yml"
   pull_request:
     branches: [ main ]
@@ -18,6 +19,7 @@ on:
       - "scripts/build-linux*.sh"
       - "scripts/package-linux-*.sh"
       - "scripts/test-linux-ci.sh"
+      - "scripts/test-linux-rc.sh"
       - ".github/workflows/linux-build.yml"
   workflow_dispatch:
 
@@ -49,7 +51,7 @@ jobs:
           chmod +x scripts/build-linux.sh
           ./scripts/build-linux.sh
 
-      - name: Verify Preview 3 features
+      - name: Verify RC1 feature contract
         run: |
           grep -q 'Avalonia.Wayland' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
           grep -q 'Tmds.DBus' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
@@ -90,24 +92,46 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
           test -n "$DEB"
           test -s "$DEB"
+
           CONTENTS_FILE="$RUNNER_TEMP/toastify-deb-contents.txt"
           dpkg-deb --contents "$DEB" > "$CONTENTS_FILE"
+
           grep -Fq '/opt/toastify-reloaded/ToastifyReloaded.Linux' "$CONTENTS_FILE"
           grep -Fq '/usr/bin/toastify-reloaded' "$CONTENTS_FILE"
           grep -Fq '/usr/share/applications/io.github.Marlius92.ToastifyReloaded.desktop' "$CONTENTS_FILE"
 
       - name: Validate x64 artifacts
+        shell: bash
         run: |
           set -euo pipefail
+
           test -s dist/ToastifyReloaded-Linux-x64.tar.gz
           test -s dist/ToastifyReloaded-Linux-x64.AppImage
+          test -x dist/ToastifyReloaded-Linux-x64.AppImage
+
           DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
+          test -n "$DEB"
           test -s "$DEB"
-          tar -tzf dist/ToastifyReloaded-Linux-x64.tar.gz | grep -q 'ToastifyReloaded.Linux'
-          sha256sum dist/ToastifyReloaded-Linux-x64.tar.gz dist/ToastifyReloaded-Linux-x64.AppImage "$DEB"
+
+          TAR_CONTENTS="$RUNNER_TEMP/toastify-x64-tar-contents.txt"
+          tar -tzf dist/ToastifyReloaded-Linux-x64.tar.gz > "$TAR_CONTENTS"
+          grep -Fq 'ToastifyReloaded.Linux' "$TAR_CONTENTS"
+
+          echo "=== x64 artifact sizes ==="
+          ls -lh \
+            dist/ToastifyReloaded-Linux-x64.tar.gz \
+            dist/ToastifyReloaded-Linux-x64.AppImage \
+            "$DEB"
+
+          echo "=== x64 SHA-256 ==="
+          sha256sum \
+            dist/ToastifyReloaded-Linux-x64.tar.gz \
+            dist/ToastifyReloaded-Linux-x64.AppImage \
+            "$DEB"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -144,10 +168,16 @@ jobs:
           ./scripts/build-linux-arm64.sh
 
       - name: Validate ARM64 executable
+        shell: bash
         run: |
+          set -euo pipefail
+
           test -x dist/linux-arm64/ToastifyReloaded.Linux
-          file dist/linux-arm64/ToastifyReloaded.Linux
-          file dist/linux-arm64/ToastifyReloaded.Linux | grep -Eiq 'ARM aarch64|ARM64|aarch64'
+
+          FILE_INFO="$RUNNER_TEMP/toastify-arm64-file.txt"
+          file dist/linux-arm64/ToastifyReloaded.Linux > "$FILE_INFO"
+          cat "$FILE_INFO"
+          grep -Eiq 'ARM aarch64|ARM64|aarch64' "$FILE_INFO"
 
       - name: Package ARM64
         run: |
@@ -156,14 +186,33 @@ jobs:
           ./scripts/package-linux-arm64-deb.sh
 
       - name: Validate ARM64 artifacts
+        shell: bash
         run: |
           set -euo pipefail
+
           test -s dist/ToastifyReloaded-Linux-arm64.tar.gz
+
           DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_arm64.deb' -print -quit)"
+          test -n "$DEB"
           test -s "$DEB"
-          dpkg-deb --info "$DEB" | grep -q 'Architecture: arm64'
-          tar -tzf dist/ToastifyReloaded-Linux-arm64.tar.gz | grep -q 'ToastifyReloaded.Linux'
-          sha256sum dist/ToastifyReloaded-Linux-arm64.tar.gz "$DEB"
+
+          DEB_INFO="$RUNNER_TEMP/toastify-arm64-deb-info.txt"
+          dpkg-deb --info "$DEB" > "$DEB_INFO"
+          grep -Fq 'Architecture: arm64' "$DEB_INFO"
+
+          TAR_CONTENTS="$RUNNER_TEMP/toastify-arm64-tar-contents.txt"
+          tar -tzf dist/ToastifyReloaded-Linux-arm64.tar.gz > "$TAR_CONTENTS"
+          grep -Fq 'ToastifyReloaded.Linux' "$TAR_CONTENTS"
+
+          echo "=== ARM64 artifact sizes ==="
+          ls -lh \
+            dist/ToastifyReloaded-Linux-arm64.tar.gz \
+            "$DEB"
+
+          echo "=== ARM64 SHA-256 ==="
+          sha256sum \
+            dist/ToastifyReloaded-Linux-arm64.tar.gz \
+            "$DEB"
 
       - uses: actions/upload-artifact@v4
         with:
