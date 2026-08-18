@@ -48,4 +48,4 @@ ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGETOOL" "$APPDIR" "$OUT"
 chmod +x "$OUT"
 
 echo "Created: $OUT"
-echo "Note: playerctl and xbindkeys are external runtime requirements for the preview."
+echo "Note: playerctl is required for Spotify MPRIS control; xbindkeys is used for X11 global shortcuts."

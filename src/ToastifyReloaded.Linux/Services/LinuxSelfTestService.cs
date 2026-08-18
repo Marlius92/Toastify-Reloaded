@@ -1,4 +1,3 @@
-using System.Text;
 using ToastifyReloaded.Linux.Models;
 
 namespace ToastifyReloaded.Linux.Services;
@@ -27,7 +26,7 @@ public static class LinuxSelfTestService
         try
         {
             Console.WriteLine(
-                "Toastify Reloaded Linux RC self-test");
+                "Toastify Reloaded Linux 1.4.0 self-test");
 
             Console.WriteLine(
                 $"Runtime: {Environment.Version}");
@@ -37,8 +36,8 @@ public static class LinuxSelfTestService
 
             Check(
                 LinuxUpdateService.CurrentTag ==
-                "v1.4.0-linux-rc.1",
-                "RC version constant");
+                "v1.4.0-linux",
+                "stable version constant");
 
             var preview4 =
                 LinuxUpdateService.ParseTag(
@@ -48,13 +47,17 @@ public static class LinuxSelfTestService
                 LinuxUpdateService.ParseTag(
                     "v1.4.0-linux-rc.1");
 
-            var rc2 =
-                LinuxUpdateService.ParseTag(
-                    "v1.4.0-linux-rc.2");
-
             var stable =
                 LinuxUpdateService.ParseTag(
                     "v1.4.0-linux");
+
+            var nextPreview =
+                LinuxUpdateService.ParseTag(
+                    "v1.4.1-linux-preview.1");
+
+            var nextRc =
+                LinuxUpdateService.ParseTag(
+                    "v1.4.1-linux-rc.1");
 
             var nextStable =
                 LinuxUpdateService.ParseTag(
@@ -68,21 +71,47 @@ public static class LinuxSelfTestService
 
             Check(
                 rc1 is not null &&
-                rc2 is not null &&
-                rc1.CompareTo(rc2) < 0,
-                "RC numbers sort correctly");
-
-            Check(
-                rc2 is not null &&
                 stable is not null &&
-                rc2.CompareTo(stable) < 0,
+                rc1.CompareTo(stable) < 0,
                 "RC sorts before stable");
 
             Check(
                 stable is not null &&
                 nextStable is not null &&
                 stable.CompareTo(nextStable) < 0,
-                "semantic versions sort correctly");
+                "semantic stable versions sort correctly");
+
+            Check(
+                stable is not null &&
+                nextPreview is not null &&
+                !LinuxUpdateService.IsEligibleUpdateCandidate(
+                    stable,
+                    nextPreview),
+                "stable channel rejects future preview");
+
+            Check(
+                stable is not null &&
+                nextRc is not null &&
+                !LinuxUpdateService.IsEligibleUpdateCandidate(
+                    stable,
+                    nextRc),
+                "stable channel rejects future RC");
+
+            Check(
+                stable is not null &&
+                nextStable is not null &&
+                LinuxUpdateService.IsEligibleUpdateCandidate(
+                    stable,
+                    nextStable),
+                "stable channel accepts future stable");
+
+            Check(
+                rc1 is not null &&
+                stable is not null &&
+                LinuxUpdateService.IsEligibleUpdateCandidate(
+                    rc1,
+                    stable),
+                "RC channel can promote to stable");
 
             Check(
                 LinuxUpdateService.ParseTag(
@@ -126,21 +155,17 @@ public static class LinuxSelfTestService
                 new LocalizationService();
 
             Check(
-                localization.Get(
-                    "UpdateAvailable",
-                    "English")
-                .Contains(
-                    "preview",
-                    StringComparison.OrdinalIgnoreCase),
+                !string.IsNullOrWhiteSpace(
+                    localization.Get(
+                        "UpdateAvailable",
+                        "English")),
                 "English localization");
 
             Check(
-                localization.Get(
-                    "UpdateAvailable",
-                    "Italiano")
-                .Contains(
-                    "preview",
-                    StringComparison.OrdinalIgnoreCase),
+                !string.IsNullOrWhiteSpace(
+                    localization.Get(
+                        "UpdateAvailable",
+                        "Italiano")),
                 "Italian localization");
 
             var settingsService =

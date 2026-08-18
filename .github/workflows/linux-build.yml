@@ -1,4 +1,4 @@
-name: Linux Preview Build
+name: Linux Build
 
 on:
   push:
@@ -31,9 +31,9 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
 
@@ -51,7 +51,7 @@ jobs:
           chmod +x scripts/build-linux.sh
           ./scripts/build-linux.sh
 
-      - name: Verify RC1 feature contract
+      - name: Verify stable feature contract
         run: |
           grep -q 'Avalonia.Wayland' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
           grep -q 'Tmds.DBus' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
@@ -66,12 +66,12 @@ jobs:
           grep -q 'ToastFontCombo' src/ToastifyReloaded.Linux/MainWindow.axaml
           grep -q 'LinuxUpdateInstallerService' src/ToastifyReloaded.Linux/MainWindow.axaml.cs
           grep -q 'DownloadAndApplyAsync' src/ToastifyReloaded.Linux/Services/LinuxUpdateInstallerService.cs
-          grep -q 'v1.4.0-linux-rc.1' src/ToastifyReloaded.Linux/Services/LinuxUpdateService.cs
+          grep -q 'v1.4.0-linux' src/ToastifyReloaded.Linux/Services/LinuxUpdateService.cs
           grep -q 'ReleaseCandidate' src/ToastifyReloaded.Linux/Models/LinuxReleaseVersion.cs
           grep -q 'SELF-TEST RESULT: PASS' src/ToastifyReloaded.Linux/Services/LinuxSelfTestService.cs
           grep -q 'Custom' src/ToastifyReloaded.Linux/Models/ToastThemePalette.cs
 
-      - name: Linux RC headless self-test
+      - name: Linux stable headless self-test
         run: |
           chmod +x scripts/test-linux-rc.sh
           ./scripts/test-linux-rc.sh
@@ -133,7 +133,7 @@ jobs:
             dist/ToastifyReloaded-Linux-x64.AppImage \
             "$DEB"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: toastify-reloaded-linux-x64
           path: |
@@ -141,7 +141,7 @@ jobs:
             dist/ToastifyReloaded-Linux-x64.AppImage
             dist/toastify-reloaded_*_amd64.deb
             dist/linux-smoke-test.log
-            dist/linux-rc-self-test.log
+            dist/linux-release-self-test.log
           if-no-files-found: error
 
   linux-arm64:
@@ -151,9 +151,9 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
 
@@ -214,7 +214,7 @@ jobs:
             dist/ToastifyReloaded-Linux-arm64.tar.gz \
             "$DEB"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: toastify-reloaded-linux-arm64
           path: |

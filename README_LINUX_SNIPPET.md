@@ -1,31 +1,23 @@
-## Linux Preview
+## Linux
 
-A separate Linux port is now under development using **Avalonia** and Linux
-**MPRIS** media controls.
+Toastify Reloaded **1.4.0 for Linux** is available as a stable release.
 
-Current preview packages:
+### x64
 
 - `ToastifyReloaded-Linux-x64.AppImage`
-- `toastify-reloaded_1.4.0~preview3_amd64.deb`
+- `toastify-reloaded_1.4.0_amd64.deb`
 - `ToastifyReloaded-Linux-x64.tar.gz`
 
-The first preview supports Spotify playback controls, track-change toasts, album
-artwork, adaptive width, toast presets, animations, Spicetify/Lyrics helpers and
-custom global hotkeys on X11.
+### ARM64
 
-Wayland note: Preview 2 enables Avalonia's native Wayland backend and uses the XDG Global Shortcuts portal for custom global hotkeys when the desktop provides it.
-
-See [`docs/LINUX.md`](docs/LINUX.md) for requirements, installation and current
-limitations.
-
-
-### Linux Preview 3
-
-Preview 3 adds system tray support, runtime IT/EN localization, JSON settings
-import/export, an automatic Spotify/Spicetify Compatibility Guard, Linux preview
-update checking and initial ARM64 packages.
-
-ARM64 assets:
-
+- `toastify-reloaded_1.4.0_arm64.deb`
 - `ToastifyReloaded-Linux-arm64.tar.gz`
-- `toastify-reloaded_1.4.0~preview3_arm64.deb`
+
+The Linux release includes MPRIS Spotify controls, X11 and Wayland global
+shortcut backends, system tray support, IT/EN localization, settings
+import/export, Compatibility Guard, updater, toast themes including Custom,
+font/color controls, animations, positioning and multi-monitor support.
+
+Release checksums are published in `SHA256SUMS.txt`.
+
+See `docs/LINUX.md` and `docs/LINUX_PARITY.md`.

@@ -6,10 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>ToastifyReloaded.Linux</AssemblyName>
     <RootNamespace>ToastifyReloaded.Linux</RootNamespace>
-    <Version>1.4.0-rc.1</Version>
+    <Version>1.4.0</Version>
     <Product>Toastify Reloaded</Product>
     <Authors>Toastify Reloaded contributors</Authors>
-    <Description>Toastify Reloaded Linux Preview</Description>
+    <Description>Toastify Reloaded for Linux</Description>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
   </PropertyGroup>

@@ -7,7 +7,7 @@ namespace ToastifyReloaded.Linux.Services;
 
 public sealed partial class LinuxUpdateService
 {
-    public const string CurrentTag = "v1.4.0-linux-rc.1";
+    public const string CurrentTag = "v1.4.0-linux";
 
     public static readonly LinuxReleaseVersion CurrentVersion =
         ParseTag(CurrentTag)
@@ -29,7 +29,7 @@ public sealed partial class LinuxUpdateService
         _http.DefaultRequestHeaders.UserAgent.Add(
             new ProductInfoHeaderValue(
                 "ToastifyReloaded",
-                "1.4.0-rc.1"));
+                "1.4.0"));
 
         _http.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue(
@@ -81,7 +81,9 @@ public sealed partial class LinuxUpdateService
             var version = ParseTag(tag);
 
             if (version is null ||
-                version.CompareTo(CurrentVersion) <= 0)
+                !IsEligibleUpdateCandidate(
+                    CurrentVersion,
+                    version))
             {
                 continue;
             }
@@ -117,6 +119,26 @@ public sealed partial class LinuxUpdateService
         return best;
     }
 
+    internal static bool IsEligibleUpdateCandidate(
+        LinuxReleaseVersion current,
+        LinuxReleaseVersion candidate)
+    {
+        if (candidate.CompareTo(current) <= 0)
+            return false;
+
+        // Stable users stay on the stable channel. This prevents a future
+        // v1.4.1-linux-preview.1 or -rc.1 from replacing v1.4.0-linux.
+        if (current.Stage == LinuxReleaseStage.Stable)
+        {
+            return candidate.Stage ==
+                   LinuxReleaseStage.Stable;
+        }
+
+        // Preview/RC testers can advance through preview -> RC -> stable,
+        // including a later semantic version during the test channel.
+        return true;
+    }
+
     internal static LinuxReleaseVersion? ParseTag(
         string tag)
     {
@@ -125,9 +147,15 @@ public sealed partial class LinuxUpdateService
         if (!match.Success)
             return null;
 
-        if (!int.TryParse(match.Groups["major"].Value, out var major) ||
-            !int.TryParse(match.Groups["minor"].Value, out var minor) ||
-            !int.TryParse(match.Groups["patch"].Value, out var patch))
+        if (!int.TryParse(
+                match.Groups["major"].Value,
+                out var major) ||
+            !int.TryParse(
+                match.Groups["minor"].Value,
+                out var minor) ||
+            !int.TryParse(
+                match.Groups["patch"].Value,
+                out var patch))
         {
             return null;
         }

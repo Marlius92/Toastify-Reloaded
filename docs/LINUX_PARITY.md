@@ -1,11 +1,11 @@
 # Linux / Windows feature parity
 
 Target Windows baseline: **Toastify Reloaded v1.3.4**  
-Linux candidate: **v1.4.0-linux-rc.1**
+Linux stable: **v1.4.0-linux**
 
 ## Core parity
 
-| Feature | Windows | Linux RC1 |
+| Feature | Windows | Linux 1.4.0 |
 |---|---:|---:|
 | Global media hotkeys | Yes | Yes |
 | Spotify media session integration | Yes | Yes, MPRIS |
@@ -53,14 +53,8 @@ Linux candidate: **v1.4.0-linux-rc.1**
 - Native Wayland: Avalonia Wayland backend when available.
 - Tray: StatusNotifierItem/AppIndicator through Avalonia.
 
-## What remains before stable
+## Stable status
 
-RC1 is the **feature-parity release candidate**. The remaining
-work should be release engineering rather than new features:
-
-1. GitHub CI must stay green on x64 and ARM64.
-2. Run the final X11 GUI smoke suite.
-3. Validate packaged asset names and update selection.
-4. Fix any compile/runtime regressions found by CI.
-5. Fix only release-blocking defects found by RC validation.
-6. Publish the stable Linux release as `v1.4.0-linux`.
+Linux v1.4.0 is the first stable Linux line targeting functional parity with
+Windows v1.3.4. Future Linux changes can now follow normal patch/minor releases
+instead of preview/RC builds.

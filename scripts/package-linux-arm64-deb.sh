@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="${1:-1.4.0~rc1}"
+VERSION="${1:-1.4.0}"
 PUBLISH="$ROOT/dist/linux-arm64"
 PKGROOT="$ROOT/dist/deb-arm64-root"
 OUT="$ROOT/dist/toastify-reloaded_${VERSION}_arm64.deb"
@@ -40,7 +40,7 @@ Priority: optional
 Architecture: arm64
 Maintainer: Toastify Reloaded contributors
 Depends: playerctl, xbindkeys, xdg-desktop-portal, libx11-6, libice6, libsm6, libfontconfig1
-Description: Toastify Reloaded Linux Preview ARM64
+Description: Toastify Reloaded for Linux ARM64
  Spotify toast notifications, MPRIS controls, Spicetify/Lyrics helpers
  and X11/Wayland global hotkeys.
 EOF

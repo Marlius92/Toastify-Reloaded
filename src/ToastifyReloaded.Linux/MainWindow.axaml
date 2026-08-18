@@ -2,7 +2,7 @@
     x:Class="ToastifyReloaded.Linux.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Toastify Reloaded — Linux Preview"
+    Title="Toastify Reloaded — Linux"
     Width="1120"
     Height="700"
     MinWidth="980"
@@ -14,7 +14,7 @@
     <Border Grid.Row="0" Padding="10" CornerRadius="6" Background="#14000000">
       <Grid ColumnDefinitions="*,Auto">
         <StackPanel>
-          <TextBlock Text="Toastify Reloaded — Linux Preview" FontSize="20" FontWeight="SemiBold"/>
+          <TextBlock Text="Toastify Reloaded — Linux" FontSize="20" FontWeight="SemiBold"/>
           <TextBlock x:Name="StatusText" Text="Controllo dipendenze Linux..." Opacity="0.75"/>
         </StackPanel>
         <Button Grid.Column="1" Content="Aggiorna stato" Click="RefreshStatus_Click" Padding="14,7"/>
@@ -301,7 +301,7 @@
           <GroupBox Grid.Row="1" Header="Aggiornamenti Linux" Margin="0,0,10,10">
             <StackPanel Margin="12" Spacing="10">
               <CheckBox x:Name="AutoCheckUpdatesCheck"
-                        Content="Controlla automaticamente nuove preview Linux"/>
+                        Content="Controlla automaticamente aggiornamenti Linux"/>
               <CheckBox x:Name="AutoInstallUpdatesCheck"
                         Content="Installa automaticamente gli aggiornamenti Linux"/>
               <Button Content="Controlla aggiornamenti"
@@ -321,10 +321,10 @@
             </StackPanel>
           </GroupBox>
 
-          <GroupBox Grid.Row="1" Grid.Column="1" Header="Note Preview" Margin="10,0,0,10">
+          <GroupBox Grid.Row="1" Grid.Column="1" Header="Note Linux" Margin="10,0,0,10">
             <StackPanel Margin="12" Spacing="8">
               <TextBlock TextWrapping="Wrap"
-                         Text="RC1 Feature Parity Candidate: colori/font, tema Custom, posizionamento multi-monitor e updater con applicazione AppImage/.deb completano le principali funzioni della stabile Windows v1.3.4."/>
+                         Text="Toastify Reloaded Linux 1.4.0: feature set stabile in parità con la linea Windows v1.3.4, con backend Linux dedicati per MPRIS, X11 e Wayland."/>
             </StackPanel>
           </GroupBox>
         </Grid>
@@ -375,7 +375,7 @@
     </TabControl>
 
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
-      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux RC 1.4.0-rc.1"/>
+      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux 1.4.0"/>
       <TextBlock Grid.Column="1"/>
       <Button Grid.Column="2" Content="Salva" Click="Save_Click" Padding="18,8"/>
       <Button Grid.Column="3" Content="Esci" Click="Exit_Click" Padding="18,8"/>

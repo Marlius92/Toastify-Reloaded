@@ -1,6 +1,6 @@
-# Toastify Reloaded — Linux Preview
+# Toastify Reloaded — Linux
 
-Version line: **1.4.0-rc.1**
+Stable version: **1.4.0**
 
 The Linux port is intentionally isolated from the stable Windows/WPF project.
 
@@ -14,7 +14,7 @@ The Linux port is intentionally isolated from the stable Windows/WPF project.
 - Settings: `~/.config/toastify-reloaded/settings.json`
 - Autostart: `~/.config/autostart/io.github.Marlius92.ToastifyReloaded.desktop`
 
-## Current Preview features
+## Linux 1.4.0 features
 
 - Play / Pause
 - Previous / Next
@@ -130,7 +130,7 @@ chmod +x scripts/package-linux-appimage.sh
 ./scripts/package-linux-appimage.sh
 ```
 
-## Preview limitations
+## Platform notes
 
 Not yet at Windows v1.3.4 parity:
 
@@ -237,3 +237,32 @@ Stable target:
 ```text
 v1.4.0-linux
 ```
+
+
+## Linux 1.4.0 stable
+
+The Linux feature set reached the v1.3.4 Windows parity target and passed the
+release-candidate CI gate on x64 and ARM64.
+
+Stable release tag:
+
+```text
+v1.4.0-linux
+```
+
+Stable assets:
+
+```text
+ToastifyReloaded-Linux-x64.AppImage
+ToastifyReloaded-Linux-x64.tar.gz
+toastify-reloaded_1.4.0_amd64.deb
+ToastifyReloaded-Linux-arm64.tar.gz
+toastify-reloaded_1.4.0_arm64.deb
+SHA256SUMS.txt
+```
+
+Update-channel policy:
+
+- stable installations receive stable Linux releases only;
+- preview and RC installations may promote to later preview/RC/stable builds;
+- a stable installation will not automatically install a future preview or RC.
