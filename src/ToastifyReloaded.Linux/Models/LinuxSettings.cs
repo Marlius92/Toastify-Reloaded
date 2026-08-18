@@ -5,6 +5,8 @@ public sealed class LinuxSettings
     public string ApplicationTheme { get; set; } = "System";
     public string Language { get; set; } = "Italiano";
     public bool StartWithSession { get; set; } = false;
+    public bool CloseToTray { get; set; } = false;
+
     public bool EnableX11GlobalHotkeys { get; set; } = true;
     public bool EnableWaylandPortalHotkeys { get; set; } = true;
 
@@ -37,4 +39,11 @@ public sealed class LinuxSettings
     public int SlideOutDistance { get; set; } = 50;
 
     public bool KeepLyricsPlus { get; set; } = true;
+
+    public bool EnableCompatibilityGuard { get; set; } = true;
+    public bool AutoRepairSpicetify { get; set; } = true;
+    public string LastSpotifyVersion { get; set; } = "";
+    public string LastRepairAttemptVersion { get; set; } = "";
+
+    public bool AutoCheckLinuxUpdates { get; set; } = true;
 }

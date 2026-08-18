@@ -45,23 +45,48 @@ public sealed class SpicetifyLinuxService
     }
 
     public async Task<(bool Success, string Message)> RepairAsync()
+        => await RepairAfterSpotifyUpdateAsync(keepLyricsPlus: false);
+
+    public async Task<(bool Success, string Message)> RepairAfterSpotifyUpdateAsync(
+        bool keepLyricsPlus)
     {
         if (!await IsAvailableAsync())
             return (false, "Spicetify non trovato.");
+
+        // `upgrade` works only for script-based installations; a failure here is
+        // intentionally non-fatal because package-manager installs are valid.
+        try
+        {
+            _ = await _process.RunAsync("spicetify", new[] { "upgrade" });
+        }
+        catch
+        {
+        }
 
         var primary = await _process.RunAsync(
             "spicetify",
             new[] { "backup", "apply" });
 
-        if (primary.ExitCode == 0)
-            return (true, "Riparazione Spicetify completata.");
+        if (primary.ExitCode != 0)
+        {
+            var fallback = await _process.RunAsync(
+                "spicetify",
+                new[] { "restore", "backup", "apply" });
 
-        var fallback = await _process.RunAsync(
-            "spicetify",
-            new[] { "restore", "backup", "apply" });
+            if (fallback.ExitCode != 0)
+                return (false, fallback.StdErr);
+        }
 
-        return fallback.ExitCode == 0
-            ? (true, "Riparazione completa Spicetify eseguita.")
-            : (false, fallback.StdErr);
+        if (keepLyricsPlus)
+        {
+            var lyrics = await _process.RunAsync(
+                "spicetify",
+                new[] { "config", "custom_apps", "lyrics-plus" });
+
+            if (lyrics.ExitCode == 0)
+                _ = await _process.RunAsync("spicetify", new[] { "apply" });
+        }
+
+        return (true, "Riparazione Spicetify completata.");
     }
 }

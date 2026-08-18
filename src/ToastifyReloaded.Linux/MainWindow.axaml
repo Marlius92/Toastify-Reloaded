@@ -28,16 +28,17 @@
             <StackPanel Margin="12" Spacing="10">
               <TextBlock Text="Tema applicazione"/>
               <ComboBox x:Name="AppThemeCombo">
-                <ComboBoxItem Content="System"/>
-                <ComboBoxItem Content="Light"/>
-                <ComboBoxItem Content="Dark"/>
+                <ComboBoxItem Content="System" Tag="System"/>
+                <ComboBoxItem Content="Light" Tag="Light"/>
+                <ComboBoxItem Content="Dark" Tag="Dark"/>
               </ComboBox>
               <TextBlock Text="Lingua"/>
-              <ComboBox x:Name="LanguageCombo">
-                <ComboBoxItem Content="Italiano"/>
-                <ComboBoxItem Content="English"/>
+              <ComboBox x:Name="LanguageCombo" SelectionChanged="LanguageCombo_SelectionChanged">
+                <ComboBoxItem Content="Italiano" Tag="Italiano"/>
+                <ComboBoxItem Content="English" Tag="English"/>
               </ComboBox>
               <CheckBox x:Name="AutostartCheck" Content="Avvia Toastify Reloaded con la sessione Linux"/>
+              <CheckBox x:Name="CloseToTrayCheck" Content="Chiudi la finestra nell&#39;area di notifica"/>
             </StackPanel>
           </GroupBox>
 
@@ -119,9 +120,9 @@
                   </Grid>
                   <TextBlock Text="Immagine"/>
                   <ComboBox x:Name="ImageModeCombo">
-                    <ComboBoxItem Content="Album cover"/>
-                    <ComboBoxItem Content="Toastify Reloaded icon"/>
-                    <ComboBoxItem Content="None"/>
+                    <ComboBoxItem Content="Album cover" Tag="Album cover"/>
+                    <ComboBoxItem Content="Toastify Reloaded icon" Tag="Toastify Reloaded icon"/>
+                    <ComboBoxItem Content="None" Tag="None"/>
                   </ComboBox>
                   <CheckBox x:Name="IconFallbackCheck" Content="Usa icona Toastify se la cover non è disponibile"/>
                 </StackPanel>
@@ -133,19 +134,19 @@
             <StackPanel Margin="18" Spacing="10">
               <TextBlock Text="Tema toast"/>
               <ComboBox x:Name="ToastThemeCombo">
-                <ComboBoxItem Content="Classic Toastify"/>
-                <ComboBoxItem Content="Spotify Green"/>
-                <ComboBoxItem Content="Midnight Blue"/>
-                <ComboBoxItem Content="Neon Purple"/>
-                <ComboBoxItem Content="Cyberpunk"/>
-                <ComboBoxItem Content="Crimson Night"/>
-                <ComboBoxItem Content="Amber Gold"/>
-                <ComboBoxItem Content="Emerald"/>
-                <ComboBoxItem Content="Ocean"/>
-                <ComboBoxItem Content="Sakura"/>
-                <ComboBoxItem Content="Arctic"/>
-                <ComboBoxItem Content="Monochrome"/>
-                <ComboBoxItem Content="Retro Synthwave"/>
+                <ComboBoxItem Content="Classic Toastify" Tag="Classic Toastify"/>
+                <ComboBoxItem Content="Spotify Green" Tag="Spotify Green"/>
+                <ComboBoxItem Content="Midnight Blue" Tag="Midnight Blue"/>
+                <ComboBoxItem Content="Neon Purple" Tag="Neon Purple"/>
+                <ComboBoxItem Content="Cyberpunk" Tag="Cyberpunk"/>
+                <ComboBoxItem Content="Crimson Night" Tag="Crimson Night"/>
+                <ComboBoxItem Content="Amber Gold" Tag="Amber Gold"/>
+                <ComboBoxItem Content="Emerald" Tag="Emerald"/>
+                <ComboBoxItem Content="Ocean" Tag="Ocean"/>
+                <ComboBoxItem Content="Sakura" Tag="Sakura"/>
+                <ComboBoxItem Content="Arctic" Tag="Arctic"/>
+                <ComboBoxItem Content="Monochrome" Tag="Monochrome"/>
+                <ComboBoxItem Content="Retro Synthwave" Tag="Retro Synthwave"/>
               </ComboBox>
               <TextBlock TextWrapping="Wrap" Opacity="0.7"
                          Text="La Linux Preview usa gli stessi nomi dei preset Windows. La personalizzazione colore completa arriverà durante il lavoro di parity."/>
@@ -157,20 +158,20 @@
             <Grid Margin="18" ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
               <TextBlock Text="Stile animazione" VerticalAlignment="Center"/>
               <ComboBox x:Name="AnimationStyleCombo" Grid.Column="1">
-                <ComboBoxItem Content="Fade"/>
-                <ComboBoxItem Content="Slide"/>
-                <ComboBoxItem Content="Fade + Slide"/>
-                <ComboBoxItem Content="None"/>
+                <ComboBoxItem Content="Fade" Tag="Fade"/>
+                <ComboBoxItem Content="Slide" Tag="Slide"/>
+                <ComboBoxItem Content="Fade + Slide" Tag="Fade + Slide"/>
+                <ComboBoxItem Content="None" Tag="None"/>
               </ComboBox>
 
               <TextBlock Grid.Row="1" Text="Slide In" VerticalAlignment="Center"/>
               <ComboBox x:Name="SlideInCombo" Grid.Row="1" Grid.Column="1">
-                <ComboBoxItem Content="Up"/><ComboBoxItem Content="Down"/><ComboBoxItem Content="Left"/><ComboBoxItem Content="Right"/>
+                <ComboBoxItem Content="Up" Tag="Up"/><ComboBoxItem Content="Down" Tag="Down"/><ComboBoxItem Content="Left" Tag="Left"/><ComboBoxItem Content="Right" Tag="Right"/>
               </ComboBox>
 
               <TextBlock Grid.Row="2" Text="Slide Out" VerticalAlignment="Center"/>
               <ComboBox x:Name="SlideOutCombo" Grid.Row="2" Grid.Column="1">
-                <ComboBoxItem Content="Up"/><ComboBoxItem Content="Down"/><ComboBoxItem Content="Left"/><ComboBoxItem Content="Right"/>
+                <ComboBoxItem Content="Up" Tag="Up"/><ComboBoxItem Content="Down" Tag="Down"/><ComboBoxItem Content="Left" Tag="Left"/><ComboBoxItem Content="Right" Tag="Right"/>
               </ComboBox>
 
               <TextBlock Grid.Row="3" Text="Distanza entrata" VerticalAlignment="Center"/>
@@ -184,24 +185,49 @@
       </TabItem>
 
       <TabItem Header="Avanzate">
-        <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,*">
-          <GroupBox Header="Diagnostica Linux" Margin="0,0,10,0">
+        <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,*">
+          <GroupBox Header="Diagnostica Linux" Margin="0,0,10,10">
             <StackPanel Margin="12" Spacing="8">
               <TextBlock x:Name="DiagnosticsText" TextWrapping="Wrap"/>
               <Button Content="Aggiorna diagnostica" Click="RefreshStatus_Click" HorizontalAlignment="Left"/>
             </StackPanel>
           </GroupBox>
-          <GroupBox Grid.Column="1" Header="Note Preview" Margin="10,0,0,0">
+
+          <GroupBox Grid.Column="1" Header="Import / Export impostazioni" Margin="10,0,0,10">
+            <StackPanel Margin="12" Spacing="10">
+              <Button Content="Esporta impostazioni" Click="ExportSettings_Click"/>
+              <Button Content="Importa impostazioni" Click="ImportSettings_Click"/>
+              <TextBlock x:Name="SettingsIoStatusText" TextWrapping="Wrap" Opacity="0.7"/>
+            </StackPanel>
+          </GroupBox>
+
+          <GroupBox Grid.Row="1" Header="Aggiornamenti Linux" Margin="0,0,10,10">
+            <StackPanel Margin="12" Spacing="10">
+              <CheckBox x:Name="AutoCheckUpdatesCheck"
+                        Content="Controlla automaticamente nuove preview Linux"/>
+              <Button Content="Controlla aggiornamenti"
+                      Click="CheckUpdates_Click"
+                      HorizontalAlignment="Left"/>
+              <Button x:Name="OpenReleaseButton"
+                      Content="Apri ultima release"
+                      Click="OpenLatestRelease_Click"
+                      HorizontalAlignment="Left"
+                      IsEnabled="False"/>
+              <TextBlock x:Name="UpdateStatusText" TextWrapping="Wrap" Opacity="0.7"/>
+            </StackPanel>
+          </GroupBox>
+
+          <GroupBox Grid.Row="1" Grid.Column="1" Header="Note Preview" Margin="10,0,0,10">
             <StackPanel Margin="12" Spacing="8">
               <TextBlock TextWrapping="Wrap"
-                         Text="Preview 2: backend Wayland nativo Avalonia, hotkey XDG Global Shortcuts Portal, rilevamento Spotify/MPRIS più robusto. Import/export, tray parity e updater Linux restano in sviluppo."/>
+                         Text="Preview 3: tray Linux, localizzazione runtime IT/EN, import/export, Compatibility Guard, controllo aggiornamenti e build ARM64. Il comportamento del tray dipende dal supporto StatusNotifierItem/AppIndicator del desktop."/>
             </StackPanel>
           </GroupBox>
         </Grid>
       </TabItem>
 
       <TabItem Header="Reloaded">
-        <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+        <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,*">
           <GroupBox Header="Lyrics Plus / Spicetify" Margin="0,0,10,0">
             <StackPanel Margin="12" Spacing="10">
               <TextBlock x:Name="SpicetifyStatusText" Text="Spicetify: verifica..."/>
@@ -218,12 +244,34 @@
                          Text="La riparazione Spicetify usa backup apply e il fallback restore backup apply."/>
             </StackPanel>
           </GroupBox>
+
+          <GroupBox Grid.Row="1" Grid.ColumnSpan="2" Header="Compatibility Guard Linux" Margin="0,12,0,0">
+            <Grid Margin="12" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+              <StackPanel>
+                <CheckBox x:Name="EnableCompatibilityGuardCheck"
+                          Content="Abilita Compatibility Guard"/>
+                <CheckBox x:Name="AutoRepairSpicetifyCheck"
+                          Content="Ripara automaticamente Spicetify dopo un aggiornamento Spotify"/>
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Content="Esegui controllo compatibilità"
+                      Click="RunCompatibilityGuard_Click"
+                      VerticalAlignment="Top"
+                      Margin="12,0,0,0"/>
+              <TextBlock x:Name="CompatibilityGuardStatusText"
+                         Grid.Row="2"
+                         Grid.ColumnSpan="2"
+                         Margin="0,10,0,0"
+                         TextWrapping="Wrap"
+                         Opacity="0.75"/>
+            </Grid>
+          </GroupBox>
         </Grid>
       </TabItem>
     </TabControl>
 
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
-      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.2"/>
+      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.3"/>
       <TextBlock Grid.Column="1"/>
       <Button Grid.Column="2" Content="Salva" Click="Save_Click" Padding="18,8"/>
       <Button Grid.Column="3" Content="Esci" Click="Exit_Click" Padding="18,8"/>

@@ -6,7 +6,7 @@ on:
     paths:
       - "src/ToastifyReloaded.Linux/**"
       - "packaging/linux/**"
-      - "scripts/build-linux.sh"
+      - "scripts/build-linux*.sh"
       - "scripts/package-linux-*.sh"
       - "scripts/test-linux-ci.sh"
       - ".github/workflows/linux-build.yml"
@@ -15,7 +15,7 @@ on:
     paths:
       - "src/ToastifyReloaded.Linux/**"
       - "packaging/linux/**"
-      - "scripts/build-linux.sh"
+      - "scripts/build-linux*.sh"
       - "scripts/package-linux-*.sh"
       - "scripts/test-linux-ci.sh"
       - ".github/workflows/linux-build.yml"
@@ -23,7 +23,7 @@ on:
 
 jobs:
   linux-x64:
-    name: Ubuntu 24.04 · build + smoke test + packages
+    name: Ubuntu 24.04 · x64 build + GUI smoke + packages
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -38,81 +38,60 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y playerctl xbindkeys xdg-desktop-portal dbus-x11 libx11-6 libice6 libsm6 libfontconfig1 libxext6 libxrender1 libxrandr2 libxi6 libgl1 libglib2.0-0 desktop-file-utils curl xvfb xauth
+          sudo apt-get install -y \
+            playerctl xbindkeys xdg-desktop-portal dbus-x11 \
+            libx11-6 libice6 libsm6 libfontconfig1 libxext6 \
+            libxrender1 libxrandr2 libxi6 libgl1 libglib2.0-0 \
+            desktop-file-utils curl xvfb xauth file
 
       - name: Build Linux x64
         run: |
           chmod +x scripts/build-linux.sh
           ./scripts/build-linux.sh
 
-      - name: Verify Preview 2 Wayland / portal dependencies
+      - name: Verify Preview 3 features
         run: |
           grep -q 'Avalonia.Wayland' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
           grep -q 'Tmds.DBus' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
-          grep -q 'UseWayland' src/ToastifyReloaded.Linux/Program.cs
-          grep -q 'org.freedesktop.portal.GlobalShortcuts' src/ToastifyReloaded.Linux/Services/XdgGlobalShortcutsService.cs
+          grep -q 'TrayIcon.Icons' src/ToastifyReloaded.Linux/App.axaml
+          grep -q 'GetSelfAndLogicalDescendants' src/ToastifyReloaded.Linux/Services/LocalizationService.cs
+          grep -q 'SaveFilePickerAsync' src/ToastifyReloaded.Linux/MainWindow.axaml.cs
+          grep -q 'CompatibilityGuardService' src/ToastifyReloaded.Linux/MainWindow.axaml.cs
+          grep -q 'api.github.com/repos/Marlius92/Toastify-Reloaded/releases' src/ToastifyReloaded.Linux/Services/LinuxUpdateService.cs
 
       - name: Linux GUI smoke test
         run: |
           chmod +x scripts/test-linux-ci.sh
           ./scripts/test-linux-ci.sh
 
-      - name: Package tar.gz
+      - name: Package x64
         run: |
-          chmod +x scripts/package-linux-tar.sh
+          chmod +x scripts/package-linux-tar.sh scripts/package-linux-deb.sh scripts/package-linux-appimage.sh
           ./scripts/package-linux-tar.sh
-
-      - name: Package deb
-        run: |
-          chmod +x scripts/package-linux-deb.sh
           ./scripts/package-linux-deb.sh
+          ./scripts/package-linux-appimage.sh
 
-      - name: Validate deb
+      - name: Validate x64 deb
         shell: bash
         run: |
           set -euo pipefail
-
           DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
           test -n "$DEB"
           test -s "$DEB"
-
-          echo "=== Debian package info ==="
-          dpkg-deb --info "$DEB"
-
-          echo "=== Debian package contents ==="
           CONTENTS_FILE="$RUNNER_TEMP/toastify-deb-contents.txt"
           dpkg-deb --contents "$DEB" > "$CONTENTS_FILE"
-          cat "$CONTENTS_FILE"
-
           grep -Fq '/opt/toastify-reloaded/ToastifyReloaded.Linux' "$CONTENTS_FILE"
           grep -Fq '/usr/bin/toastify-reloaded' "$CONTENTS_FILE"
           grep -Fq '/usr/share/applications/io.github.Marlius92.ToastifyReloaded.desktop' "$CONTENTS_FILE"
 
-          echo "PASS: Debian package structure validated."
-
-      - name: Package AppImage
-        run: |
-          chmod +x scripts/package-linux-appimage.sh
-          ./scripts/package-linux-appimage.sh
-
-      - name: Validate artifacts
-        shell: bash
+      - name: Validate x64 artifacts
         run: |
           set -euo pipefail
-
           test -s dist/ToastifyReloaded-Linux-x64.tar.gz
           test -s dist/ToastifyReloaded-Linux-x64.AppImage
-          test -x dist/ToastifyReloaded-Linux-x64.AppImage
-
           DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
-          test -n "$DEB"
           test -s "$DEB"
-
-          echo "=== Artifact sizes ==="
-          ls -lh             dist/ToastifyReloaded-Linux-x64.tar.gz             dist/ToastifyReloaded-Linux-x64.AppImage             "$DEB"
-
-          echo "=== SHA-256 ==="
-          sha256sum             dist/ToastifyReloaded-Linux-x64.tar.gz             dist/ToastifyReloaded-Linux-x64.AppImage             "$DEB"
+          sha256sum dist/ToastifyReloaded-Linux-x64.tar.gz dist/ToastifyReloaded-Linux-x64.AppImage "$DEB"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -122,4 +101,56 @@ jobs:
             dist/ToastifyReloaded-Linux-x64.AppImage
             dist/toastify-reloaded_*_amd64.deb
             dist/linux-smoke-test.log
+          if-no-files-found: error
+
+  linux-arm64:
+    name: Ubuntu 24.04 · ARM64 cross-build + packages
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y file
+
+      - name: Build Linux ARM64
+        run: |
+          chmod +x scripts/build-linux-arm64.sh
+          ./scripts/build-linux-arm64.sh
+
+      - name: Validate ARM64 executable
+        run: |
+          test -x dist/linux-arm64/ToastifyReloaded.Linux
+          file dist/linux-arm64/ToastifyReloaded.Linux
+          file dist/linux-arm64/ToastifyReloaded.Linux | grep -Eiq 'ARM aarch64|ARM64|aarch64'
+
+      - name: Package ARM64
+        run: |
+          chmod +x scripts/package-linux-arm64-tar.sh scripts/package-linux-arm64-deb.sh
+          ./scripts/package-linux-arm64-tar.sh
+          ./scripts/package-linux-arm64-deb.sh
+
+      - name: Validate ARM64 artifacts
+        run: |
+          set -euo pipefail
+          test -s dist/ToastifyReloaded-Linux-arm64.tar.gz
+          DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_arm64.deb' -print -quit)"
+          test -s "$DEB"
+          dpkg-deb --info "$DEB" | grep -q 'Architecture: arm64'
+          sha256sum dist/ToastifyReloaded-Linux-arm64.tar.gz "$DEB"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: toastify-reloaded-linux-arm64
+          path: |
+            dist/ToastifyReloaded-Linux-arm64.tar.gz
+            dist/toastify-reloaded_*_arm64.deb
           if-no-files-found: error

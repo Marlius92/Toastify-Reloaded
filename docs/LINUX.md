@@ -1,6 +1,6 @@
 # Toastify Reloaded — Linux Preview
 
-Version line: **1.4.0-preview.2**
+Version line: **1.4.0-preview.3**
 
 The Linux port is intentionally isolated from the stable Windows/WPF project.
 
@@ -143,3 +143,54 @@ Not yet at Windows v1.3.4 parity:
 - native Wayland backend testing
 
 These are planned before calling the Linux port stable.
+
+
+## Preview 3 additions
+
+Preview 3 expands Linux parity substantially:
+
+- Avalonia system tray integration (`TrayIcon`) with Open, Play/Pause, Next,
+  Previous and Exit actions.
+- Optional close-to-tray behavior.
+- Runtime Italian / English localization.
+- JSON settings import/export using Avalonia `StorageProvider`.
+- Linux Compatibility Guard:
+  - detects the installed Spotify version where possible;
+  - records version changes;
+  - can automatically run the Spicetify post-update repair flow;
+  - avoids repeatedly retrying the same failed Spotify version.
+- Automatic Linux preview update checks using the GitHub Releases REST API.
+- Linux ARM64 self-contained builds:
+  - `ToastifyReloaded-Linux-arm64.tar.gz`
+  - `toastify-reloaded_1.4.0~preview3_arm64.deb`
+
+### Tray compatibility
+
+Avalonia tray icons work on Linux desktops that expose StatusNotifierItem or
+AppIndicator support. Some GNOME configurations require an AppIndicator
+extension. Close-to-tray is therefore disabled by default.
+
+### Compatibility Guard
+
+The repair flow follows Spicetify's documented post-Spotify-update workflow:
+
+```bash
+spicetify backup apply
+```
+
+with fallback:
+
+```bash
+spicetify restore backup apply
+```
+
+When supported by the installation method, Toastify Reloaded also attempts
+`spicetify upgrade` before the repair. A failed `upgrade` command does not abort
+the repair because package-manager Spicetify installations can legitimately
+reject that command.
+
+### ARM64
+
+ARM64 packages are cross-published with the .NET `linux-arm64` runtime
+identifier. GitHub Actions validates the resulting ELF architecture and package
+metadata. The ARM64 build is not GUI-smoke-tested on the x64 GitHub runner.

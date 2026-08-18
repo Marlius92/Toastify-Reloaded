@@ -37,8 +37,11 @@ public sealed class LinuxSettingsService
         try
         {
             await using var stream = File.OpenRead(SettingsPath);
-            return await JsonSerializer.DeserializeAsync<LinuxSettings>(stream, JsonOptions)
-                   ?? new LinuxSettings();
+            var settings = await JsonSerializer.DeserializeAsync<LinuxSettings>(
+                stream,
+                JsonOptions);
+
+            return Normalize(settings ?? new LinuxSettings());
         }
         catch
         {
@@ -49,11 +52,69 @@ public sealed class LinuxSettingsService
     public async Task SaveAsync(LinuxSettings settings)
     {
         Directory.CreateDirectory(ConfigDirectory);
+        settings = Normalize(settings);
+
         var temp = SettingsPath + ".tmp";
 
         await using (var stream = File.Create(temp))
             await JsonSerializer.SerializeAsync(stream, settings, JsonOptions);
 
         File.Move(temp, SettingsPath, true);
+    }
+
+    public async Task ExportAsync(Stream stream, LinuxSettings settings)
+    {
+        settings = Normalize(settings);
+        await JsonSerializer.SerializeAsync(stream, settings, JsonOptions);
+        await stream.FlushAsync();
+    }
+
+    public async Task<LinuxSettings> ImportAsync(Stream stream)
+    {
+        var settings = await JsonSerializer.DeserializeAsync<LinuxSettings>(
+            stream,
+            JsonOptions);
+
+        if (settings is null)
+            throw new InvalidDataException("Invalid Toastify Reloaded settings file.");
+
+        return Normalize(settings);
+    }
+
+    private static LinuxSettings Normalize(LinuxSettings settings)
+    {
+        settings.ApplicationTheme = settings.ApplicationTheme switch
+        {
+            "Light" => "Light",
+            "Dark" => "Dark",
+            _ => "System"
+        };
+
+        settings.Language = settings.Language == "English"
+            ? "English"
+            : "Italiano";
+
+        settings.ToastDisplayMs = Math.Clamp(settings.ToastDisplayMs, 500, 15000);
+        settings.FadeInMs = Math.Clamp(settings.FadeInMs, 0, 5000);
+        settings.FadeOutMs = Math.Clamp(settings.FadeOutMs, 0, 5000);
+
+        settings.MinWidth = Math.Clamp(settings.MinWidth, 220, 1000);
+        settings.MaxWidth = Math.Clamp(settings.MaxWidth, settings.MinWidth, 1400);
+
+        settings.SlideInDistance = Math.Clamp(settings.SlideInDistance, 0, 300);
+        settings.SlideOutDistance = Math.Clamp(settings.SlideOutDistance, 0, 300);
+
+        settings.HotkeyPlayPause ??= "";
+        settings.HotkeyNext ??= "";
+        settings.HotkeyPrevious ??= "";
+        settings.HotkeyVolumeUp ??= "";
+        settings.HotkeyVolumeDown ??= "";
+        settings.HotkeyMute ??= "";
+        settings.HotkeySeekForward ??= "";
+        settings.HotkeySeekBackward ??= "";
+        settings.LastSpotifyVersion ??= "";
+        settings.LastRepairAttemptVersion ??= "";
+
+        return settings;
     }
 }

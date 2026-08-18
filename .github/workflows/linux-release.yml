@@ -6,7 +6,7 @@ on:
       - "v*-linux*"
 
 jobs:
-  release-linux-x64:
+  release-linux:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -22,24 +22,24 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            playerctl \
-            xbindkeys \
-            xdg-desktop-portal \
-            dbus-x11 \
-            libx11-6 \
-            libice6 \
-            libsm6 \
-            libfontconfig1 \
-            desktop-file-utils \
-            curl
+            playerctl xbindkeys xdg-desktop-portal dbus-x11 \
+            libx11-6 libice6 libsm6 libfontconfig1 \
+            desktop-file-utils curl file
 
-      - name: Build and package
+      - name: Build x64 and ARM64
         run: |
-          chmod +x scripts/build-linux.sh scripts/package-linux-*.sh
+          chmod +x scripts/build-linux.sh scripts/build-linux-arm64.sh
           ./scripts/build-linux.sh
+          ./scripts/build-linux-arm64.sh
+
+      - name: Package release
+        run: |
+          chmod +x scripts/package-linux-*.sh
           ./scripts/package-linux-tar.sh
           ./scripts/package-linux-deb.sh
           ./scripts/package-linux-appimage.sh
+          ./scripts/package-linux-arm64-tar.sh
+          ./scripts/package-linux-arm64-deb.sh
 
       - name: Publish Linux preview release
         uses: softprops/action-gh-release@v2
@@ -51,3 +51,5 @@ jobs:
             dist/ToastifyReloaded-Linux-x64.tar.gz
             dist/ToastifyReloaded-Linux-x64.AppImage
             dist/toastify-reloaded_*_amd64.deb
+            dist/ToastifyReloaded-Linux-arm64.tar.gz
+            dist/toastify-reloaded_*_arm64.deb
