@@ -324,7 +324,7 @@
           <GroupBox Grid.Row="1" Grid.Column="1" Header="Note Preview" Margin="10,0,0,10">
             <StackPanel Margin="12" Spacing="8">
               <TextBlock TextWrapping="Wrap"
-                         Text="Preview 4 Feature Parity Candidate: colori/font, tema Custom, posizionamento multi-monitor e updater con applicazione AppImage/.deb completano le principali funzioni della stabile Windows v1.3.4."/>
+                         Text="RC1 Feature Parity Candidate: colori/font, tema Custom, posizionamento multi-monitor e updater con applicazione AppImage/.deb completano le principali funzioni della stabile Windows v1.3.4."/>
             </StackPanel>
           </GroupBox>
         </Grid>
@@ -375,7 +375,7 @@
     </TabControl>
 
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
-      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.4"/>
+      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux RC 1.4.0-rc.1"/>
       <TextBlock Grid.Column="1"/>
       <Button Grid.Column="2" Content="Salva" Click="Save_Click" Padding="18,8"/>
       <Button Grid.Column="3" Content="Esci" Click="Exit_Click" Padding="18,8"/>

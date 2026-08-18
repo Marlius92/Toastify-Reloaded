@@ -7,7 +7,9 @@ public sealed record LinuxUpdateAsset(
     string? Digest);
 
 public sealed record LinuxUpdateInfo(
-    string Tag,
-    int PreviewNumber,
+    LinuxReleaseVersion Version,
     Uri ReleaseUri,
-    IReadOnlyList<LinuxUpdateAsset> Assets);
+    IReadOnlyList<LinuxUpdateAsset> Assets)
+{
+    public string Tag => Version.Tag;
+}

@@ -204,7 +204,7 @@ public partial class MainWindow : Window
         var track = await _playerctl.GetTrackAsync()
             ?? new LinuxTrackInfo(
                 "Toastify Reloaded Linux",
-                "Linux Preview 3",
+                "Linux RC1",
                 "Classic Toastify experience",
                 string.Empty,
                 76,
@@ -488,7 +488,7 @@ public partial class MainWindow : Window
                 Environment.NewLine,
                 new[]
                 {
-                    "Toastify Reloaded Linux: 1.4.0-preview.4",
+                    "Toastify Reloaded Linux: 1.4.0-rc.1",
                     $"OS: {Environment.OSVersion}",
                     $"Architecture: {System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture}",
                     $"Session: {_hotkeys.SessionType}",
@@ -526,7 +526,7 @@ public partial class MainWindow : Window
     private void ApplyLocalization()
     {
         _localization.Apply(this, _settings.Language);
-        Title = "Toastify Reloaded — Linux Preview 3";
+        Title = "Toastify Reloaded — Linux RC1";
     }
 
     private string T(string key)

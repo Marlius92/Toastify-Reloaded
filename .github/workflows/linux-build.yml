@@ -64,7 +64,15 @@ jobs:
           grep -q 'ToastFontCombo' src/ToastifyReloaded.Linux/MainWindow.axaml
           grep -q 'LinuxUpdateInstallerService' src/ToastifyReloaded.Linux/MainWindow.axaml.cs
           grep -q 'DownloadAndApplyAsync' src/ToastifyReloaded.Linux/Services/LinuxUpdateInstallerService.cs
+          grep -q 'v1.4.0-linux-rc.1' src/ToastifyReloaded.Linux/Services/LinuxUpdateService.cs
+          grep -q 'ReleaseCandidate' src/ToastifyReloaded.Linux/Models/LinuxReleaseVersion.cs
+          grep -q 'SELF-TEST RESULT: PASS' src/ToastifyReloaded.Linux/Services/LinuxSelfTestService.cs
           grep -q 'Custom' src/ToastifyReloaded.Linux/Models/ToastThemePalette.cs
+
+      - name: Linux RC headless self-test
+        run: |
+          chmod +x scripts/test-linux-rc.sh
+          ./scripts/test-linux-rc.sh
 
       - name: Linux GUI smoke test
         run: |
@@ -98,6 +106,7 @@ jobs:
           test -s dist/ToastifyReloaded-Linux-x64.AppImage
           DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
           test -s "$DEB"
+          tar -tzf dist/ToastifyReloaded-Linux-x64.tar.gz | grep -q 'ToastifyReloaded.Linux'
           sha256sum dist/ToastifyReloaded-Linux-x64.tar.gz dist/ToastifyReloaded-Linux-x64.AppImage "$DEB"
 
       - uses: actions/upload-artifact@v4
@@ -108,6 +117,7 @@ jobs:
             dist/ToastifyReloaded-Linux-x64.AppImage
             dist/toastify-reloaded_*_amd64.deb
             dist/linux-smoke-test.log
+            dist/linux-rc-self-test.log
           if-no-files-found: error
 
   linux-arm64:
@@ -152,6 +162,7 @@ jobs:
           DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_arm64.deb' -print -quit)"
           test -s "$DEB"
           dpkg-deb --info "$DEB" | grep -q 'Architecture: arm64'
+          tar -tzf dist/ToastifyReloaded-Linux-arm64.tar.gz | grep -q 'ToastifyReloaded.Linux'
           sha256sum dist/ToastifyReloaded-Linux-arm64.tar.gz "$DEB"
 
       - uses: actions/upload-artifact@v4

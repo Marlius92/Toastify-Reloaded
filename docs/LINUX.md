@@ -1,6 +1,6 @@
 # Toastify Reloaded — Linux Preview
 
-Version line: **1.4.0-preview.4**
+Version line: **1.4.0-rc.1**
 
 The Linux port is intentionally isolated from the stable Windows/WPF project.
 
@@ -212,3 +212,28 @@ Preview 4 closes the main remaining gaps with Windows v1.3.4:
 - SHA-256 verification when GitHub provides an asset digest.
 
 See `docs/LINUX_PARITY.md` for the parity matrix.
+
+
+## RC1 release engineering
+
+RC1 freezes the feature set introduced by Preview 4.
+
+No new product features should be added between RC1 and stable unless they fix a
+release-blocking defect.
+
+RC1 adds:
+
+- a headless executable self-test (`--self-test`);
+- settings save/load/import/export round-trip tests;
+- release-channel ordering tests:
+  `preview < rc < stable`;
+- package archive content validation;
+- stricter x64 and ARM64 release-asset validation;
+- an updater that can move from RC builds to the final
+  `v1.4.0-linux` stable release.
+
+Stable target:
+
+```text
+v1.4.0-linux
+```

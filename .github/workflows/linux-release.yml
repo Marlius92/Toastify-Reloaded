@@ -41,6 +41,16 @@ jobs:
           ./scripts/package-linux-arm64-tar.sh
           ./scripts/package-linux-arm64-deb.sh
 
+      - name: Validate release package set
+        run: |
+          set -euo pipefail
+          test -s dist/ToastifyReloaded-Linux-x64.tar.gz
+          test -s dist/ToastifyReloaded-Linux-x64.AppImage
+          test -s dist/ToastifyReloaded-Linux-arm64.tar.gz
+          test -n "$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
+          test -n "$(find dist -maxdepth 1 -name 'toastify-reloaded_*_arm64.deb' -print -quit)"
+          sha256sum             dist/ToastifyReloaded-Linux-x64.tar.gz             dist/ToastifyReloaded-Linux-x64.AppImage             dist/ToastifyReloaded-Linux-arm64.tar.gz             dist/toastify-reloaded_*_amd64.deb             dist/toastify-reloaded_*_arm64.deb
+
       - name: Publish Linux preview release
         uses: softprops/action-gh-release@v2
         with:

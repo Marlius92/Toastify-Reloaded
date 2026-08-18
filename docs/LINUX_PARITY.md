@@ -1,11 +1,11 @@
 # Linux / Windows feature parity
 
 Target Windows baseline: **Toastify Reloaded v1.3.4**  
-Linux candidate: **v1.4.0-linux-preview.4**
+Linux candidate: **v1.4.0-linux-rc.1**
 
 ## Core parity
 
-| Feature | Windows | Linux Preview 4 |
+| Feature | Windows | Linux RC1 |
 |---|---:|---:|
 | Global media hotkeys | Yes | Yes |
 | Spotify media session integration | Yes | Yes, MPRIS |
@@ -55,12 +55,12 @@ Linux candidate: **v1.4.0-linux-preview.4**
 
 ## What remains before stable
 
-Preview 4 is intended to be the **feature-parity candidate**. The remaining
+RC1 is the **feature-parity release candidate**. The remaining
 work should be release engineering rather than new features:
 
 1. GitHub CI must stay green on x64 and ARM64.
 2. Run the final X11 GUI smoke suite.
 3. Validate packaged asset names and update selection.
 4. Fix any compile/runtime regressions found by CI.
-5. Promote the same feature set to `v1.4.0-linux-rc.1`.
-6. After RC validation, publish the stable Linux release.
+5. Fix only release-blocking defects found by RC validation.
+6. Publish the stable Linux release as `v1.4.0-linux`.
