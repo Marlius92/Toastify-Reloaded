@@ -104,6 +104,34 @@ public sealed class LinuxSettingsService
         settings.SlideInDistance = Math.Clamp(settings.SlideInDistance, 0, 300);
         settings.SlideOutDistance = Math.Clamp(settings.SlideOutDistance, 0, 300);
 
+        settings.TitleFontSize = Math.Clamp(settings.TitleFontSize, 8, 36);
+        settings.ArtistFontSize = Math.Clamp(settings.ArtistFontSize, 8, 32);
+        settings.TimeFontSize = Math.Clamp(settings.TimeFontSize, 8, 28);
+
+        settings.ToastMarginX = Math.Clamp(settings.ToastMarginX, 0, 500);
+        settings.ToastMarginY = Math.Clamp(settings.ToastMarginY, 0, 500);
+        settings.MonitorIndex = Math.Max(-1, settings.MonitorIndex);
+
+        settings.ToastPosition = settings.ToastPosition switch
+        {
+            "TopLeft" => "TopLeft",
+            "TopRight" => "TopRight",
+            "BottomLeft" => "BottomLeft",
+            _ => "BottomRight"
+        };
+
+        settings.ToastFontFamily = string.IsNullOrWhiteSpace(settings.ToastFontFamily)
+            ? "Inter"
+            : settings.ToastFontFamily.Trim();
+
+        settings.CustomTopColor = NormalizeColor(settings.CustomTopColor, "#555555");
+        settings.CustomBottomColor = NormalizeColor(settings.CustomBottomColor, "#151515");
+        settings.CustomBorderColor = NormalizeColor(settings.CustomBorderColor, "#292929");
+        settings.CustomTitleColor = NormalizeColor(settings.CustomTitleColor, "#FFFFFF");
+        settings.CustomSecondaryColor = NormalizeColor(settings.CustomSecondaryColor, "#D9D9D9");
+        settings.CustomProgressBackgroundColor = NormalizeColor(settings.CustomProgressBackgroundColor, "#252525");
+        settings.CustomProgressForegroundColor = NormalizeColor(settings.CustomProgressForegroundColor, "#82B440");
+
         settings.HotkeyPlayPause ??= "";
         settings.HotkeyNext ??= "";
         settings.HotkeyPrevious ??= "";
@@ -116,5 +144,27 @@ public sealed class LinuxSettingsService
         settings.LastRepairAttemptVersion ??= "";
 
         return settings;
+    }
+
+    private static string NormalizeColor(string? value, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return fallback;
+
+        var color = value.Trim();
+
+        if (!color.StartsWith('#'))
+            color = "#" + color;
+
+        if (color.Length is not (7 or 9))
+            return fallback;
+
+        for (var i = 1; i < color.Length; i++)
+        {
+            if (!Uri.IsHexDigit(color[i]))
+                return fallback;
+        }
+
+        return color.ToUpperInvariant();
     }
 }

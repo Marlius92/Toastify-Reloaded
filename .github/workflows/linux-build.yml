@@ -58,6 +58,13 @@ jobs:
           grep -q 'SaveFilePickerAsync' src/ToastifyReloaded.Linux/MainWindow.axaml.cs
           grep -q 'CompatibilityGuardService' src/ToastifyReloaded.Linux/MainWindow.axaml.cs
           grep -q 'api.github.com/repos/Marlius92/Toastify-Reloaded/releases' src/ToastifyReloaded.Linux/Services/LinuxUpdateService.cs
+          grep -q 'CustomTopColor' src/ToastifyReloaded.Linux/Models/LinuxSettings.cs
+          grep -q 'ToastPosition' src/ToastifyReloaded.Linux/Models/LinuxSettings.cs
+          grep -q 'MonitorCombo' src/ToastifyReloaded.Linux/MainWindow.axaml
+          grep -q 'ToastFontCombo' src/ToastifyReloaded.Linux/MainWindow.axaml
+          grep -q 'LinuxUpdateInstallerService' src/ToastifyReloaded.Linux/MainWindow.axaml.cs
+          grep -q 'DownloadAndApplyAsync' src/ToastifyReloaded.Linux/Services/LinuxUpdateInstallerService.cs
+          grep -q 'Custom' src/ToastifyReloaded.Linux/Models/ToastThemePalette.cs
 
       - name: Linux GUI smoke test
         run: |

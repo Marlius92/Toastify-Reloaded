@@ -9,6 +9,23 @@ public sealed record ToastThemePalette(
     string ProgressBackground,
     string ProgressForeground)
 {
+    public static ToastThemePalette FromSettings(LinuxSettings settings)
+    {
+        if (settings.ToastTheme == "Custom")
+        {
+            return new ToastThemePalette(
+                settings.CustomTopColor,
+                settings.CustomBottomColor,
+                settings.CustomBorderColor,
+                settings.CustomTitleColor,
+                settings.CustomSecondaryColor,
+                settings.CustomProgressBackgroundColor,
+                settings.CustomProgressForegroundColor);
+        }
+
+        return FromName(settings.ToastTheme);
+    }
+
     public static ToastThemePalette FromName(string name)
         => name switch
         {

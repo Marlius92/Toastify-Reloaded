@@ -89,6 +89,7 @@
 
       <TabItem Header="Toast">
         <TabControl Margin="8">
+
           <TabItem Header="Generale">
             <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,*">
               <GroupBox Header="Comportamento" Margin="0,0,10,0">
@@ -130,6 +131,68 @@
             </Grid>
           </TabItem>
 
+          <TabItem Header="Colori e font">
+            <Grid Margin="14" ColumnDefinitions="0.8*,1.2*" RowDefinitions="Auto,*">
+              <GroupBox Header="Font" Margin="0,0,10,0">
+                <StackPanel Margin="12" Spacing="9">
+                  <TextBlock Text="Font"/>
+                  <ComboBox x:Name="ToastFontCombo">
+                    <ComboBoxItem Content="Inter" Tag="Inter"/>
+                    <ComboBoxItem Content="Sans" Tag="Sans"/>
+                    <ComboBoxItem Content="Serif" Tag="Serif"/>
+                    <ComboBoxItem Content="Monospace" Tag="Monospace"/>
+                  </ComboBox>
+                  <TextBlock Text="Dimensione titolo"/>
+                  <NumericUpDown x:Name="TitleFontSizeNumeric" Minimum="8" Maximum="36" Increment="1"/>
+                  <TextBlock Text="Dimensione artista"/>
+                  <NumericUpDown x:Name="ArtistFontSizeNumeric" Minimum="8" Maximum="32" Increment="1"/>
+                  <TextBlock Text="Dimensione tempo"/>
+                  <NumericUpDown x:Name="TimeFontSizeNumeric" Minimum="8" Maximum="28" Increment="1"/>
+                </StackPanel>
+              </GroupBox>
+
+              <GroupBox Grid.Column="1" Header="Colori Custom" Margin="10,0,0,0">
+                <Grid Margin="12" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="8">
+                  <StackPanel>
+                    <TextBlock Text="Colore superiore"/>
+                    <TextBox x:Name="CustomTopColorBox"/>
+                  </StackPanel>
+                  <StackPanel Grid.Column="1">
+                    <TextBlock Text="Colore inferiore"/>
+                    <TextBox x:Name="CustomBottomColorBox"/>
+                  </StackPanel>
+
+                  <StackPanel Grid.Row="1">
+                    <TextBlock Text="Bordo"/>
+                    <TextBox x:Name="CustomBorderColorBox"/>
+                  </StackPanel>
+                  <StackPanel Grid.Row="1" Grid.Column="1">
+                    <TextBlock Text="Titolo"/>
+                    <TextBox x:Name="CustomTitleColorBox"/>
+                  </StackPanel>
+
+                  <StackPanel Grid.Row="2">
+                    <TextBlock Text="Testo secondario"/>
+                    <TextBox x:Name="CustomSecondaryColorBox"/>
+                  </StackPanel>
+                  <StackPanel Grid.Row="2" Grid.Column="1">
+                    <TextBlock Text="Sfondo avanzamento"/>
+                    <TextBox x:Name="CustomProgressBackgroundColorBox"/>
+                  </StackPanel>
+
+                  <StackPanel Grid.Row="3">
+                    <TextBlock Text="Avanzamento"/>
+                    <TextBox x:Name="CustomProgressForegroundColorBox"/>
+                  </StackPanel>
+                  <TextBlock Grid.Row="3" Grid.Column="1"
+                             TextWrapping="Wrap"
+                             Opacity="0.7"
+                             Text="Usa valori HEX come #FFFFFF. Seleziona il tema Custom nella scheda Temi per applicarli."/>
+                </Grid>
+              </GroupBox>
+            </Grid>
+          </TabItem>
+
           <TabItem Header="Temi">
             <StackPanel Margin="18" Spacing="10">
               <TextBlock Text="Tema toast"/>
@@ -147,15 +210,21 @@
                 <ComboBoxItem Content="Arctic" Tag="Arctic"/>
                 <ComboBoxItem Content="Monochrome" Tag="Monochrome"/>
                 <ComboBoxItem Content="Retro Synthwave" Tag="Retro Synthwave"/>
+                <ComboBoxItem Content="Custom" Tag="Custom"/>
               </ComboBox>
-              <TextBlock TextWrapping="Wrap" Opacity="0.7"
-                         Text="La Linux Preview usa gli stessi nomi dei preset Windows. La personalizzazione colore completa arriverà durante il lavoro di parity."/>
-              <Button Content="Mostra toast di test" Click="TestToast_Click" HorizontalAlignment="Left"/>
+
+              <TextBlock TextWrapping="Wrap"
+                         Opacity="0.7"
+                         Text="La selezione del preset carica il tema immediatamente nel toast di test; Salva resta l'unica azione di persistenza."/>
+
+              <Button Content="Mostra toast di test"
+                      Click="TestToast_Click"
+                      HorizontalAlignment="Left"/>
             </StackPanel>
           </TabItem>
 
           <TabItem Header="Animazioni">
-            <Grid Margin="18" ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+            <Grid Margin="18" ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
               <TextBlock Text="Stile animazione" VerticalAlignment="Center"/>
               <ComboBox x:Name="AnimationStyleCombo" Grid.Column="1">
                 <ComboBoxItem Content="Fade" Tag="Fade"/>
@@ -166,12 +235,18 @@
 
               <TextBlock Grid.Row="1" Text="Slide In" VerticalAlignment="Center"/>
               <ComboBox x:Name="SlideInCombo" Grid.Row="1" Grid.Column="1">
-                <ComboBoxItem Content="Up" Tag="Up"/><ComboBoxItem Content="Down" Tag="Down"/><ComboBoxItem Content="Left" Tag="Left"/><ComboBoxItem Content="Right" Tag="Right"/>
+                <ComboBoxItem Content="Up" Tag="Up"/>
+                <ComboBoxItem Content="Down" Tag="Down"/>
+                <ComboBoxItem Content="Left" Tag="Left"/>
+                <ComboBoxItem Content="Right" Tag="Right"/>
               </ComboBox>
 
               <TextBlock Grid.Row="2" Text="Slide Out" VerticalAlignment="Center"/>
               <ComboBox x:Name="SlideOutCombo" Grid.Row="2" Grid.Column="1">
-                <ComboBoxItem Content="Up" Tag="Up"/><ComboBoxItem Content="Down" Tag="Down"/><ComboBoxItem Content="Left" Tag="Left"/><ComboBoxItem Content="Right" Tag="Right"/>
+                <ComboBoxItem Content="Up" Tag="Up"/>
+                <ComboBoxItem Content="Down" Tag="Down"/>
+                <ComboBoxItem Content="Left" Tag="Left"/>
+                <ComboBoxItem Content="Right" Tag="Right"/>
               </ComboBox>
 
               <TextBlock Grid.Row="3" Text="Distanza entrata" VerticalAlignment="Center"/>
@@ -181,6 +256,28 @@
               <NumericUpDown x:Name="SlideOutDistanceNumeric" Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="300"/>
             </Grid>
           </TabItem>
+
+          <TabItem Header="Posizione">
+            <Grid Margin="18" ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto">
+              <TextBlock Text="Monitor" VerticalAlignment="Center"/>
+              <ComboBox x:Name="MonitorCombo" Grid.Column="1"/>
+
+              <TextBlock Grid.Row="1" Text="Posizione toast" VerticalAlignment="Center"/>
+              <ComboBox x:Name="ToastPositionCombo" Grid.Row="1" Grid.Column="1">
+                <ComboBoxItem Content="Alto sinistra" Tag="TopLeft"/>
+                <ComboBoxItem Content="Alto destra" Tag="TopRight"/>
+                <ComboBoxItem Content="Basso sinistra" Tag="BottomLeft"/>
+                <ComboBoxItem Content="Basso destra" Tag="BottomRight"/>
+              </ComboBox>
+
+              <TextBlock Grid.Row="2" Text="Margine orizzontale" VerticalAlignment="Center"/>
+              <NumericUpDown x:Name="ToastMarginXNumeric" Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="500"/>
+
+              <TextBlock Grid.Row="3" Text="Margine verticale" VerticalAlignment="Center"/>
+              <NumericUpDown x:Name="ToastMarginYNumeric" Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="500"/>
+            </Grid>
+          </TabItem>
+
         </TabControl>
       </TabItem>
 
@@ -205,14 +302,21 @@
             <StackPanel Margin="12" Spacing="10">
               <CheckBox x:Name="AutoCheckUpdatesCheck"
                         Content="Controlla automaticamente nuove preview Linux"/>
+              <CheckBox x:Name="AutoInstallUpdatesCheck"
+                        Content="Installa automaticamente gli aggiornamenti Linux"/>
               <Button Content="Controlla aggiornamenti"
                       Click="CheckUpdates_Click"
                       HorizontalAlignment="Left"/>
-              <Button x:Name="OpenReleaseButton"
-                      Content="Apri ultima release"
-                      Click="OpenLatestRelease_Click"
-                      HorizontalAlignment="Left"
-                      IsEnabled="False"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button x:Name="InstallUpdateButton"
+                        Content="Scarica / installa aggiornamento"
+                        Click="InstallUpdate_Click"
+                        IsEnabled="False"/>
+                <Button x:Name="OpenReleaseButton"
+                        Content="Apri ultima release"
+                        Click="OpenLatestRelease_Click"
+                        IsEnabled="False"/>
+              </StackPanel>
               <TextBlock x:Name="UpdateStatusText" TextWrapping="Wrap" Opacity="0.7"/>
             </StackPanel>
           </GroupBox>
@@ -220,7 +324,7 @@
           <GroupBox Grid.Row="1" Grid.Column="1" Header="Note Preview" Margin="10,0,0,10">
             <StackPanel Margin="12" Spacing="8">
               <TextBlock TextWrapping="Wrap"
-                         Text="Preview 3: tray Linux, localizzazione runtime IT/EN, import/export, Compatibility Guard, controllo aggiornamenti e build ARM64. Il comportamento del tray dipende dal supporto StatusNotifierItem/AppIndicator del desktop."/>
+                         Text="Preview 4 Feature Parity Candidate: colori/font, tema Custom, posizionamento multi-monitor e updater con applicazione AppImage/.deb completano le principali funzioni della stabile Windows v1.3.4."/>
             </StackPanel>
           </GroupBox>
         </Grid>
@@ -271,7 +375,7 @@
     </TabControl>
 
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
-      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.3"/>
+      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.4"/>
       <TextBlock Grid.Column="1"/>
       <Button Grid.Column="2" Content="Salva" Click="Save_Click" Padding="18,8"/>
       <Button Grid.Column="3" Content="Esci" Click="Exit_Click" Padding="18,8"/>

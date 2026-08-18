@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>ToastifyReloaded.Linux</AssemblyName>
     <RootNamespace>ToastifyReloaded.Linux</RootNamespace>
-    <Version>1.4.0-preview.3</Version>
+    <Version>1.4.0-preview.4</Version>
     <Product>Toastify Reloaded</Product>
     <Authors>Toastify Reloaded contributors</Authors>
     <Description>Toastify Reloaded Linux Preview</Description>

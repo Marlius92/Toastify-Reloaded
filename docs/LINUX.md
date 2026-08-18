@@ -1,6 +1,6 @@
 # Toastify Reloaded — Linux Preview
 
-Version line: **1.4.0-preview.3**
+Version line: **1.4.0-preview.4**
 
 The Linux port is intentionally isolated from the stable Windows/WPF project.
 
@@ -194,3 +194,21 @@ reject that command.
 ARM64 packages are cross-published with the .NET `linux-arm64` runtime
 identifier. GitHub Actions validates the resulting ELF architecture and package
 metadata. The ARM64 build is not GUI-smoke-tested on the x64 GitHub runner.
+
+
+## Preview 4 — Feature Parity Candidate
+
+Preview 4 closes the main remaining gaps with Windows v1.3.4:
+
+- `Toast > Colors & Font`;
+- Custom toast palette;
+- font family and independent title/artist/time sizes;
+- `Toast > Position`;
+- primary or explicit monitor selection;
+- top-left, top-right, bottom-left and bottom-right placement;
+- configurable X/Y margins;
+- GitHub release asset discovery;
+- package-aware update download/application;
+- SHA-256 verification when GitHub provides an asset digest.
+
+See `docs/LINUX_PARITY.md` for the parity matrix.

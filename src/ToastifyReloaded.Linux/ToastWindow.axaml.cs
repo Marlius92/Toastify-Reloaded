@@ -26,7 +26,7 @@ public partial class ToastWindow : Window
 
     public async Task ShowToastAsync()
     {
-        ApplyTheme();
+        ApplyThemeAndTypography();
         ApplyContent();
         ApplyWidth();
 
@@ -41,10 +41,16 @@ public partial class ToastWindow : Window
                 _settings.IconFallback || !useAlbum);
         }
 
-        ProgressBar.IsVisible = _settings.ShowProgress && _track.DurationSeconds > 0;
-        TimeText.IsVisible = _settings.ShowSongTime && _track.DurationSeconds > 0;
+        ProgressBar.IsVisible =
+            _settings.ShowProgress &&
+            _track.DurationSeconds > 0;
 
-        var screen = Screens.Primary ?? Screens.All.First();
+        TimeText.IsVisible =
+            _settings.ShowSongTime &&
+            _track.DurationSeconds > 0;
+
+        var screen = ResolveTargetScreen();
+
         PositionAtEnd(screen, entering: true);
 
         Opacity = 0;
@@ -55,7 +61,8 @@ public partial class ToastWindow : Window
         var started = DateTime.UtcNow;
         var initialPosition = _track.PositionSeconds;
 
-        while ((DateTime.UtcNow - started).TotalMilliseconds < _settings.ToastDisplayMs)
+        while ((DateTime.UtcNow - started).TotalMilliseconds <
+               _settings.ToastDisplayMs)
         {
             var elapsed = _track.IsPlaying
                 ? (DateTime.UtcNow - started).TotalSeconds
@@ -96,8 +103,14 @@ public partial class ToastWindow : Window
             _track.Title?.Length ?? 0,
             _track.Artist?.Length ?? 0);
 
-        var artworkSpace = _settings.ImageMode == "None" ? 40 : 108;
-        var estimate = artworkSpace + 90 + (longest * 7.2);
+        var artworkSpace = _settings.ImageMode == "None"
+            ? 40
+            : 108;
+
+        var estimate =
+            artworkSpace +
+            90 +
+            (longest * Math.Max(5.5, _settings.TitleFontSize * 0.48));
 
         Width = Math.Clamp(
             estimate,
@@ -105,9 +118,9 @@ public partial class ToastWindow : Window
             Math.Max(_settings.MinWidth, _settings.MaxWidth));
     }
 
-    private void ApplyTheme()
+    private void ApplyThemeAndTypography()
     {
-        var palette = ToastThemePalette.FromName(_settings.ToastTheme);
+        var palette = ToastThemePalette.FromSettings(_settings);
 
         RootBorder.Background = new LinearGradientBrush
         {
@@ -120,12 +133,40 @@ public partial class ToastWindow : Window
             }
         };
 
-        RootBorder.BorderBrush = new SolidColorBrush(Color.Parse(palette.Border));
-        TitleText.Foreground = new SolidColorBrush(Color.Parse(palette.Title));
-        ArtistText.Foreground = new SolidColorBrush(Color.Parse(palette.Secondary));
-        TimeText.Foreground = new SolidColorBrush(Color.Parse(palette.Secondary));
-        ProgressBar.Background = new SolidColorBrush(Color.Parse(palette.ProgressBackground));
-        ProgressBar.Foreground = new SolidColorBrush(Color.Parse(palette.ProgressForeground));
+        RootBorder.BorderBrush =
+            new SolidColorBrush(Color.Parse(palette.Border));
+
+        TitleText.Foreground =
+            new SolidColorBrush(Color.Parse(palette.Title));
+
+        ArtistText.Foreground =
+            new SolidColorBrush(Color.Parse(palette.Secondary));
+
+        TimeText.Foreground =
+            new SolidColorBrush(Color.Parse(palette.Secondary));
+
+        ProgressBar.Background =
+            new SolidColorBrush(Color.Parse(palette.ProgressBackground));
+
+        ProgressBar.Foreground =
+            new SolidColorBrush(Color.Parse(palette.ProgressForeground));
+
+        try
+        {
+            var font = new FontFamily(_settings.ToastFontFamily);
+            TitleText.FontFamily = font;
+            ArtistText.FontFamily = font;
+            TimeText.FontFamily = font;
+        }
+        catch
+        {
+            // Keep Avalonia/platform fallback font if the requested family
+            // is unavailable.
+        }
+
+        TitleText.FontSize = _settings.TitleFontSize;
+        ArtistText.FontSize = _settings.ArtistFontSize;
+        TimeText.FontSize = _settings.TimeFontSize;
     }
 
     private void UpdateTimeline(double current)
@@ -138,15 +179,30 @@ public partial class ToastWindow : Window
             0,
             1);
 
-        TimeText.Text = $"{FormatTime(current)} / {FormatTime(_track.DurationSeconds)}";
+        TimeText.Text =
+            $"{FormatTime(current)} / {FormatTime(_track.DurationSeconds)}";
     }
 
     private static string FormatTime(double seconds)
     {
         var value = TimeSpan.FromSeconds(Math.Max(0, seconds));
+
         return value.TotalHours >= 1
             ? value.ToString(@"h\:mm\:ss")
             : value.ToString(@"m\:ss");
+    }
+
+    private Screen ResolveTargetScreen()
+    {
+        var all = Screens.All;
+
+        if (_settings.MonitorIndex >= 0 &&
+            _settings.MonitorIndex < all.Count)
+        {
+            return all[_settings.MonitorIndex];
+        }
+
+        return Screens.Primary ?? all.First();
     }
 
     private async Task AnimateInAsync(Screen screen)
@@ -158,7 +214,9 @@ public partial class ToastWindow : Window
         var startPosition = OffsetPosition(
             finalPosition,
             _settings.SlideInDirection,
-            _settings.AnimationStyle.Contains("Slide", StringComparison.OrdinalIgnoreCase)
+            _settings.AnimationStyle.Contains(
+                "Slide",
+                StringComparison.OrdinalIgnoreCase)
                 ? _settings.SlideInDistance
                 : 0);
 
@@ -166,8 +224,14 @@ public partial class ToastWindow : Window
         {
             var t = (double)i / steps;
 
-            Opacity = _settings.AnimationStyle == "None" ? 1 : t;
-            Position = Lerp(startPosition, finalPosition, t);
+            Opacity = _settings.AnimationStyle == "None"
+                ? 1
+                : t;
+
+            Position = Lerp(
+                startPosition,
+                finalPosition,
+                t);
 
             if (duration > 0)
                 await Task.Delay(16);
@@ -186,7 +250,9 @@ public partial class ToastWindow : Window
         var endPosition = OffsetPosition(
             startPosition,
             _settings.SlideOutDirection,
-            _settings.AnimationStyle.Contains("Slide", StringComparison.OrdinalIgnoreCase)
+            _settings.AnimationStyle.Contains(
+                "Slide",
+                StringComparison.OrdinalIgnoreCase)
                 ? _settings.SlideOutDistance
                 : 0);
 
@@ -194,8 +260,14 @@ public partial class ToastWindow : Window
         {
             var t = (double)i / steps;
 
-            Opacity = _settings.AnimationStyle == "None" ? 1 : 1 - t;
-            Position = Lerp(startPosition, endPosition, t);
+            Opacity = _settings.AnimationStyle == "None"
+                ? 1
+                : 1 - t;
+
+            Position = Lerp(
+                startPosition,
+                endPosition,
+                t);
 
             if (duration > 0)
                 await Task.Delay(16);
@@ -214,12 +286,31 @@ public partial class ToastWindow : Window
     {
         var area = screen.WorkingArea;
         var scale = Math.Max(1, screen.Scaling);
-        var pixelWidth = (int)Math.Round(Width * scale);
-        var pixelHeight = (int)Math.Round(Height * scale);
 
-        return new PixelPoint(
-            area.Right - pixelWidth - 18,
-            area.Bottom - pixelHeight - 18);
+        var width = (int)Math.Round(Width * scale);
+        var height = (int)Math.Round(Height * scale);
+
+        var marginX = Math.Max(0, _settings.ToastMarginX);
+        var marginY = Math.Max(0, _settings.ToastMarginY);
+
+        return _settings.ToastPosition switch
+        {
+            "TopLeft" => new PixelPoint(
+                area.X + marginX,
+                area.Y + marginY),
+
+            "TopRight" => new PixelPoint(
+                area.Right - width - marginX,
+                area.Y + marginY),
+
+            "BottomLeft" => new PixelPoint(
+                area.X + marginX,
+                area.Bottom - height - marginY),
+
+            _ => new PixelPoint(
+                area.Right - width - marginX,
+                area.Bottom - height - marginY)
+        };
     }
 
     private static PixelPoint OffsetPosition(
@@ -228,14 +319,30 @@ public partial class ToastWindow : Window
         int distance)
         => direction switch
         {
-            "Down" => new PixelPoint(point.X, point.Y + distance),
-            "Left" => new PixelPoint(point.X - distance, point.Y),
-            "Right" => new PixelPoint(point.X + distance, point.Y),
-            _ => new PixelPoint(point.X, point.Y - distance)
+            "Down" => new PixelPoint(
+                point.X,
+                point.Y + distance),
+
+            "Left" => new PixelPoint(
+                point.X - distance,
+                point.Y),
+
+            "Right" => new PixelPoint(
+                point.X + distance,
+                point.Y),
+
+            _ => new PixelPoint(
+                point.X,
+                point.Y - distance)
         };
 
-    private static PixelPoint Lerp(PixelPoint a, PixelPoint b, double t)
+    private static PixelPoint Lerp(
+        PixelPoint a,
+        PixelPoint b,
+        double t)
         => new(
-            (int)Math.Round(a.X + ((b.X - a.X) * t)),
-            (int)Math.Round(a.Y + ((b.Y - a.Y) * t)));
+            (int)Math.Round(
+                a.X + ((b.X - a.X) * t)),
+            (int)Math.Round(
+                a.Y + ((b.Y - a.Y) * t)));
 }

@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private readonly ArtworkService _artworkService = new();
     private readonly LocalizationService _localization = new();
     private readonly LinuxUpdateService _updates = new();
+    private readonly LinuxUpdateInstallerService _updateInstaller;
 
     private readonly PlayerctlService _playerctl;
     private readonly GlobalHotkeyCoordinator _hotkeys;
@@ -37,6 +38,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _playerctl = new PlayerctlService(_processService);
+        _updateInstaller = new LinuxUpdateInstallerService(_processService);
 
         var x11Hotkeys = new XbindkeysService(
             _processService,
@@ -61,6 +63,7 @@ public partial class MainWindow : Window
     {
         _settings = await _settingsService.LoadAsync();
 
+        PopulateMonitorCombo();
         LoadSettingsToUi();
         ApplyApplicationTheme();
         ApplyLocalization();
@@ -73,7 +76,11 @@ public partial class MainWindow : Window
         await RefreshStatusAsync();
 
         if (_settings.AutoCheckLinuxUpdates)
-            _ = CheckUpdatesAsync(silent: true);
+        {
+            _ = CheckUpdatesAsync(
+                silent: true,
+                installIfAvailable: _settings.AutoInstallLinuxUpdates);
+        }
 
         _pollTimer = new DispatcherTimer
         {
@@ -241,7 +248,10 @@ public partial class MainWindow : Window
             "LanguageCombo",
             "Italiano");
 
+        var selectedMonitor = ComboValue("MonitorCombo", "-1");
         ApplyLocalization();
+        PopulateMonitorCombo();
+        SelectCombo("MonitorCombo", selectedMonitor);
     }
 
     private async void ExportSettings_Click(object? sender, RoutedEventArgs e)
@@ -324,9 +334,11 @@ public partial class MainWindow : Window
     }
 
     private async void CheckUpdates_Click(object? sender, RoutedEventArgs e)
-        => await CheckUpdatesAsync(silent: false);
+        => await CheckUpdatesAsync(
+            silent: false,
+            installIfAvailable: false);
 
-    private async Task CheckUpdatesAsync(bool silent)
+    private async Task CheckUpdatesAsync(bool silent, bool installIfAvailable)
     {
         try
         {
@@ -335,6 +347,7 @@ public partial class MainWindow : Window
             if (_availableUpdate is null)
             {
                 Find<Button>("OpenReleaseButton").IsEnabled = false;
+                Find<Button>("InstallUpdateButton").IsEnabled = false;
 
                 if (!silent)
                     Find<TextBlock>("UpdateStatusText").Text = T("NoUpdate");
@@ -343,14 +356,61 @@ public partial class MainWindow : Window
             }
 
             Find<Button>("OpenReleaseButton").IsEnabled = true;
+            Find<Button>("InstallUpdateButton").IsEnabled = true;
 
             Find<TextBlock>("UpdateStatusText").Text =
                 $"{T("UpdateAvailable")}: {_availableUpdate.Tag}";
+
+            if (installIfAvailable)
+                await InstallAvailableUpdateAsync();
         }
         catch (Exception ex)
         {
             if (!silent)
                 Find<TextBlock>("UpdateStatusText").Text = ex.Message;
+        }
+    }
+
+
+    private async void InstallUpdate_Click(object? sender, RoutedEventArgs e)
+        => await InstallAvailableUpdateAsync();
+
+    private async Task InstallAvailableUpdateAsync()
+    {
+        if (_availableUpdate is null)
+            return;
+
+        Find<Button>("InstallUpdateButton").IsEnabled = false;
+
+        try
+        {
+            Find<TextBlock>("UpdateStatusText").Text =
+                _settings.Language == "English"
+                    ? "Downloading update..."
+                    : "Download aggiornamento...";
+
+            var result =
+                await _updateInstaller.DownloadAndApplyAsync(
+                    _availableUpdate);
+
+            Find<TextBlock>("UpdateStatusText").Text =
+                result.Message;
+
+            if (result.Success &&
+                result.RestartStarted)
+            {
+                RequestExit();
+            }
+        }
+        catch (Exception ex)
+        {
+            Find<TextBlock>("UpdateStatusText").Text =
+                ex.Message;
+        }
+        finally
+        {
+            if (_availableUpdate is not null)
+                Find<Button>("InstallUpdateButton").IsEnabled = true;
         }
     }
 
@@ -428,7 +488,7 @@ public partial class MainWindow : Window
                 Environment.NewLine,
                 new[]
                 {
-                    "Toastify Reloaded Linux: 1.4.0-preview.3",
+                    "Toastify Reloaded Linux: 1.4.0-preview.4",
                     $"OS: {Environment.OSVersion}",
                     $"Architecture: {System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture}",
                     $"Session: {_hotkeys.SessionType}",
@@ -507,6 +567,24 @@ public partial class MainWindow : Window
             SetCheck("IconFallbackCheck", _settings.IconFallback);
             SelectCombo("ToastThemeCombo", _settings.ToastTheme);
 
+            SelectCombo("ToastFontCombo", _settings.ToastFontFamily);
+            SetNumeric("TitleFontSizeNumeric", (decimal)_settings.TitleFontSize);
+            SetNumeric("ArtistFontSizeNumeric", (decimal)_settings.ArtistFontSize);
+            SetNumeric("TimeFontSizeNumeric", (decimal)_settings.TimeFontSize);
+
+            SetText("CustomTopColorBox", _settings.CustomTopColor);
+            SetText("CustomBottomColorBox", _settings.CustomBottomColor);
+            SetText("CustomBorderColorBox", _settings.CustomBorderColor);
+            SetText("CustomTitleColorBox", _settings.CustomTitleColor);
+            SetText("CustomSecondaryColorBox", _settings.CustomSecondaryColor);
+            SetText("CustomProgressBackgroundColorBox", _settings.CustomProgressBackgroundColor);
+            SetText("CustomProgressForegroundColorBox", _settings.CustomProgressForegroundColor);
+
+            SelectCombo("MonitorCombo", _settings.MonitorIndex.ToString());
+            SelectCombo("ToastPositionCombo", _settings.ToastPosition);
+            SetNumeric("ToastMarginXNumeric", _settings.ToastMarginX);
+            SetNumeric("ToastMarginYNumeric", _settings.ToastMarginY);
+
             SelectCombo("AnimationStyleCombo", _settings.AnimationStyle);
             SelectCombo("SlideInCombo", _settings.SlideInDirection);
             SelectCombo("SlideOutCombo", _settings.SlideOutDirection);
@@ -516,6 +594,7 @@ public partial class MainWindow : Window
             SetCheck("EnableCompatibilityGuardCheck", _settings.EnableCompatibilityGuard);
             SetCheck("AutoRepairSpicetifyCheck", _settings.AutoRepairSpicetify);
             SetCheck("AutoCheckUpdatesCheck", _settings.AutoCheckLinuxUpdates);
+            SetCheck("AutoInstallUpdatesCheck", _settings.AutoInstallLinuxUpdates);
         }
         finally
         {
@@ -557,11 +636,33 @@ public partial class MainWindow : Window
             IconFallback = CheckValue("IconFallbackCheck"),
             ToastTheme = ComboValue("ToastThemeCombo", "Classic Toastify"),
 
+            ToastFontFamily = ComboValue("ToastFontCombo", "Inter"),
+            TitleFontSize = NumericDoubleValue("TitleFontSizeNumeric", 15),
+            ArtistFontSize = NumericDoubleValue("ArtistFontSizeNumeric", 12),
+            TimeFontSize = NumericDoubleValue("TimeFontSizeNumeric", 10),
+
+            CustomTopColor = TextValue("CustomTopColorBox"),
+            CustomBottomColor = TextValue("CustomBottomColorBox"),
+            CustomBorderColor = TextValue("CustomBorderColorBox"),
+            CustomTitleColor = TextValue("CustomTitleColorBox"),
+            CustomSecondaryColor = TextValue("CustomSecondaryColorBox"),
+            CustomProgressBackgroundColor = TextValue("CustomProgressBackgroundColorBox"),
+            CustomProgressForegroundColor = TextValue("CustomProgressForegroundColorBox"),
+
             AnimationStyle = ComboValue("AnimationStyleCombo", "Fade + Slide"),
             SlideInDirection = ComboValue("SlideInCombo", "Up"),
             SlideOutDirection = ComboValue("SlideOutCombo", "Right"),
             SlideInDistance = NumericValue("SlideInDistanceNumeric", 28),
             SlideOutDistance = NumericValue("SlideOutDistanceNumeric", 50),
+
+            MonitorIndex = int.TryParse(
+                ComboValue("MonitorCombo", "-1"),
+                out var monitorIndex)
+                ? monitorIndex
+                : -1,
+            ToastPosition = ComboValue("ToastPositionCombo", "BottomRight"),
+            ToastMarginX = NumericValue("ToastMarginXNumeric", 18),
+            ToastMarginY = NumericValue("ToastMarginYNumeric", 18),
 
             KeepLyricsPlus = _settings.KeepLyricsPlus,
 
@@ -570,13 +671,52 @@ public partial class MainWindow : Window
             LastSpotifyVersion = _settings.LastSpotifyVersion,
             LastRepairAttemptVersion = _settings.LastRepairAttemptVersion,
 
-            AutoCheckLinuxUpdates = CheckValue("AutoCheckUpdatesCheck")
+            AutoCheckLinuxUpdates = CheckValue("AutoCheckUpdatesCheck"),
+            AutoInstallLinuxUpdates = CheckValue("AutoInstallUpdatesCheck")
         };
     }
 
     private T Find<T>(string name) where T : Control
         => this.FindControl<T>(name)
            ?? throw new InvalidOperationException($"Control not found: {name}");
+
+
+    private void PopulateMonitorCombo()
+    {
+        var combo = Find<ComboBox>("MonitorCombo");
+        combo.Items.Clear();
+
+        combo.Items.Add(
+            new ComboBoxItem
+            {
+                Content = _settings.Language == "English"
+                    ? "Primary monitor"
+                    : "Monitor principale",
+                Tag = "-1"
+            });
+
+        for (var i = 0; i < Screens.All.Count; i++)
+        {
+            var screen = Screens.All[i];
+            var displayName = string.IsNullOrWhiteSpace(screen.DisplayName)
+                ? $"Monitor {i + 1}"
+                : screen.DisplayName;
+
+            var primary = screen.IsPrimary
+                ? (_settings.Language == "English" ? " · primary" : " · principale")
+                : "";
+
+            combo.Items.Add(
+                new ComboBoxItem
+                {
+                    Content =
+                        $"{i + 1}: {displayName} — " +
+                        $"{screen.Bounds.Width}×{screen.Bounds.Height}" +
+                        primary,
+                    Tag = i.ToString()
+                });
+        }
+    }
 
     private void SelectCombo(string name, string value)
     {
@@ -630,6 +770,16 @@ public partial class MainWindow : Window
 
     private void SetNumeric(string name, decimal value)
         => Find<NumericUpDown>(name).Value = value;
+
+
+    private double NumericDoubleValue(string name, double fallback)
+    {
+        var value = Find<NumericUpDown>(name).Value;
+
+        return value.HasValue
+            ? (double)value.Value
+            : fallback;
+    }
 
     private int NumericValue(string name, int fallback)
     {
