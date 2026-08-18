@@ -47,7 +47,7 @@
               <TextBlock x:Name="SpotifyStatusText" Text="Spotify MPRIS: verifica..."/>
               <TextBlock x:Name="SessionStatusText" Text="Sessione grafica: verifica..."/>
               <TextBlock TextWrapping="Wrap" Opacity="0.7"
-                         Text="I controlli Spotify usano MPRIS tramite playerctl. Le hotkey personalizzate della preview usano xbindkeys su X11."/>
+                         Text="I controlli Spotify usano MPRIS tramite playerctl. Le hotkey usano xbindkeys su X11 e XDG Global Shortcuts Portal su Wayland."/>
             </StackPanel>
           </GroupBox>
         </Grid>
@@ -55,7 +55,7 @@
 
       <TabItem Header="Hotkeys">
         <Grid Margin="14" ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*">
-          <CheckBox x:Name="EnableHotkeysCheck" Grid.ColumnSpan="2" Content="Abilita hotkey globali X11 (xbindkeys)" Margin="0,0,0,12"/>
+          <CheckBox x:Name="EnableHotkeysCheck" Grid.ColumnSpan="2" Content="Abilita hotkey globali (X11 / Wayland Portal)" Margin="0,0,0,12"/>
 
           <TextBlock Grid.Row="1" Text="Play / Pause" VerticalAlignment="Center"/>
           <TextBox x:Name="PlayPauseHotkeyBox" Grid.Row="1" Grid.Column="1"/>
@@ -82,7 +82,7 @@
           <TextBox x:Name="SeekBackwardHotkeyBox" Grid.Row="8" Grid.Column="1"/>
 
           <TextBlock Grid.Row="9" Grid.ColumnSpan="2" Margin="0,14,0,0" TextWrapping="Wrap" Opacity="0.7"
-                     Text="Wayland: le hotkey personalizzate globali non sono ancora garantite nella Linux Preview. È previsto il backend XDG Global Shortcuts Portal."/>
+                     Text="Wayland: le hotkey vengono registrate tramite XDG Global Shortcuts Portal. Il desktop può mostrare una finestra di conferma al primo collegamento."/>
         </Grid>
       </TabItem>
 
@@ -194,7 +194,7 @@
           <GroupBox Grid.Column="1" Header="Note Preview" Margin="10,0,0,0">
             <StackPanel Margin="12" Spacing="8">
               <TextBlock TextWrapping="Wrap"
-                         Text="La prima Linux Preview è focalizzata su Spotify MPRIS, toast, preset, Spicetify e hotkey X11. Import/export, tray parity, updater Linux e XDG Global Shortcuts per Wayland saranno completati nelle preview successive."/>
+                         Text="Preview 2: backend Wayland nativo Avalonia, hotkey XDG Global Shortcuts Portal, rilevamento Spotify/MPRIS più robusto. Import/export, tray parity e updater Linux restano in sviluppo."/>
             </StackPanel>
           </GroupBox>
         </Grid>
@@ -223,7 +223,7 @@
     </TabControl>
 
     <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
-      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.1"/>
+      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.2"/>
       <TextBlock Grid.Column="1"/>
       <Button Grid.Column="2" Content="Salva" Click="Save_Click" Padding="18,8"/>
       <Button Grid.Column="3" Content="Esci" Click="Exit_Click" Padding="18,8"/>

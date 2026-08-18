@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>ToastifyReloaded.Linux</AssemblyName>
     <RootNamespace>ToastifyReloaded.Linux</RootNamespace>
-    <Version>1.4.0-preview.1</Version>
+    <Version>1.4.0-preview.2</Version>
     <Product>Toastify Reloaded</Product>
     <Authors>Toastify Reloaded contributors</Authors>
     <Description>Toastify Reloaded Linux Preview</Description>
@@ -19,6 +19,8 @@
     <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Wayland" Version="12.1.1" />
+    <PackageReference Include="Tmds.DBus" Version="0.94.2" />
   </ItemGroup>
 
   <ItemGroup>

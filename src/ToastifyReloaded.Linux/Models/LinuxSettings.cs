@@ -6,6 +6,7 @@ public sealed class LinuxSettings
     public string Language { get; set; } = "Italiano";
     public bool StartWithSession { get; set; } = false;
     public bool EnableX11GlobalHotkeys { get; set; } = true;
+    public bool EnableWaylandPortalHotkeys { get; set; } = true;
 
     public string HotkeyPlayPause { get; set; } = "Ctrl+Alt+Space";
     public string HotkeyNext { get; set; } = "Ctrl+Alt+Right";

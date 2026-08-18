@@ -1,14 +1,15 @@
 # Toastify Reloaded — Linux Preview
 
-Version line: **1.4.0-preview.1**
+Version line: **1.4.0-preview.2**
 
 The Linux port is intentionally isolated from the stable Windows/WPF project.
 
 ## Architecture
 
-- UI: **Avalonia 12.1.1**
+- UI: **Avalonia 12.1.1**, including opt-in native Wayland backend
 - Spotify control/metadata: **MPRIS**, accessed through `playerctl`
 - X11 global custom hotkeys: **xbindkeys**
+- Wayland global custom hotkeys: **XDG Global Shortcuts Portal** via D-Bus
 - Spicetify / Lyrics Plus: existing `spicetify` CLI
 - Settings: `~/.config/toastify-reloaded/settings.json`
 - Autostart: `~/.config/autostart/io.github.Marlius92.ToastifyReloaded.desktop`
@@ -83,15 +84,18 @@ playerctl --player=spotify metadata title
 
 ## X11 vs Wayland
 
-The first Linux Preview uses `xbindkeys` for custom global hotkeys.
+Preview 2 automatically selects the hotkey backend:
 
-- **X11:** supported.
-- **Wayland:** Spotify/MPRIS control and the application UI work, but custom global
-  hotkeys are not guaranteed because Wayland intentionally restricts arbitrary
-  global keyboard grabs.
+- **X11:** `xbindkeys`.
+- **Wayland:** `org.freedesktop.portal.GlobalShortcuts`.
 
-A future preview will use `org.freedesktop.portal.GlobalShortcuts` on desktops
-that provide the XDG Global Shortcuts portal.
+On Wayland, the desktop portal may present a confirmation/configuration dialog
+the first time Toastify Reloaded binds shortcuts. The portal backend must be
+provided by the desktop environment.
+
+Avalonia 12.1's native Wayland backend is enabled automatically when
+`WAYLAND_DISPLAY` is present. Set `TOASTIFY_DISABLE_NATIVE_WAYLAND=1` to force
+the normal platform-detection/XWayland path.
 
 ## AppImage note
 
@@ -130,7 +134,6 @@ chmod +x scripts/package-linux-appimage.sh
 
 Not yet at Windows v1.3.4 parity:
 
-- XDG Global Shortcuts portal backend for Wayland
 - Linux-native self-updater
 - complete English/Italian localization parity
 - complete settings import/export parity

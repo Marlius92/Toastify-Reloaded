@@ -38,12 +38,19 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y playerctl xbindkeys libx11-6 libice6 libsm6 libfontconfig1 libxext6 libxrender1 libxrandr2 libxi6 libgl1 libglib2.0-0 desktop-file-utils curl xvfb xauth
+          sudo apt-get install -y playerctl xbindkeys xdg-desktop-portal dbus-x11 libx11-6 libice6 libsm6 libfontconfig1 libxext6 libxrender1 libxrandr2 libxi6 libgl1 libglib2.0-0 desktop-file-utils curl xvfb xauth
 
       - name: Build Linux x64
         run: |
           chmod +x scripts/build-linux.sh
           ./scripts/build-linux.sh
+
+      - name: Verify Preview 2 Wayland / portal dependencies
+        run: |
+          grep -q 'Avalonia.Wayland' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
+          grep -q 'Tmds.DBus' src/ToastifyReloaded.Linux/ToastifyReloaded.Linux.csproj
+          grep -q 'UseWayland' src/ToastifyReloaded.Linux/Program.cs
+          grep -q 'org.freedesktop.portal.GlobalShortcuts' src/ToastifyReloaded.Linux/Services/XdgGlobalShortcutsService.cs
 
       - name: Linux GUI smoke test
         run: |

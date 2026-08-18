@@ -7,6 +7,7 @@ public sealed class PlayerctlService
 {
     private readonly ProcessService _process;
     private double _lastNonZeroVolume = 0.5;
+    private string? _cachedPlayer;
 
     public PlayerctlService(ProcessService process)
         => _process = process;
@@ -14,19 +15,49 @@ public sealed class PlayerctlService
     public Task<bool> IsAvailableAsync()
         => _process.ExistsAsync("playerctl");
 
-    public async Task<bool> IsSpotifyAvailableAsync()
+    public async Task<string?> ResolveSpotifyPlayerAsync(bool forceRefresh = false)
     {
-        var result = await RunAsync("--list-all");
-        if (result.ExitCode != 0)
-            return false;
+        if (!forceRefresh && !string.IsNullOrWhiteSpace(_cachedPlayer))
+        {
+            var status = await RunRawAsync(
+                "--player=" + _cachedPlayer,
+                "status");
 
-        return result.StdOut
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Any(x => x.Trim().StartsWith("spotify", StringComparison.OrdinalIgnoreCase));
+            if (status.ExitCode == 0)
+                return _cachedPlayer;
+        }
+
+        var result = await RunRawAsync("--list-all");
+        if (result.ExitCode != 0)
+        {
+            _cachedPlayer = null;
+            return null;
+        }
+
+        var players = result.StdOut
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        _cachedPlayer =
+            players.FirstOrDefault(p => p.Equals("spotify", StringComparison.OrdinalIgnoreCase))
+            ?? players.FirstOrDefault(p => p.StartsWith("spotify.instance", StringComparison.OrdinalIgnoreCase))
+            ?? players.FirstOrDefault(p => p.StartsWith("spotify", StringComparison.OrdinalIgnoreCase))
+            ?? players.FirstOrDefault(p => p.Equals("spotifyd", StringComparison.OrdinalIgnoreCase))
+            ?? players.FirstOrDefault(p => p.StartsWith("spotifyd", StringComparison.OrdinalIgnoreCase));
+
+        return _cachedPlayer;
     }
+
+    public async Task<bool> IsSpotifyAvailableAsync()
+        => await ResolveSpotifyPlayerAsync(forceRefresh: true) is not null;
 
     public async Task<LinuxTrackInfo?> GetTrackAsync()
     {
+        var player = await ResolveSpotifyPlayerAsync();
+        if (player is null)
+            return null;
+
         const string separator = "|||";
         var format =
             "{{title}}" + separator +
@@ -35,7 +66,18 @@ public sealed class PlayerctlService
             "{{mpris:length}}" + separator +
             "{{mpris:artUrl}}";
 
-        var metadata = await RunAsync("--player=spotify", "--format", format, "metadata");
+        var metadata = await RunPlayerAsync(player, "--format", format, "metadata");
+
+        if (metadata.ExitCode != 0 || string.IsNullOrWhiteSpace(metadata.StdOut))
+        {
+            // Spotify may have restarted and received a new MPRIS name.
+            player = await ResolveSpotifyPlayerAsync(forceRefresh: true);
+            if (player is null)
+                return null;
+
+            metadata = await RunPlayerAsync(player, "--format", format, "metadata");
+        }
+
         if (metadata.ExitCode != 0 || string.IsNullOrWhiteSpace(metadata.StdOut))
             return null;
 
@@ -43,8 +85,8 @@ public sealed class PlayerctlService
         if (parts.Length < 5)
             return null;
 
-        var positionResult = await RunAsync("--player=spotify", "position");
-        var statusResult = await RunAsync("--player=spotify", "status");
+        var positionResult = await RunPlayerAsync(player, "position");
+        var statusResult = await RunPlayerAsync(player, "status");
 
         double position = 0;
         _ = double.TryParse(
@@ -67,7 +109,7 @@ public sealed class PlayerctlService
             parts[0].Trim(),
             parts[1].Trim(),
             parts[2].Trim(),
-            parts[4].Trim(),
+            NormalizeArtwork(parts[4]),
             Math.Max(0, position),
             Math.Max(0, duration),
             statusResult.StdOut.Equals("Playing", StringComparison.OrdinalIgnoreCase));
@@ -83,7 +125,11 @@ public sealed class PlayerctlService
 
     public async Task ToggleMuteAsync()
     {
-        var current = await RunAsync("--player=spotify", "volume");
+        var player = await ResolveSpotifyPlayerAsync();
+        if (player is null)
+            return;
+
+        var current = await RunPlayerAsync(player, "volume");
         if (current.ExitCode != 0)
             return;
 
@@ -97,11 +143,12 @@ public sealed class PlayerctlService
         if (volume > 0.001)
         {
             _lastNonZeroVolume = volume;
-            await CommandAsync("volume", "0");
+            await RunPlayerAsync(player, "volume", "0");
         }
         else
         {
-            await CommandAsync(
+            await RunPlayerAsync(
+                player,
                 "volume",
                 Math.Clamp(_lastNonZeroVolume, 0.05, 1.0)
                     .ToString("0.00", CultureInfo.InvariantCulture));
@@ -109,8 +156,40 @@ public sealed class PlayerctlService
     }
 
     private async Task CommandAsync(params string[] command)
-        => _ = await RunAsync(new[] { "--player=spotify" }.Concat(command).ToArray());
+    {
+        var player = await ResolveSpotifyPlayerAsync();
+        if (player is null)
+            return;
 
-    private Task<(int ExitCode, string StdOut, string StdErr)> RunAsync(params string[] args)
+        var result = await RunPlayerAsync(player, command);
+        if (result.ExitCode != 0)
+        {
+            _cachedPlayer = null;
+            player = await ResolveSpotifyPlayerAsync(forceRefresh: true);
+            if (player is not null)
+                _ = await RunPlayerAsync(player, command);
+        }
+    }
+
+    private Task<(int ExitCode, string StdOut, string StdErr)> RunPlayerAsync(
+        string player,
+        params string[] args)
+        => RunRawAsync(new[] { "--player=" + player }.Concat(args).ToArray());
+
+    private Task<(int ExitCode, string StdOut, string StdErr)> RunRawAsync(
+        params string[] args)
         => _process.RunAsync("playerctl", args);
+
+    private static string NormalizeArtwork(string value)
+    {
+        var art = value.Trim();
+
+        if (art.StartsWith("https://open.spotify.com/image/", StringComparison.OrdinalIgnoreCase))
+            return art.Replace(
+                "https://open.spotify.com/image/",
+                "https://i.scdn.co/image/",
+                StringComparison.OrdinalIgnoreCase);
+
+        return art;
+    }
 }

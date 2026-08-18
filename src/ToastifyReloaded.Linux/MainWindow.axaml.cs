@@ -15,7 +15,7 @@ public partial class MainWindow : Window
     private readonly ArtworkService _artworkService = new();
 
     private readonly PlayerctlService _playerctl;
-    private readonly XbindkeysService _hotkeys;
+    private readonly GlobalHotkeyCoordinator _hotkeys;
     private readonly SpicetifyLinuxService _spicetify;
     private readonly LinuxAutostartService _autostart = new();
 
@@ -29,7 +29,9 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _playerctl = new PlayerctlService(_processService);
-        _hotkeys = new XbindkeysService(_processService, _settingsService);
+        var x11Hotkeys = new XbindkeysService(_processService, _settingsService);
+        var waylandHotkeys = new XdgGlobalShortcutsService(_playerctl);
+        _hotkeys = new GlobalHotkeyCoordinator(x11Hotkeys, waylandHotkeys);
         _spicetify = new SpicetifyLinuxService(_processService);
 
         Opened += async (_, _) => await InitializeAsync();
@@ -171,7 +173,7 @@ public partial class MainWindow : Window
             $"Spicetify: {spicetifyVersion}";
 
         var hotkeyText = _hotkeys.IsWayland
-            ? "Wayland: hotkey personalizzate globali limitate nella Preview"
+            ? "Wayland: backend XDG Global Shortcuts Portal"
             : "X11: backend hotkey xbindkeys";
 
         this.FindControl<TextBlock>("StatusText")!.Text =
@@ -184,7 +186,7 @@ public partial class MainWindow : Window
                 Environment.NewLine,
                 new[]
                 {
-                    $"Toastify Reloaded Linux: 1.4.0-preview.1",
+                    $"Toastify Reloaded Linux: 1.4.0-preview.2",
                     $"OS: {Environment.OSVersion}",
                     $"Sessione: {_hotkeys.SessionType}",
                     $"DISPLAY: {Environment.GetEnvironmentVariable("DISPLAY") ?? "(none)"}",
@@ -260,6 +262,7 @@ public partial class MainWindow : Window
             Language = ComboValue("LanguageCombo", "Italiano"),
             StartWithSession = CheckValue("AutostartCheck"),
             EnableX11GlobalHotkeys = CheckValue("EnableHotkeysCheck"),
+            EnableWaylandPortalHotkeys = CheckValue("EnableHotkeysCheck"),
 
             HotkeyPlayPause = TextValue("PlayPauseHotkeyBox"),
             HotkeyNext = TextValue("NextHotkeyBox"),
