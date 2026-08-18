@@ -8,6 +8,7 @@ on:
       - "packaging/linux/**"
       - "scripts/build-linux.sh"
       - "scripts/package-linux-*.sh"
+      - "scripts/test-linux-ci.sh"
       - ".github/workflows/linux-build.yml"
   pull_request:
     branches: [ main ]
@@ -16,15 +17,16 @@ on:
       - "packaging/linux/**"
       - "scripts/build-linux.sh"
       - "scripts/package-linux-*.sh"
+      - "scripts/test-linux-ci.sh"
       - ".github/workflows/linux-build.yml"
   workflow_dispatch:
 
 jobs:
   linux-x64:
+    name: Ubuntu 24.04 · build + smoke test + packages
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-
     steps:
       - uses: actions/checkout@v4
 
@@ -32,23 +34,20 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Install Linux packaging/runtime dependencies
+      - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            playerctl \
-            xbindkeys \
-            libx11-6 \
-            libice6 \
-            libsm6 \
-            libfontconfig1 \
-            desktop-file-utils \
-            curl
+          sudo apt-get install -y playerctl xbindkeys libx11-6 libice6 libsm6 libfontconfig1 libxext6 libxrender1 libxrandr2 libxi6 libgl1 libglib2.0-0 desktop-file-utils curl xvfb xauth
 
       - name: Build Linux x64
         run: |
           chmod +x scripts/build-linux.sh
           ./scripts/build-linux.sh
+
+      - name: Linux GUI smoke test
+        run: |
+          chmod +x scripts/test-linux-ci.sh
+          ./scripts/test-linux-ci.sh
 
       - name: Package tar.gz
         run: |
@@ -60,17 +59,37 @@ jobs:
           chmod +x scripts/package-linux-deb.sh
           ./scripts/package-linux-deb.sh
 
+      - name: Validate deb
+        run: |
+          set -euo pipefail
+          DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
+          test -n "$DEB"
+          dpkg-deb --info "$DEB"
+          dpkg-deb --contents "$DEB" | grep -q '/opt/toastify-reloaded/ToastifyReloaded.Linux'
+          dpkg-deb --contents "$DEB" | grep -q '/usr/bin/toastify-reloaded'
+
       - name: Package AppImage
         run: |
           chmod +x scripts/package-linux-appimage.sh
           ./scripts/package-linux-appimage.sh
 
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
+      - name: Validate artifacts
+        run: |
+          set -euo pipefail
+          test -s dist/ToastifyReloaded-Linux-x64.tar.gz
+          test -s dist/ToastifyReloaded-Linux-x64.AppImage
+          test -x dist/ToastifyReloaded-Linux-x64.AppImage
+          DEB="$(find dist -maxdepth 1 -name 'toastify-reloaded_*_amd64.deb' -print -quit)"
+          test -s "$DEB"
+          ls -lh dist/ToastifyReloaded-Linux-x64.tar.gz dist/ToastifyReloaded-Linux-x64.AppImage "$DEB"
+          sha256sum dist/ToastifyReloaded-Linux-x64.tar.gz dist/ToastifyReloaded-Linux-x64.AppImage "$DEB"
+
+      - uses: actions/upload-artifact@v4
         with:
           name: toastify-reloaded-linux-x64
           path: |
             dist/ToastifyReloaded-Linux-x64.tar.gz
             dist/ToastifyReloaded-Linux-x64.AppImage
             dist/toastify-reloaded_*_amd64.deb
+            dist/linux-smoke-test.log
           if-no-files-found: error
