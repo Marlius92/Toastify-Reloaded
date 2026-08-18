@@ -25,6 +25,13 @@ cp "$ROOT/packaging/linux/io.github.Marlius92.ToastifyReloaded.desktop" \
 cp "$ROOT/packaging/linux/io.github.Marlius92.ToastifyReloaded.png" \
    "$APPDIR/usr/share/icons/hicolor/256x256/apps/"
 
+cat > "$APPDIR/usr/bin/toastify-reloaded" <<'EOF'
+#!/usr/bin/env bash
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "$HERE/lib/toastify-reloaded/ToastifyReloaded.Linux" "$@"
+EOF
+chmod +x "$APPDIR/usr/bin/toastify-reloaded"
+
 cp "$ROOT/packaging/linux/io.github.Marlius92.ToastifyReloaded.desktop" \
    "$APPDIR/io.github.Marlius92.ToastifyReloaded.desktop"
 cp "$ROOT/packaging/linux/io.github.Marlius92.ToastifyReloaded.png" \

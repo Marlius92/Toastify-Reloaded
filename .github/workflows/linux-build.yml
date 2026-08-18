@@ -81,12 +81,32 @@ jobs:
           chmod +x scripts/test-linux-ci.sh
           ./scripts/test-linux-ci.sh
 
+      - name: Validate Linux desktop entry
+        run: |
+          desktop-file-validate packaging/linux/io.github.Marlius92.ToastifyReloaded.desktop
+
       - name: Package x64
         run: |
           chmod +x scripts/package-linux-tar.sh scripts/package-linux-deb.sh scripts/package-linux-appimage.sh
           ./scripts/package-linux-tar.sh
           ./scripts/package-linux-deb.sh
           ./scripts/package-linux-appimage.sh
+
+      - name: Validate AppImage structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/toastify-appimage"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          (
+            cd "$WORK"
+            "$GITHUB_WORKSPACE/dist/ToastifyReloaded-Linux-x64.AppImage" --appimage-extract >/dev/null
+          )
+          test -x "$WORK/squashfs-root/AppRun"
+          test -x "$WORK/squashfs-root/usr/bin/toastify-reloaded"
+          test -x "$WORK/squashfs-root/usr/lib/toastify-reloaded/ToastifyReloaded.Linux"
+          grep -Fq 'Exec=toastify-reloaded' "$WORK/squashfs-root/io.github.Marlius92.ToastifyReloaded.desktop"
 
       - name: Validate x64 deb
         shell: bash

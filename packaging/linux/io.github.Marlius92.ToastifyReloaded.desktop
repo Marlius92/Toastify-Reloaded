@@ -5,6 +5,6 @@ Comment=Spotify toast notifications and global controls
 Exec=toastify-reloaded
 Icon=io.github.Marlius92.ToastifyReloaded
 Terminal=false
-Categories=Audio;Utility;
+Categories=AudioVideo;
 Keywords=Spotify;Music;MPRIS;Toastify;
 StartupNotify=true

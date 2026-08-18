@@ -1,79 +1,90 @@
 # Toastify Reloaded — Linux
 
-Stable version: **1.4.0**
+Stable version: **1.4.0**  
+Stable tag: **`v1.4.0-linux`**
 
-The Linux port is intentionally isolated from the stable Windows/WPF project.
+The Linux port is intentionally isolated from the stable Windows/WPF application and uses Linux-native backends where Windows APIs do not exist.
 
 ## Architecture
 
 - UI: **Avalonia 12.1.1**, including opt-in native Wayland backend
 - Spotify control/metadata: **MPRIS**, accessed through `playerctl`
 - X11 global custom hotkeys: **xbindkeys**
-- Wayland global custom hotkeys: **XDG Global Shortcuts Portal** via D-Bus
+- Wayland global custom hotkeys: **XDG Global Shortcuts Portal** through D-Bus
 - Spicetify / Lyrics Plus: existing `spicetify` CLI
 - Settings: `~/.config/toastify-reloaded/settings.json`
 - Autostart: `~/.config/autostart/io.github.Marlius92.ToastifyReloaded.desktop`
 
 ## Linux 1.4.0 features
 
-- Play / Pause
-- Previous / Next
+- Play / Pause, Previous / Next
 - Seek ±10 seconds
-- Spotify volume ±5%
-- X11 custom global hotkeys
+- Spotify volume and mute controls
+- Automatic MPRIS player detection/reconnection
 - Track-change toast
-- Adaptive toast width
+- Adaptive and fixed toast geometry
 - Album artwork
 - Toastify icon fallback
 - Optional progress bar
 - Optional current time / duration
-- Fade, Slide and Fade + Slide animation
+- Fade, Slide, Fade + Slide and None animation modes
 - Independent Slide In / Slide Out direction and distance
-- 13 Toastify Reloaded theme presets
+- 13 built-in Toastify Reloaded theme presets plus Custom
+- Custom toast palette
+- Font family and independent title/artist/time sizes
 - Light / Dark / Follow system application theme
+- Position presets, monitor selection and custom X/Y margins
+- X11 and Wayland global shortcuts
 - Linux session diagnostics
-- Spicetify Lyrics Plus enable
-- Spicetify repair (`backup apply`, fallback `restore backup apply`)
+- System tray controls
+- Optional close-to-tray
+- English / Italian runtime localization
+- JSON settings import/export
+- Spicetify Lyrics Plus enable/repair helpers
+- Compatibility Guard with failed-version anti-loop behavior
+- Package-aware update checks/download/application
 - Linux session autostart
-- `.deb`, AppImage and tar.gz packaging
+- x64 and ARM64 release packages
+
+See `docs/LINUX_PARITY.md` for the Windows/Linux parity matrix.
 
 ## Requirements
 
-Avalonia desktop Linux requires common X11 runtime libraries. The Debian package
-declares the following dependencies:
+The Debian package declares:
 
 ```text
 playerctl
 xbindkeys
+xdg-desktop-portal
 libx11-6
 libice6
 libsm6
 libfontconfig1
 ```
 
-For AppImage/tar users, install `playerctl` and `xbindkeys` separately.
+For AppImage/tar users, install the required host tools and desktop libraries using the package manager for the distribution.
 
 ### Ubuntu / Debian
 
 ```bash
-sudo apt install playerctl xbindkeys libx11-6 libice6 libsm6 libfontconfig1
+sudo apt install playerctl xbindkeys xdg-desktop-portal libx11-6 libice6 libsm6 libfontconfig1
 ```
 
 ### Fedora
 
 ```bash
-sudo dnf install playerctl xbindkeys libX11 libICE libSM fontconfig
+sudo dnf install playerctl xbindkeys xdg-desktop-portal libX11 libICE libSM fontconfig
 ```
 
 ### Arch Linux
 
 ```bash
-sudo pacman -S playerctl xbindkeys libx11 libice libsm fontconfig
+sudo pacman -S playerctl xbindkeys xdg-desktop-portal libx11 libice libsm fontconfig
 ```
 
-## Spotify
+## Spotify / MPRIS
 
-`playerctl -l` should list a player whose name starts with `spotify`.
+`playerctl -l` should list a player whose name starts with `spotify` (or a compatible MPRIS implementation such as `spotifyd`).
 
 Test:
 
@@ -84,95 +95,28 @@ playerctl --player=spotify metadata title
 
 ## X11 vs Wayland
 
-Preview 2 automatically selects the hotkey backend:
+Toastify Reloaded selects the hotkey backend from the active session:
 
-- **X11:** `xbindkeys`.
-- **Wayland:** `org.freedesktop.portal.GlobalShortcuts`.
+- **X11:** `xbindkeys`
+- **Wayland:** `org.freedesktop.portal.GlobalShortcuts`
 
-On Wayland, the desktop portal may present a confirmation/configuration dialog
-the first time Toastify Reloaded binds shortcuts. The portal backend must be
-provided by the desktop environment.
+On Wayland, the desktop portal may present a confirmation/configuration dialog the first time Toastify Reloaded binds shortcuts. The portal backend must be provided by the desktop environment.
 
-Avalonia 12.1's native Wayland backend is enabled automatically when
-`WAYLAND_DISPLAY` is present. Set `TOASTIFY_DISABLE_NATIVE_WAYLAND=1` to force
-the normal platform-detection/XWayland path.
-
-## AppImage note
-
-The AppImage contains Toastify Reloaded and its .NET runtime, but currently
-expects `playerctl` and `xbindkeys` on the host.
-
-## Build locally
-
-Requirements:
-
-- .NET 8 SDK
-- curl
-- dpkg-deb (for `.deb`)
-- common Avalonia Linux libraries
+Avalonia's native Wayland backend is enabled when `WAYLAND_DISPLAY` is available. Set:
 
 ```bash
-chmod +x scripts/build-linux.sh
-./scripts/build-linux.sh
+TOASTIFY_DISABLE_NATIVE_WAYLAND=1
 ```
 
-Build `.deb`:
+to force the normal platform-detection/XWayland path.
 
-```bash
-chmod +x scripts/package-linux-deb.sh
-./scripts/package-linux-deb.sh
-```
+## System tray
 
-Build AppImage:
+Tray integration uses Avalonia's Linux StatusNotifierItem/AppIndicator support. Availability therefore depends on the desktop environment; some GNOME configurations require an AppIndicator-compatible extension. Close-to-tray is optional and disabled by default.
 
-```bash
-chmod +x scripts/package-linux-appimage.sh
-./scripts/package-linux-appimage.sh
-```
+## Compatibility Guard
 
-## Platform notes
-
-Not yet at Windows v1.3.4 parity:
-
-- Linux-native self-updater
-- complete English/Italian localization parity
-- complete settings import/export parity
-- system tray parity across GNOME/KDE
-- Compatibility Guard automatic Spotify-version repair loop
-- ARM64 Linux package
-- native Wayland backend testing
-
-These are planned before calling the Linux port stable.
-
-
-## Preview 3 additions
-
-Preview 3 expands Linux parity substantially:
-
-- Avalonia system tray integration (`TrayIcon`) with Open, Play/Pause, Next,
-  Previous and Exit actions.
-- Optional close-to-tray behavior.
-- Runtime Italian / English localization.
-- JSON settings import/export using Avalonia `StorageProvider`.
-- Linux Compatibility Guard:
-  - detects the installed Spotify version where possible;
-  - records version changes;
-  - can automatically run the Spicetify post-update repair flow;
-  - avoids repeatedly retrying the same failed Spotify version.
-- Automatic Linux preview update checks using the GitHub Releases REST API.
-- Linux ARM64 self-contained builds:
-  - `ToastifyReloaded-Linux-arm64.tar.gz`
-  - `toastify-reloaded_1.4.0~preview3_arm64.deb`
-
-### Tray compatibility
-
-Avalonia tray icons work on Linux desktops that expose StatusNotifierItem or
-AppIndicator support. Some GNOME configurations require an AppIndicator
-extension. Close-to-tray is therefore disabled by default.
-
-### Compatibility Guard
-
-The repair flow follows Spicetify's documented post-Spotify-update workflow:
+When the installed Spotify version changes, Compatibility Guard can run the Spicetify recovery flow:
 
 ```bash
 spicetify backup apply
@@ -184,85 +128,135 @@ with fallback:
 spicetify restore backup apply
 ```
 
-When supported by the installation method, Toastify Reloaded also attempts
-`spicetify upgrade` before the repair. A failed `upgrade` command does not abort
-the repair because package-manager Spicetify installations can legitimately
-reject that command.
+When supported by the Spicetify installation method, Toastify Reloaded can also attempt `spicetify upgrade` before repair. Failed repairs are recorded so the same unsupported Spotify version is not retried indefinitely.
 
-### ARM64
+## Settings and import/export
 
-ARM64 packages are cross-published with the .NET `linux-arm64` runtime
-identifier. GitHub Actions validates the resulting ELF architecture and package
-metadata. The ARM64 build is not GUI-smoke-tested on the x64 GitHub runner.
-
-
-## Preview 4 — Feature Parity Candidate
-
-Preview 4 closes the main remaining gaps with Windows v1.3.4:
-
-- `Toast > Colors & Font`;
-- Custom toast palette;
-- font family and independent title/artist/time sizes;
-- `Toast > Position`;
-- primary or explicit monitor selection;
-- top-left, top-right, bottom-left and bottom-right placement;
-- configurable X/Y margins;
-- GitHub release asset discovery;
-- package-aware update download/application;
-- SHA-256 verification when GitHub provides an asset digest.
-
-See `docs/LINUX_PARITY.md` for the parity matrix.
-
-
-## RC1 release engineering
-
-RC1 freezes the feature set introduced by Preview 4.
-
-No new product features should be added between RC1 and stable unless they fix a
-release-blocking defect.
-
-RC1 adds:
-
-- a headless executable self-test (`--self-test`);
-- settings save/load/import/export round-trip tests;
-- release-channel ordering tests:
-  `preview < rc < stable`;
-- package archive content validation;
-- stricter x64 and ARM64 release-asset validation;
-- an updater that can move from RC builds to the final
-  `v1.4.0-linux` stable release.
-
-Stable target:
+The normal settings file is:
 
 ```text
-v1.4.0-linux
+~/.config/toastify-reloaded/settings.json
 ```
 
+The application can import/export JSON settings through Avalonia's storage provider.
 
-## Linux 1.4.0 stable
+## Update behavior
 
-The Linux feature set reached the v1.3.4 Windows parity target and passed the
-release-candidate CI gate on x64 and ARM64.
+The stable updater checks GitHub Releases and only accepts later **stable Linux** tags for stable installations.
 
-Stable release tag:
+Channel policy:
 
-```text
-v1.4.0-linux
-```
+- stable → later stable only;
+- preview/RC → later preview, RC or stable;
+- stable will not auto-install a future preview or RC.
 
-Stable assets:
+Package-aware application behavior:
+
+- **AppImage:** download, verify SHA-256 digest when GitHub exposes one, replace the running AppImage when possible, restart;
+- **`.deb`:** download, verify SHA-256 when available, use the privileged package path when available; otherwise leave the downloaded package for manual installation;
+- **tar.gz:** download the matching portable archive without overwriting an unknown custom installation.
+
+## Release packages
+
+### x64
 
 ```text
 ToastifyReloaded-Linux-x64.AppImage
 ToastifyReloaded-Linux-x64.tar.gz
 toastify-reloaded_1.4.0_amd64.deb
+```
+
+### ARM64
+
+```text
 ToastifyReloaded-Linux-arm64.tar.gz
 toastify-reloaded_1.4.0_arm64.deb
+```
+
+Checksums:
+
+```text
 SHA256SUMS.txt
 ```
 
-Update-channel policy:
+## AppImage notes
 
-- stable installations receive stable Linux releases only;
-- preview and RC installations may promote to later preview/RC/stable builds;
-- a stable installation will not automatically install a future preview or RC.
+The AppImage contains Toastify Reloaded and its .NET runtime. Host-side media/shortcut integration still uses Linux services such as `playerctl`, `xbindkeys` (X11) and the desktop portal (Wayland).
+
+The AppDir contains:
+
+```text
+AppRun
+io.github.Marlius92.ToastifyReloaded.desktop
+io.github.Marlius92.ToastifyReloaded.png
+usr/bin/toastify-reloaded
+usr/lib/toastify-reloaded/ToastifyReloaded.Linux
+```
+
+The `usr/bin/toastify-reloaded` wrapper matches the `Exec=toastify-reloaded` desktop entry and launches the bundled application.
+
+## Build locally
+
+Requirements:
+
+- .NET 8 SDK
+- curl
+- `dpkg-deb` for `.deb`
+- common Avalonia Linux libraries
+
+Build x64:
+
+```bash
+chmod +x scripts/build-linux.sh
+./scripts/build-linux.sh
+```
+
+Build ARM64:
+
+```bash
+chmod +x scripts/build-linux-arm64.sh
+./scripts/build-linux-arm64.sh
+```
+
+Build x64 packages:
+
+```bash
+chmod +x scripts/package-linux-tar.sh scripts/package-linux-deb.sh scripts/package-linux-appimage.sh
+./scripts/package-linux-tar.sh
+./scripts/package-linux-deb.sh
+./scripts/package-linux-appimage.sh
+```
+
+Build ARM64 packages:
+
+```bash
+chmod +x scripts/package-linux-arm64-tar.sh scripts/package-linux-arm64-deb.sh
+./scripts/package-linux-arm64-tar.sh
+./scripts/package-linux-arm64-deb.sh
+```
+
+## CI / stable release gate
+
+The normal Linux CI validates:
+
+- x64 build;
+- stable headless self-test (`--self-test`);
+- GUI startup under virtual X11;
+- x64 tar.gz, `.deb` and AppImage packaging;
+- Debian content/architecture metadata;
+- desktop entry validity;
+- AppImage structure;
+- ARM64 cross-build and ELF architecture;
+- ARM64 tar.gz and `.deb` metadata.
+
+The tag workflow for:
+
+```text
+v1.4.0-linux
+```
+
+rebuilds all stable assets, generates `SHA256SUMS.txt` and publishes the GitHub Release only after the release package checks pass.
+
+## Platform-specific notes
+
+Functional parity does not mean identical OS implementation. Linux deliberately uses MPRIS, X11/Wayland shortcut backends and StatusNotifierItem/AppIndicator instead of Windows media/session APIs. Desktop-environment behavior can therefore differ in permission dialogs, tray availability and fullscreen detection.

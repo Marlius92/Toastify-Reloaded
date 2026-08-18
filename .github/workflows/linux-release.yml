@@ -35,6 +35,10 @@ jobs:
           ./scripts/build-linux.sh
           ./scripts/build-linux-arm64.sh
 
+      - name: Validate Linux desktop entry
+        run: |
+          desktop-file-validate packaging/linux/io.github.Marlius92.ToastifyReloaded.desktop
+
       - name: Package release
         run: |
           chmod +x scripts/package-linux-*.sh
@@ -59,6 +63,19 @@ jobs:
           test -s "$X64_TAR"
           test -s "$X64_APPIMAGE"
           test -x "$X64_APPIMAGE"
+
+          APPIMAGE_CHECK="$RUNNER_TEMP/toastify-release-appimage"
+          rm -rf "$APPIMAGE_CHECK"
+          mkdir -p "$APPIMAGE_CHECK"
+          (
+            cd "$APPIMAGE_CHECK"
+            "$GITHUB_WORKSPACE/$X64_APPIMAGE" --appimage-extract >/dev/null
+          )
+          test -x "$APPIMAGE_CHECK/squashfs-root/AppRun"
+          test -x "$APPIMAGE_CHECK/squashfs-root/usr/bin/toastify-reloaded"
+          test -x "$APPIMAGE_CHECK/squashfs-root/usr/lib/toastify-reloaded/ToastifyReloaded.Linux"
+          grep -Fq 'Exec=toastify-reloaded' "$APPIMAGE_CHECK/squashfs-root/io.github.Marlius92.ToastifyReloaded.desktop"
+
           test -s "$ARM64_TAR"
           test -n "$X64_DEB"
           test -s "$X64_DEB"

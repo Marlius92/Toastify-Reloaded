@@ -19,14 +19,14 @@
   <img alt="Linux" src="https://img.shields.io/badge/Linux-x64%20%7C%20ARM64-FCC624">
 </p>
 
-**Toastify Reloaded** is a modern continuation of the classic Toastify experience for Spotify on Windows, with a native Linux port now available in preview.
+**Toastify Reloaded** is a modern continuation of the classic Toastify experience for Spotify on Windows and Linux.
 
-The project keeps the recognizable Toastify workflow and notification style while replacing obsolete integration points with modern Windows media controls, global hotkeys, Spicetify/Lyrics support, automatic repair after Spotify updates, installable Windows releases, dark mode, toast themes, adaptive song timeline controls, animations and multi-monitor positioning.
+The project keeps the recognizable Toastify workflow and notification style while replacing obsolete integration points with modern platform media controls, global hotkeys, Spicetify/Lyrics support, automatic repair after Spotify updates, installable releases, dark mode, toast themes, adaptive song timeline controls, animations and multi-monitor positioning.
 
 > **Independent community project.** Toastify Reloaded is not affiliated with Spotify AB and is not an official release maintained by the original Toastify developers.
 
 **Current stable Windows release:** `v1.3.4`  
-**Current Linux preview:** `v1.4.0-linux-preview.3`
+**Current stable Linux release:** `v1.4.0-linux`
 
 
 ---
@@ -44,14 +44,14 @@ Windows installer packages:
 
 Current stable Windows release: **v1.3.4**.
 
-### Linux — Preview 3
+### Linux — stable 1.4.0
 
-The Linux port is progressing rapidly toward feature parity with the Windows v1.3.4 release.
+The first stable Linux line targets functional parity with the Windows v1.3.4 feature set while using native Linux backends.
 
-Current Linux preview tag:
+Stable Linux tag:
 
 ```text
-v1.4.0-linux-preview.3
+v1.4.0-linux
 ```
 
 Linux packages:
@@ -59,25 +59,17 @@ Linux packages:
 **x64**
 
 - `ToastifyReloaded-Linux-x64.AppImage`
-- `toastify-reloaded_1.4.0~preview3_amd64.deb`
+- `toastify-reloaded_1.4.0_amd64.deb`
 - `ToastifyReloaded-Linux-x64.tar.gz`
 
 **ARM64**
 
-- `toastify-reloaded_1.4.0~preview3_arm64.deb`
+- `toastify-reloaded_1.4.0_arm64.deb`
 - `ToastifyReloaded-Linux-arm64.tar.gz`
 
-Both architectures are built automatically through GitHub Actions. The x64 build also passes an automated GUI startup smoke test on Ubuntu 24.04.
+Release checksums are published as `SHA256SUMS.txt`.
 
-> Preview 3 is the current validated baseline. A short parity pass remains before the first stable Linux release.
-
-Fast-track Linux roadmap:
-
-```text
-v1.4.0-linux-preview.4   Feature-parity pass
-v1.4.0-linux-rc.1        Release candidate / updater / final validation
-v1.4.0-linux             Stable
-```
+Both architectures are built automatically through GitHub Actions. The x64 pipeline also runs the headless release self-test, an Avalonia GUI smoke test, package validation and AppImage structure checks before artifacts are accepted.
 
 ---
 
@@ -353,40 +345,39 @@ Version **1.3.0** is the largest Reloaded UI and customization update so far.
 
 ---
 
-# Linux Preview — v1.4.0-linux-preview.3
+# Linux — stable v1.4.0-linux
 
 The Linux port is maintained separately from the existing Windows/WPF application and is built with **Avalonia**.
 
-Spotify playback and metadata use the Linux **MPRIS** interface through `playerctl`.
+Spotify playback and metadata use **MPRIS** through `playerctl`. Global shortcut handling uses `xbindkeys` on X11 and the **XDG Global Shortcuts Portal** on Wayland.
 
-## Preview 3 feature set
+## Linux 1.4.0 feature set
 
-Linux Preview 3 includes:
+Linux 1.4.0 includes:
 
 - Play / Pause, Previous and Next;
 - Seek ±10 seconds;
 - Spotify volume and mute controls;
 - automatic Spotify/MPRIS player detection and reconnection;
-- support for standard Spotify MPRIS names and `spotifyd`;
 - automatic toast on track change;
 - album artwork and Toastify icon fallback;
-- adaptive toast width;
+- adaptive and fixed toast geometry;
 - optional progress bar and song time / duration;
-- Fade, Slide and Fade + Slide animations;
+- Fade, Slide, Fade + Slide and None animation modes;
 - independent Slide In / Slide Out directions and distances;
-- built-in Toastify Reloaded toast themes;
+- 13 built-in Toastify Reloaded themes plus Custom;
+- toast colors, font family and independent text sizes;
 - Light, Dark and Follow System application themes;
-- Linux autostart;
-- system tray controls;
-- optional close-to-tray behavior;
+- position presets, monitor selection and custom X/Y margins;
+- Linux session autostart;
+- system tray controls and optional close-to-tray;
 - runtime Italian / English localization;
 - JSON settings import / export;
 - Spicetify and Lyrics Plus helpers;
-- Linux Compatibility Guard;
-- automatic Spicetify repair after a detected Spotify update;
-- Linux release update checks;
+- Compatibility Guard with anti-loop repair behavior;
+- package-aware Linux update checking/download/application;
 - X11 global hotkeys through `xbindkeys`;
-- Wayland global hotkeys through **XDG Global Shortcuts Portal**;
+- Wayland global hotkeys through the XDG Global Shortcuts Portal;
 - Avalonia native Wayland backend when available;
 - Linux diagnostics;
 - x64 and ARM64 packages.
@@ -398,29 +389,17 @@ Toastify Reloaded automatically selects the appropriate shortcut backend:
 - **X11:** `xbindkeys`
 - **Wayland:** `org.freedesktop.portal.GlobalShortcuts`
 
-On Wayland, the desktop environment can display a permission or shortcut configuration dialog when global shortcuts are registered for the first time.
+On Wayland, the desktop environment can display a permission or shortcut-configuration dialog when global shortcuts are registered for the first time.
 
 ## Compatibility Guard
 
-The Linux Compatibility Guard records the detected Spotify version and can react when Spotify changes.
-
-When automatic repair is enabled, Toastify Reloaded can run the Spicetify recovery sequence and preserve Lyrics Plus where possible.
-
-The guard also prevents endlessly retrying the same failed Spotify-version repair.
+The Linux Compatibility Guard records the detected Spotify version and can react when Spotify changes. When automatic repair is enabled, Toastify Reloaded can run the Spicetify recovery sequence and preserve Lyrics Plus where possible. Failed repairs are remembered so the same unsupported Spotify version does not enter an endless retry loop.
 
 ## System tray
 
-The Linux build includes tray actions for:
+The Linux build includes tray actions for Open settings, Play / Pause, Next, Previous and Exit. Tray support depends on the desktop environment's StatusNotifierItem/AppIndicator support, so close-to-tray remains optional.
 
-- Open settings;
-- Play / Pause;
-- Next;
-- Previous;
-- Exit.
-
-Tray support depends on the desktop environment's StatusNotifierItem/AppIndicator support. For this reason, **close-to-tray is disabled by default**.
-
-## Import / Export
+## Settings
 
 Linux settings are stored under:
 
@@ -436,123 +415,73 @@ Settings can also be exported and imported as JSON from the application.
 
 ```text
 ToastifyReloaded-Linux-x64.AppImage
-toastify-reloaded_1.4.0~preview3_amd64.deb
+toastify-reloaded_1.4.0_amd64.deb
 ToastifyReloaded-Linux-x64.tar.gz
 ```
 
 ### ARM64
 
 ```text
-toastify-reloaded_1.4.0~preview3_arm64.deb
+toastify-reloaded_1.4.0_arm64.deb
 ToastifyReloaded-Linux-arm64.tar.gz
 ```
 
 The ARM64 build is cross-published using the `.NET` `linux-arm64` runtime identifier and validated for architecture and package metadata by GitHub Actions.
 
-## GitHub Actions validation
+## Update channel policy
 
-The Linux CI currently validates:
+- Stable installations receive stable Linux releases only.
+- Preview and RC installations can advance through later preview/RC builds to stable.
+- A stable installation will not automatically install a future preview or RC.
+
+## GitHub Actions release gate
+
+The stable Linux CI validates:
 
 ```text
 x64 restore/build
+→ stable headless self-test
 → Avalonia GUI startup under virtual X11
-→ x64 tar.gz
-→ x64 .deb
-→ x64 AppImage
-→ x64 package validation
+→ x64 tar.gz / .deb / AppImage
+→ desktop/AppImage structure validation
 → ARM64 cross-build
 → ARM64 ELF architecture validation
-→ ARM64 tar.gz
-→ ARM64 .deb metadata validation
-→ artifact upload
+→ ARM64 tar.gz / .deb metadata validation
+→ release checksums
 ```
 
-## Fast-track parity status
-
-Preview 3 is the current validated Linux baseline, but it is **not yet being described as full Windows v1.3.4 parity**.
-
-The remaining parity work is intentionally concentrated into a short final sequence.
-
-### Preview 4 — parity pass
-
-The next preview focuses on the remaining user-facing Windows features that have meaningful Linux equivalents:
-
-- full **Toast → Colors & Font** customization;
-- toast geometry: fixed width / height, border thickness and corner radius;
-- title ordering;
-- title colors, font sizes and optional text shadows;
-- progress-bar colors;
-- **Toast → Position** with the nine position presets;
-- monitor selection and custom X/Y coordinates;
-- screen margin;
-- `Only show toast when hotkey is pressed`;
-- fullscreen-toast suppression where the Linux display server exposes enough information;
-- Show Toast global hotkey;
-- configurable MPRIS volume step;
-- current-track file export;
-- Start Minimized;
-- optional Close Spotify with Toastify;
-- closer settings parity with the Windows interface.
-
-### RC 1 — release behavior
-
-Once Preview 4 is green, the release candidate is limited to:
-
-- Linux self-update / install flow;
-- final Compatibility Guard parity;
-- update/restart behavior;
-- package installation tests;
-- AppImage tests;
-- `.deb` tests;
-- x64 / ARM64 release checks;
-- regression fixes only.
-
-### Stable
-
-If RC 1 passes the complete GitHub Actions release gate, the target stable tag is:
-
-```text
-v1.4.0-linux
-```
-
-Platform-specific Windows-only behavior that cannot be reproduced safely on a Linux desktop or under Wayland will be documented explicitly rather than emulated unreliably.
-
-For Linux-specific build details see:
-
-```text
-docs/LINUX.md
-```
+For Linux-specific build and runtime details see `docs/LINUX.md`.
 
 ---
 
-# Windows / Linux parity target
+# Windows / Linux parity
 
-The Linux port aims to reproduce the **functional** feature set of Windows v1.3.4 while using native Linux mechanisms where Windows APIs do not exist.
+Linux **v1.4.0-linux** targets functional parity with the Windows **v1.3.4** baseline, using Linux-native implementations where Windows APIs do not exist.
 
-| Area | Windows v1.3.4 | Linux Preview 3 | Target |
-|---|---:|---:|---:|
-| Spotify playback / metadata | ✅ | ✅ | ✅ |
-| Global hotkeys | ✅ | ✅ X11 / Wayland Portal | ✅ |
-| Album artwork / fallback | ✅ | ✅ | ✅ |
-| Adaptive toast width | ✅ | ✅ | ✅ |
-| Progress / song duration | ✅ | ✅ | ✅ |
-| Theme presets | ✅ | ✅ | ✅ |
-| Fade / Slide animations | ✅ | ✅ | ✅ |
-| App Light / Dark / System | ✅ | ✅ | ✅ |
-| IT / EN localization | ✅ | ✅ | ✅ |
-| Import / Export | ✅ | ✅ | ✅ |
-| System tray | ✅ | ✅ | ✅ |
-| Compatibility Guard | ✅ | ✅ core | RC 1 |
-| Linux/Windows auto update | ✅ | Check-only on Linux | RC 1 |
-| Custom Colors & Font | ✅ | ⏳ | Preview 4 |
-| Fixed toast geometry | ✅ | ⏳ | Preview 4 |
-| Position presets | ✅ | ⏳ | Preview 4 |
-| Multi-monitor selection | ✅ | ⏳ | Preview 4 |
-| Custom X / Y position | ✅ | ⏳ | Preview 4 |
-| Show-Toast hotkey | ✅ | ⏳ | Preview 4 |
-| Track file export | ✅ | ⏳ | Preview 4 |
+| Area | Windows v1.3.4 | Linux 1.4.0 |
+|---|---:|---:|
+| Spotify playback / metadata | ✅ | ✅ MPRIS |
+| Global hotkeys | ✅ | ✅ X11 / Wayland Portal |
+| Album artwork / fallback | ✅ | ✅ |
+| Adaptive toast width | ✅ | ✅ |
+| Progress / song duration | ✅ | ✅ |
+| Theme presets + Custom | ✅ | ✅ |
+| Toast colors / fonts | ✅ | ✅ |
+| Fade / Slide animations | ✅ | ✅ |
+| App Light / Dark / System | ✅ | ✅ |
+| IT / EN localization | ✅ | ✅ |
+| Import / Export | ✅ | ✅ |
+| System tray | ✅ | ✅* |
+| Compatibility Guard | ✅ | ✅ |
+| Update check/download/apply | ✅ | ✅** |
+| Position presets | ✅ | ✅ |
+| Multi-monitor selection | ✅ | ✅ |
+| Custom position | ✅ | ✅ |
+| x64 package | ✅ | ✅ |
+| ARM64 package | ✅ | ✅ |
 
-The stable Linux release will be cut only after the parity items above are completed or explicitly documented as platform-specific limitations.
+* Tray availability depends on the desktop environment's StatusNotifierItem/AppIndicator support.  
+** Linux update application is package-aware: AppImage can replace/restart itself; `.deb` uses the available privileged package path; portable tar.gz downloads are preserved for manual replacement.
 
 ---
 
@@ -894,7 +823,7 @@ Toastify Reloaded does **not** require:
 - a Spotify developer Client ID;
 - a Spotify developer Client Secret.
 
-Playback information is obtained from Windows media sessions.
+Playback information is obtained from the platform media session: Windows media sessions on Windows and MPRIS on Linux.
 
 User settings are stored locally.
 
@@ -909,6 +838,8 @@ Network access is mainly used for update checks and components such as Spicetify
 | Windows 11 x64 | Supported |
 | Windows 10 x64 | Supported |
 | Windows ARM64 | Installer/build available |
+| Linux x64 | Stable v1.4.0 — AppImage / `.deb` / tar.gz |
+| Linux ARM64 | Stable v1.4.0 — `.deb` / tar.gz |
 | Spotify desktop client | Supported |
 | Global hotkeys | Supported |
 | Multiple monitors | Supported |
@@ -1010,7 +941,7 @@ When opening an Issue, useful information includes:
 - Toastify Reloaded version
 - Spotify version
 - Spicetify version
-- Windows version
+- Operating system and desktop/session type (Windows, X11 or Wayland)
 - x64 or ARM64
 - whether the problem also happens with the **Classic Toastify** toast theme
 - active animation mode and Slide In / Slide Out directions when the issue concerns motion
@@ -1018,8 +949,9 @@ When opening an Issue, useful information includes:
 - Compatibility Guard status
 - screenshots when the issue is visual
 - selected interface language when the issue concerns localization
-- Windows display scaling / DPI when the issue concerns clipped or misaligned controls
-- whether the issue is visible at the default 1120×700 Settings size
+- display scaling / DPI when the issue concerns clipped or misaligned controls
+- on Linux: desktop environment, X11/Wayland session and package type (`.deb`, AppImage or tar.gz`)
+- whether the issue is visible at the default Settings size
 
 Please avoid posting passwords, tokens or other private information.
 
@@ -1027,19 +959,21 @@ Please avoid posting passwords, tokens or other private information.
 
 # Build from source
 
+Clone:
+
+```bash
+git clone https://github.com/Marlius92/Toastify-Reloaded.git
+cd Toastify-Reloaded
+```
+
+## Windows
+
 Requirements:
 
 - Windows 10 or Windows 11
 - .NET 8 SDK
 - Git
 - NSIS when building the Windows installer
-
-Clone:
-
-```powershell
-git clone https://github.com/Marlius92/Toastify-Reloaded.git
-cd Toastify-Reloaded
-```
 
 Build:
 
@@ -1053,6 +987,42 @@ Build the x64 installer:
 .\scripts\build-installer.ps1 -Runtime win-x64
 ```
 
+## Linux
+
+Requirements:
+
+- .NET 8 SDK
+- common Avalonia Linux runtime libraries
+- `playerctl`
+- `xbindkeys` for X11 shortcuts
+- XDG Desktop Portal for Wayland shortcuts
+- `dpkg-deb` for `.deb` packaging
+- `curl` for AppImage tooling
+
+Build x64:
+
+```bash
+chmod +x scripts/build-linux.sh
+./scripts/build-linux.sh
+```
+
+Build ARM64:
+
+```bash
+chmod +x scripts/build-linux-arm64.sh
+./scripts/build-linux-arm64.sh
+```
+
+Package x64:
+
+```bash
+./scripts/package-linux-tar.sh
+./scripts/package-linux-deb.sh
+./scripts/package-linux-appimage.sh
+```
+
+See `docs/LINUX.md` for the complete Linux notes.
+
 ---
 
 # Repository structure
@@ -1065,11 +1035,12 @@ Toastify-Reloaded/
 ├─ installer/
 ├─ scripts/
 ├─ src/
-│  └─ ToastifyReloaded/
-│     ├─ Models/
-│     ├─ Native/
-│     ├─ Resources/
-│     └─ Services/
+│  ├─ ToastifyReloaded/
+│  │  ├─ Models/
+│  │  ├─ Native/
+│  │  ├─ Resources/
+│  │  └─ Services/
+│  └─ ToastifyReloaded.Linux/
 ├─ CHANGELOG.md
 ├─ CONTRIBUTING.md
 ├─ LICENSE
@@ -1087,10 +1058,10 @@ Toastify-Reloaded/
 |---|---|---|
 | Windows x64 | Stable — v1.3.4 | Installer |
 | Windows ARM64 | Stable — v1.3.4 | Installer |
-| Linux x64 | Preview 3 — parity pass in progress | AppImage / `.deb` / tar.gz |
-| Linux ARM64 | Preview 3 — parity pass in progress | `.deb` / tar.gz |
+| Linux x64 | Stable — v1.4.0 | AppImage / `.deb` / tar.gz |
+| Linux ARM64 | Stable — v1.4.0 | `.deb` / tar.gz |
 
-The Linux port is on a fast-track sequence: **Preview 4 → RC 1 → stable `v1.4.0-linux`**.
+Linux stable tag: **`v1.4.0-linux`**.
 
 ---
 
