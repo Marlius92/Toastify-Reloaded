@@ -46,6 +46,8 @@ Current stable Windows release: **v1.3.4**.
 
 ### Linux — stable 1.4.0
 
+**[Download Toastify Reloaded Linux v1.4.0 stable release](https://github.com/Marlius92/Toastify-Reloaded/releases/tag/v1.4.0-linux)**
+
 The first stable Linux line targets functional parity with the Windows v1.3.4 feature set while using native Linux backends.
 
 Stable Linux tag:
