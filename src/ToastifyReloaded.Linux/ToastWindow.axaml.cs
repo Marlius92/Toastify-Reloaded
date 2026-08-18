@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Threading;
+using Avalonia.Platform;
 using ToastifyReloaded.Linux.Models;
 using ToastifyReloaded.Linux.Services;
 
@@ -12,13 +12,6 @@ public partial class ToastWindow : Window
     private readonly LinuxTrackInfo _track;
     private readonly LinuxSettings _settings;
     private readonly ArtworkService _artworkService;
-
-    private Border RootBorder => this.FindControl<Border>("RootBorder")!;
-    private Image ArtworkImage => this.FindControl<Image>("ArtworkImage")!;
-    private TextBlock TitleText => this.FindControl<TextBlock>("TitleText")!;
-    private TextBlock ArtistText => this.FindControl<TextBlock>("ArtistText")!;
-    private TextBlock TimeText => this.FindControl<TextBlock>("TimeText")!;
-    private ProgressBar ProgressBar => this.FindControl<ProgressBar>("ProgressBar")!;
 
     public ToastWindow(
         LinuxTrackInfo track,
@@ -171,7 +164,8 @@ public partial class ToastWindow : Window
 
         for (var i = 0; i <= steps; i++)
         {
-            var t = steps == 0 ? 1d : (double)i / steps;
+            var t = (double)i / steps;
+
             Opacity = _settings.AnimationStyle == "None" ? 1 : t;
             Position = Lerp(startPosition, finalPosition, t);
 
@@ -198,7 +192,8 @@ public partial class ToastWindow : Window
 
         for (var i = 0; i <= steps; i++)
         {
-            var t = steps == 0 ? 1d : (double)i / steps;
+            var t = (double)i / steps;
+
             Opacity = _settings.AnimationStyle == "None" ? 1 : 1 - t;
             Position = Lerp(startPosition, endPosition, t);
 
