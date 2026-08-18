@@ -1,0 +1,76 @@
+name: Linux Preview Build
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "src/ToastifyReloaded.Linux/**"
+      - "packaging/linux/**"
+      - "scripts/build-linux.sh"
+      - "scripts/package-linux-*.sh"
+      - ".github/workflows/linux-build.yml"
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "src/ToastifyReloaded.Linux/**"
+      - "packaging/linux/**"
+      - "scripts/build-linux.sh"
+      - "scripts/package-linux-*.sh"
+      - ".github/workflows/linux-build.yml"
+  workflow_dispatch:
+
+jobs:
+  linux-x64:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install Linux packaging/runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            playerctl \
+            xbindkeys \
+            libx11-6 \
+            libice6 \
+            libsm6 \
+            libfontconfig1 \
+            desktop-file-utils \
+            curl
+
+      - name: Build Linux x64
+        run: |
+          chmod +x scripts/build-linux.sh
+          ./scripts/build-linux.sh
+
+      - name: Package tar.gz
+        run: |
+          chmod +x scripts/package-linux-tar.sh
+          ./scripts/package-linux-tar.sh
+
+      - name: Package deb
+        run: |
+          chmod +x scripts/package-linux-deb.sh
+          ./scripts/package-linux-deb.sh
+
+      - name: Package AppImage
+        run: |
+          chmod +x scripts/package-linux-appimage.sh
+          ./scripts/package-linux-appimage.sh
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: toastify-reloaded-linux-x64
+          path: |
+            dist/ToastifyReloaded-Linux-x64.tar.gz
+            dist/ToastifyReloaded-Linux-x64.AppImage
+            dist/toastify-reloaded_*_amd64.deb
+          if-no-files-found: error

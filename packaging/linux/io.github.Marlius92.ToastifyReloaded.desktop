@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Toastify Reloaded
+Comment=Spotify toast notifications and global controls
+Exec=toastify-reloaded
+Icon=io.github.Marlius92.ToastifyReloaded
+Terminal=false
+Categories=Audio;Utility;
+Keywords=Spotify;Music;MPRIS;Toastify;
+StartupNotify=true

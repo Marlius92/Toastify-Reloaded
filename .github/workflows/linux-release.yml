@@ -1,0 +1,51 @@
+name: Linux Preview Release
+
+on:
+  push:
+    tags:
+      - "v*-linux*"
+
+jobs:
+  release-linux-x64:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            playerctl \
+            xbindkeys \
+            libx11-6 \
+            libice6 \
+            libsm6 \
+            libfontconfig1 \
+            desktop-file-utils \
+            curl
+
+      - name: Build and package
+        run: |
+          chmod +x scripts/build-linux.sh scripts/package-linux-*.sh
+          ./scripts/build-linux.sh
+          ./scripts/package-linux-tar.sh
+          ./scripts/package-linux-deb.sh
+          ./scripts/package-linux-appimage.sh
+
+      - name: Publish Linux preview release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Toastify Reloaded ${{ github.ref_name }}
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            dist/ToastifyReloaded-Linux-x64.tar.gz
+            dist/ToastifyReloaded-Linux-x64.AppImage
+            dist/toastify-reloaded_*_amd64.deb

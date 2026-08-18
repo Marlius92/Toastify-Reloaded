@@ -1,0 +1,232 @@
+<Window
+    x:Class="ToastifyReloaded.Linux.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Toastify Reloaded — Linux Preview"
+    Width="1120"
+    Height="700"
+    MinWidth="980"
+    MinHeight="620"
+    CanResize="True"
+    Icon="/Assets/toastify.png">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <Border Grid.Row="0" Padding="10" CornerRadius="6" Background="#14000000">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel>
+          <TextBlock Text="Toastify Reloaded — Linux Preview" FontSize="20" FontWeight="SemiBold"/>
+          <TextBlock x:Name="StatusText" Text="Controllo dipendenze Linux..." Opacity="0.75"/>
+        </StackPanel>
+        <Button Grid.Column="1" Content="Aggiorna stato" Click="RefreshStatus_Click" Padding="14,7"/>
+      </Grid>
+    </Border>
+
+    <TabControl Grid.Row="1" Margin="0,12,0,12">
+      <TabItem Header="Generale">
+        <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,*">
+          <GroupBox Header="Interfaccia" Margin="0,0,10,10">
+            <StackPanel Margin="12" Spacing="10">
+              <TextBlock Text="Tema applicazione"/>
+              <ComboBox x:Name="AppThemeCombo">
+                <ComboBoxItem Content="System"/>
+                <ComboBoxItem Content="Light"/>
+                <ComboBoxItem Content="Dark"/>
+              </ComboBox>
+              <TextBlock Text="Lingua"/>
+              <ComboBox x:Name="LanguageCombo">
+                <ComboBoxItem Content="Italiano"/>
+                <ComboBoxItem Content="English"/>
+              </ComboBox>
+              <CheckBox x:Name="AutostartCheck" Content="Avvia Toastify Reloaded con la sessione Linux"/>
+            </StackPanel>
+          </GroupBox>
+
+          <GroupBox Grid.Column="1" Header="Spotify / Linux" Margin="10,0,0,10">
+            <StackPanel Margin="12" Spacing="8">
+              <TextBlock x:Name="PlayerctlStatusText" Text="playerctl: verifica..."/>
+              <TextBlock x:Name="SpotifyStatusText" Text="Spotify MPRIS: verifica..."/>
+              <TextBlock x:Name="SessionStatusText" Text="Sessione grafica: verifica..."/>
+              <TextBlock TextWrapping="Wrap" Opacity="0.7"
+                         Text="I controlli Spotify usano MPRIS tramite playerctl. Le hotkey personalizzate della preview usano xbindkeys su X11."/>
+            </StackPanel>
+          </GroupBox>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Hotkeys">
+        <Grid Margin="14" ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*">
+          <CheckBox x:Name="EnableHotkeysCheck" Grid.ColumnSpan="2" Content="Abilita hotkey globali X11 (xbindkeys)" Margin="0,0,0,12"/>
+
+          <TextBlock Grid.Row="1" Text="Play / Pause" VerticalAlignment="Center"/>
+          <TextBox x:Name="PlayPauseHotkeyBox" Grid.Row="1" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="2" Text="Brano successivo" VerticalAlignment="Center"/>
+          <TextBox x:Name="NextHotkeyBox" Grid.Row="2" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="3" Text="Brano precedente" VerticalAlignment="Center"/>
+          <TextBox x:Name="PreviousHotkeyBox" Grid.Row="3" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="4" Text="Volume +" VerticalAlignment="Center"/>
+          <TextBox x:Name="VolumeUpHotkeyBox" Grid.Row="4" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="5" Text="Volume -" VerticalAlignment="Center"/>
+          <TextBox x:Name="VolumeDownHotkeyBox" Grid.Row="5" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="6" Text="Mute" VerticalAlignment="Center"/>
+          <TextBox x:Name="MuteHotkeyBox" Grid.Row="6" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="7" Text="Seek +10s" VerticalAlignment="Center"/>
+          <TextBox x:Name="SeekForwardHotkeyBox" Grid.Row="7" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="8" Text="Seek -10s" VerticalAlignment="Center"/>
+          <TextBox x:Name="SeekBackwardHotkeyBox" Grid.Row="8" Grid.Column="1"/>
+
+          <TextBlock Grid.Row="9" Grid.ColumnSpan="2" Margin="0,14,0,0" TextWrapping="Wrap" Opacity="0.7"
+                     Text="Wayland: le hotkey personalizzate globali non sono ancora garantite nella Linux Preview. È previsto il backend XDG Global Shortcuts Portal."/>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Toast">
+        <TabControl Margin="8">
+          <TabItem Header="Generale">
+            <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+              <GroupBox Header="Comportamento" Margin="0,0,10,0">
+                <StackPanel Margin="12" Spacing="9">
+                  <CheckBox x:Name="ShowToastCheck" Content="Mostra toast al cambio brano"/>
+                  <TextBlock Text="Durata toast (ms)"/>
+                  <NumericUpDown x:Name="ToastDisplayNumeric" Minimum="500" Maximum="15000" Increment="250"/>
+                  <TextBlock Text="Fade In (ms)"/>
+                  <NumericUpDown x:Name="FadeInNumeric" Minimum="0" Maximum="5000" Increment="50"/>
+                  <TextBlock Text="Fade Out (ms)"/>
+                  <NumericUpDown x:Name="FadeOutNumeric" Minimum="0" Maximum="5000" Increment="50"/>
+                  <CheckBox x:Name="ShowProgressCheck" Content="Mostra barra avanzamento"/>
+                  <CheckBox x:Name="ShowTimeCheck" Content="Mostra tempo / durata"/>
+                </StackPanel>
+              </GroupBox>
+
+              <GroupBox Grid.Column="1" Header="Dimensione e copertina" Margin="10,0,0,0">
+                <StackPanel Margin="12" Spacing="9">
+                  <CheckBox x:Name="AutoWidthCheck" Content="Adatta larghezza a titolo / artista"/>
+                  <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <StackPanel>
+                      <TextBlock Text="Larghezza min"/>
+                      <NumericUpDown x:Name="MinWidthNumeric" Minimum="220" Maximum="1000"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                      <TextBlock Text="Larghezza max"/>
+                      <NumericUpDown x:Name="MaxWidthNumeric" Minimum="250" Maximum="1400"/>
+                    </StackPanel>
+                  </Grid>
+                  <TextBlock Text="Immagine"/>
+                  <ComboBox x:Name="ImageModeCombo">
+                    <ComboBoxItem Content="Album cover"/>
+                    <ComboBoxItem Content="Toastify Reloaded icon"/>
+                    <ComboBoxItem Content="None"/>
+                  </ComboBox>
+                  <CheckBox x:Name="IconFallbackCheck" Content="Usa icona Toastify se la cover non è disponibile"/>
+                </StackPanel>
+              </GroupBox>
+            </Grid>
+          </TabItem>
+
+          <TabItem Header="Temi">
+            <StackPanel Margin="18" Spacing="10">
+              <TextBlock Text="Tema toast"/>
+              <ComboBox x:Name="ToastThemeCombo">
+                <ComboBoxItem Content="Classic Toastify"/>
+                <ComboBoxItem Content="Spotify Green"/>
+                <ComboBoxItem Content="Midnight Blue"/>
+                <ComboBoxItem Content="Neon Purple"/>
+                <ComboBoxItem Content="Cyberpunk"/>
+                <ComboBoxItem Content="Crimson Night"/>
+                <ComboBoxItem Content="Amber Gold"/>
+                <ComboBoxItem Content="Emerald"/>
+                <ComboBoxItem Content="Ocean"/>
+                <ComboBoxItem Content="Sakura"/>
+                <ComboBoxItem Content="Arctic"/>
+                <ComboBoxItem Content="Monochrome"/>
+                <ComboBoxItem Content="Retro Synthwave"/>
+              </ComboBox>
+              <TextBlock TextWrapping="Wrap" Opacity="0.7"
+                         Text="La Linux Preview usa gli stessi nomi dei preset Windows. La personalizzazione colore completa arriverà durante il lavoro di parity."/>
+              <Button Content="Mostra toast di test" Click="TestToast_Click" HorizontalAlignment="Left"/>
+            </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Animazioni">
+            <Grid Margin="18" ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+              <TextBlock Text="Stile animazione" VerticalAlignment="Center"/>
+              <ComboBox x:Name="AnimationStyleCombo" Grid.Column="1">
+                <ComboBoxItem Content="Fade"/>
+                <ComboBoxItem Content="Slide"/>
+                <ComboBoxItem Content="Fade + Slide"/>
+                <ComboBoxItem Content="None"/>
+              </ComboBox>
+
+              <TextBlock Grid.Row="1" Text="Slide In" VerticalAlignment="Center"/>
+              <ComboBox x:Name="SlideInCombo" Grid.Row="1" Grid.Column="1">
+                <ComboBoxItem Content="Up"/><ComboBoxItem Content="Down"/><ComboBoxItem Content="Left"/><ComboBoxItem Content="Right"/>
+              </ComboBox>
+
+              <TextBlock Grid.Row="2" Text="Slide Out" VerticalAlignment="Center"/>
+              <ComboBox x:Name="SlideOutCombo" Grid.Row="2" Grid.Column="1">
+                <ComboBoxItem Content="Up"/><ComboBoxItem Content="Down"/><ComboBoxItem Content="Left"/><ComboBoxItem Content="Right"/>
+              </ComboBox>
+
+              <TextBlock Grid.Row="3" Text="Distanza entrata" VerticalAlignment="Center"/>
+              <NumericUpDown x:Name="SlideInDistanceNumeric" Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="300"/>
+
+              <TextBlock Grid.Row="4" Text="Distanza uscita" VerticalAlignment="Center"/>
+              <NumericUpDown x:Name="SlideOutDistanceNumeric" Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="300"/>
+            </Grid>
+          </TabItem>
+        </TabControl>
+      </TabItem>
+
+      <TabItem Header="Avanzate">
+        <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+          <GroupBox Header="Diagnostica Linux" Margin="0,0,10,0">
+            <StackPanel Margin="12" Spacing="8">
+              <TextBlock x:Name="DiagnosticsText" TextWrapping="Wrap"/>
+              <Button Content="Aggiorna diagnostica" Click="RefreshStatus_Click" HorizontalAlignment="Left"/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox Grid.Column="1" Header="Note Preview" Margin="10,0,0,0">
+            <StackPanel Margin="12" Spacing="8">
+              <TextBlock TextWrapping="Wrap"
+                         Text="La prima Linux Preview è focalizzata su Spotify MPRIS, toast, preset, Spicetify e hotkey X11. Import/export, tray parity, updater Linux e XDG Global Shortcuts per Wayland saranno completati nelle preview successive."/>
+            </StackPanel>
+          </GroupBox>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Reloaded">
+        <Grid Margin="14" ColumnDefinitions="*,*" RowDefinitions="Auto,*">
+          <GroupBox Header="Lyrics Plus / Spicetify" Margin="0,0,10,0">
+            <StackPanel Margin="12" Spacing="10">
+              <TextBlock x:Name="SpicetifyStatusText" Text="Spicetify: verifica..."/>
+              <Button Content="Abilita Lyrics Plus" Click="EnableLyrics_Click"/>
+              <Button Content="Ripara Spotify / Lyrics" Click="RepairSpicetify_Click"/>
+            </StackPanel>
+          </GroupBox>
+
+          <GroupBox Grid.Column="1" Header="Compatibilità Linux" Margin="10,0,0,0">
+            <StackPanel Margin="12" Spacing="8">
+              <TextBlock TextWrapping="Wrap"
+                         Text="Spotify viene controllato tramite MPRIS/playerctl. Questo rende il core indipendente dalla finestra interna di Spotify."/>
+              <TextBlock TextWrapping="Wrap"
+                         Text="La riparazione Spicetify usa backup apply e il fallback restore backup apply."/>
+            </StackPanel>
+          </GroupBox>
+        </Grid>
+      </TabItem>
+    </TabControl>
+
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+      <TextBlock x:Name="FooterText" VerticalAlignment="Center" Opacity="0.7" Text="Linux Preview 1.4.0-preview.1"/>
+      <TextBlock Grid.Column="1"/>
+      <Button Grid.Column="2" Content="Salva" Click="Save_Click" Padding="18,8"/>
+      <Button Grid.Column="3" Content="Esci" Click="Exit_Click" Padding="18,8"/>
+    </Grid>
+  </Grid>
+</Window>

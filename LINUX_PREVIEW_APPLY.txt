@@ -1,0 +1,18 @@
+Toastify Reloaded Linux Preview 1.4.0-preview.1
+
+Copy the contents of this patch into the repository root.
+
+After the push, GitHub Actions should run:
+  Linux Preview Build
+
+Do not create a Linux release tag until that workflow is green.
+
+Recommended preview tag after a green build:
+  v1.4.0-linux-preview.1
+
+Linux artifacts:
+  ToastifyReloaded-Linux-x64.AppImage
+  toastify-reloaded_1.4.0~preview1_amd64.deb
+  ToastifyReloaded-Linux-x64.tar.gz
+
+This patch does NOT replace or modify the existing Windows WPF project.
