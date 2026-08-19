@@ -43,6 +43,7 @@ public partial class MainWindow : Window
     private bool _maintenanceRunning;
     private bool _updateCheckRunning;
     private bool _loadingHotkeyEditor;
+    private bool _settingsWindowHiddenByUser;
 
     public MainWindow()
     {
@@ -64,6 +65,7 @@ public partial class MainWindow : Window
         Loaded += MainWindow_Loaded;
         SourceInitialized += MainWindow_SourceInitialized;
         Closing += MainWindow_Closing;
+        IsVisibleChanged += MainWindow_IsVisibleChanged;
     }
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -102,7 +104,10 @@ public partial class MainWindow : Window
         await RunCompatibilityCheckAsync(automatic: true);
 
         if (_settings.StartMinimized || Environment.GetCommandLineArgs().Any(a => a.Equals("--minimized", StringComparison.OrdinalIgnoreCase)))
+        {
+            _settingsWindowHiddenByUser = true;
             Hide();
+        }
     }
 
     private void MainWindow_SourceInitialized(object? sender, EventArgs e)
@@ -545,7 +550,12 @@ public partial class MainWindow : Window
             }
 
             UpdateStatusText.Text = $"Downloading and installing Toastify Reloaded {result.LatestVersion}…";
-            var started = await _updateService.PrepareAndLaunchUpdateAsync(result, Environment.ProcessId);
+            // Automatic updates must never bring the Settings window back to the foreground.
+            // Manual installs (Reloaded -> Install update) may reopen it after the upgrade.
+            var started = await _updateService.PrepareAndLaunchUpdateAsync(
+                result,
+                Environment.ProcessId,
+                restartMinimized: !forceInstall);
             if (!started)
             {
                 UpdateStatusText.Text = "The updater could not be started.";
@@ -945,9 +955,25 @@ public partial class MainWindow : Window
 
     private void ShowFromTray()
     {
+        _settingsWindowHiddenByUser = false;
         Show();
         WindowState = WindowState.Normal;
         Activate();
+    }
+
+    private void MainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        // Only an explicit tray action is allowed to reopen Settings after the user
+        // pressed X. This protects the window from asynchronous maintenance/update
+        // callbacks accidentally making it visible again.
+        if (!IsVisible || !_settingsWindowHiddenByUser || _reallyExit)
+            return;
+
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+        {
+            if (_settingsWindowHiddenByUser && IsVisible && !_reallyExit)
+                Hide();
+        }));
     }
 
     private void ExitApplication()
@@ -961,6 +987,7 @@ public partial class MainWindow : Window
         if (!_reallyExit)
         {
             e.Cancel = true;
+            _settingsWindowHiddenByUser = true;
             Hide();
             return;
         }

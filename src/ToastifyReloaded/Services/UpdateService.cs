@@ -23,8 +23,11 @@ public sealed class UpdateService
     {
         try
         {
+            // Do not use /releases/latest in a multi-platform repository. A Linux or
+            // macOS release can legitimately have a numerically newer tag than the
+            // Windows line and must never be treated as a Windows update.
             using var response = await Client.GetAsync(
-                $"https://api.github.com/repos/{Owner}/{Repository}/releases/latest",
+                $"https://api.github.com/repos/{Owner}/{Repository}/releases?per_page=30",
                 HttpCompletionOption.ResponseHeadersRead,
                 cancellationToken);
 
@@ -32,23 +35,49 @@ public sealed class UpdateService
                 return Failure($"GitHub ha risposto {(int)response.StatusCode} ({response.ReasonPhrase}).");
 
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            var release = await JsonSerializer.DeserializeAsync<GitHubRelease>(stream, cancellationToken: cancellationToken);
-            if (release is null || string.IsNullOrWhiteSpace(release.TagName))
-                return Failure("La Latest Release di GitHub non contiene un tag valido.");
-
-            var latestText = NormalizeVersion(release.TagName);
-            if (!Version.TryParse(CurrentVersion, out var current) || !Version.TryParse(latestText, out var latest))
-                return Failure($"Impossibile confrontare le versioni {CurrentVersion} e {latestText}.");
+            var releases = await JsonSerializer.DeserializeAsync<List<GitHubRelease>>(stream, cancellationToken: cancellationToken);
+            if (releases is null || releases.Count == 0)
+                return Failure("GitHub non ha restituito release utilizzabili.");
 
             var assetName = GetExpectedAssetName();
-            var asset = release.Assets.FirstOrDefault(a =>
+            GitHubRelease? release = null;
+            Version? latest = null;
+            string? latestText = null;
+
+            foreach (var candidate in releases)
+            {
+                if (candidate.Draft || candidate.Prerelease || !IsWindowsReleaseTag(candidate.TagName))
+                    continue;
+
+                var candidateAsset = candidate.Assets.FirstOrDefault(a =>
+                    a.Name.Equals(assetName, StringComparison.OrdinalIgnoreCase));
+                if (candidateAsset is null)
+                    continue;
+
+                var candidateText = NormalizeVersion(candidate.TagName);
+                if (!Version.TryParse(candidateText, out var candidateVersion))
+                    continue;
+
+                if (latest is null || candidateVersion > latest)
+                {
+                    release = candidate;
+                    latest = candidateVersion;
+                    latestText = candidateText;
+                }
+            }
+
+            if (release is null || latest is null || latestText is null)
+                return Failure($"Nessuna release Windows stabile con l'installer {assetName} è disponibile.");
+
+            if (!Version.TryParse(CurrentVersion, out var current))
+                return Failure($"Impossibile confrontare la versione corrente {CurrentVersion}.");
+
+            var asset = release.Assets.First(a =>
                 a.Name.Equals(assetName, StringComparison.OrdinalIgnoreCase));
 
             var available = latest > current;
             var message = available
-                ? asset is null
-                    ? $"È disponibile Toastify Reloaded {latestText}, ma manca l'installer {assetName}."
-                    : $"È disponibile Toastify Reloaded {latestText}."
+                ? $"È disponibile Toastify Reloaded {latestText}."
                 : $"Toastify Reloaded è aggiornato ({CurrentVersion}).";
 
             return new UpdateCheckResult(
@@ -57,8 +86,8 @@ public sealed class UpdateService
                 CurrentVersion,
                 latestText,
                 release.TagName,
-                asset?.Name,
-                asset?.BrowserDownloadUrl,
+                asset.Name,
+                asset.BrowserDownloadUrl,
                 release.HtmlUrl,
                 message);
         }
@@ -75,6 +104,7 @@ public sealed class UpdateService
     public async Task<bool> PrepareAndLaunchUpdateAsync(
         UpdateCheckResult update,
         int currentProcessId,
+        bool restartMinimized = false,
         CancellationToken cancellationToken = default)
     {
         if (!update.UpdateAvailable || string.IsNullOrWhiteSpace(update.DownloadUrl))
@@ -108,10 +138,14 @@ public sealed class UpdateService
         // UseShellExecute + runas gives Windows control of the UAC prompt. /S
         // performs the upgrade silently after approval; /UPDATEPID lets NSIS wait
         // for this process to close before replacing the installed executable.
+        var installerArguments = $"/S /UPDATEPID={currentProcessId}";
+        if (restartMinimized)
+            installerArguments += " /RESTARTMINIMIZED=1";
+
         var startInfo = new ProcessStartInfo
         {
             FileName = installerPath,
-            Arguments = $"/S /UPDATEPID={currentProcessId}",
+            Arguments = installerArguments,
             WorkingDirectory = updateRoot,
             UseShellExecute = true,
             Verb = "runas"
@@ -138,6 +172,15 @@ public sealed class UpdateService
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
         client.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2026-03-10");
         return client;
+    }
+
+    private static bool IsWindowsReleaseTag(string tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag))
+            return false;
+
+        return !tag.Contains("-linux", StringComparison.OrdinalIgnoreCase)
+               && !tag.Contains("-macos", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GetExpectedAssetName()
@@ -173,6 +216,12 @@ public sealed class UpdateService
     {
         [JsonPropertyName("tag_name")]
         public string TagName { get; set; } = string.Empty;
+
+        [JsonPropertyName("draft")]
+        public bool Draft { get; set; }
+
+        [JsonPropertyName("prerelease")]
+        public bool Prerelease { get; set; }
 
         [JsonPropertyName("html_url")]
         public string? HtmlUrl { get; set; }

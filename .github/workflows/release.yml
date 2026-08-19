@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*"
+      - "!v*-linux*"
+      - "!v*-macos*"
 
 permissions:
   contents: write

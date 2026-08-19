@@ -64,6 +64,7 @@ VIAddVersionKey /LANG=1033 "LegalCopyright" "Toastify Reloaded contributors"
 
 Var UpdatePid
 Var IsUpdate
+Var RestartMinimized
 
 Function .onInit
     ; Registry commands must run inside a Function/Section. Select the 64-bit
@@ -77,9 +78,11 @@ Function .onInit
 
     StrCpy $IsUpdate "0"
     StrCpy $UpdatePid ""
+    StrCpy $RestartMinimized "0"
 
     ${GetParameters} $R0
     ${GetOptions} $R0 "/UPDATEPID=" $UpdatePid
+    ${GetOptions} $R0 "/RESTARTMINIMIZED=" $RestartMinimized
     ${If} $UpdatePid != ""
         StrCpy $IsUpdate "1"
         DetailPrint "Attendo la chiusura di ${APP_NAME} (PID $UpdatePid)..."
@@ -128,7 +131,11 @@ Section "${APP_NAME}" SecMain
     ; Silent installer launches are used by the in-app updater. The normal
     ; interactive installer uses the Finish-page checkbox instead.
     ${If} $IsUpdate == "1"
-        Exec '"$INSTDIR\${APP_EXE_NAME}"'
+        ${If} $RestartMinimized == "1"
+            Exec '"$INSTDIR\${APP_EXE_NAME}" --minimized'
+        ${Else}
+            Exec '"$INSTDIR\${APP_EXE_NAME}"'
+        ${EndIf}
     ${EndIf}
 SectionEnd
 
