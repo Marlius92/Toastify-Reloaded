@@ -22,23 +22,32 @@ RESOURCES="$CONTENTS/Resources"
 INFO_TEMPLATE="$ROOT/packaging/macos/Info.plist.template"
 ENTITLEMENTS="$ROOT/packaging/macos/ToastifyReloaded.entitlements"
 ICON_SOURCE="$ROOT/src/ToastifyReloaded.Mac/Assets/toastify.png"
+MAIN_EXECUTABLE="$MACOS_DIR/ToastifyReloaded.Mac"
 
 [[ -x "$PUBLISH/ToastifyReloaded.Mac" ]] || {
   echo "Published executable not found: $PUBLISH/ToastifyReloaded.Mac" >&2
   exit 1
 }
 
+# The macOS publish is deliberately single-file. Managed DLLs in Contents/MacOS
+# can be interpreted as nested code while the outer bundle is sealed.
+if /usr/bin/find "$PUBLISH" -maxdepth 1 -type f -name '*.dll' -print -quit | /usr/bin/grep -q .; then
+  echo "ERROR: refusing to package a multi-file managed publish." >&2
+  echo "Re-run scripts/build-macos.sh; no managed .dll files may remain." >&2
+  /usr/bin/find "$PUBLISH" -maxdepth 1 -type f -name '*.dll' -print >&2
+  exit 1
+fi
+
 rm -rf "$APP_DIR"
 mkdir -p "$MACOS_DIR" "$RESOURCES"
 cp -R "$PUBLISH"/. "$MACOS_DIR"/
-chmod +x "$MACOS_DIR/ToastifyReloaded.Mac"
+chmod +x "$MAIN_EXECUTABLE"
 
 sed \
   -e "s/__VERSION__/$VERSION/g" \
   -e "s/__BUILD_VERSION__/$BUILD_VERSION/g" \
   "$INFO_TEMPLATE" > "$CONTENTS/Info.plist"
 
-# Build a standard .icns file with tools available on GitHub's macOS runners.
 ICONSET="$ROOT/dist/macos/$RID/ToastifyReloaded.iconset"
 rm -rf "$ICONSET"
 mkdir -p "$ICONSET"
@@ -70,23 +79,43 @@ else
   echo "Signing with: $SIGNING_IDENTITY"
 fi
 
-# Sign nested Mach-O binaries first. Avoid --deep; sign the app bundle last.
+sign_nested_code() {
+  local candidate="$1"
+  if [[ "$SIGNING_IDENTITY" == "-" ]]; then
+    /usr/bin/codesign --force --sign - "$candidate"
+  else
+    # Apple recommends no app entitlements on library code.
+    /usr/bin/codesign --force --timestamp --options runtime --sign "$SIGNING_IDENTITY" "$candidate"
+  fi
+}
+
+sign_main_executable() {
+  if [[ "$SIGNING_IDENTITY" == "-" ]]; then
+    /usr/bin/codesign --force --sign - "$MAIN_EXECUTABLE"
+  else
+    /usr/bin/codesign \
+      --force \
+      --timestamp \
+      --options runtime \
+      --entitlements "$ENTITLEMENTS" \
+      --sign "$SIGNING_IDENTITY" \
+      "$MAIN_EXECUTABLE"
+  fi
+}
+
+# Sign nested native code from the inside out, main executable next, outer bundle last.
 while IFS= read -r -d '' candidate; do
+  [[ "$candidate" == "$MAIN_EXECUTABLE" ]] && continue
   if /usr/bin/file "$candidate" | /usr/bin/grep -q 'Mach-O'; then
-    if [[ "$SIGNING_IDENTITY" == "-" ]]; then
-      /usr/bin/codesign --force --sign - "$candidate"
-    else
-      /usr/bin/codesign \
-        --force \
-        --timestamp \
-        --options runtime \
-        --entitlements "$ENTITLEMENTS" \
-        --sign "$SIGNING_IDENTITY" \
-        "$candidate"
-    fi
+    echo "Signing nested native component: ${candidate#$APP_DIR/}"
+    sign_nested_code "$candidate"
   fi
 done < <(/usr/bin/find "$MACOS_DIR" -type f -print0)
 
+echo "Signing main executable: Contents/MacOS/ToastifyReloaded.Mac"
+sign_main_executable
+
+echo "Signing application bundle"
 if [[ "$SIGNING_IDENTITY" == "-" ]]; then
   /usr/bin/codesign --force --sign - "$APP_DIR"
 else
@@ -99,5 +128,12 @@ else
     "$APP_DIR"
 fi
 
-/usr/bin/codesign --verify --verbose=2 "$APP_DIR"
-echo "macOS app bundle created: $APP_DIR"
+/usr/bin/codesign --verify --verbose=4 "$APP_DIR"
+
+# CI guard: the failure that affected Preview 1 must never return.
+if /usr/bin/find "$MACOS_DIR" -maxdepth 1 -type f -name '*.dll' -print -quit | /usr/bin/grep -q .; then
+  echo "ERROR: managed DLL found in final Contents/MacOS." >&2
+  exit 1
+fi
+
+echo "macOS app bundle created and verified: $APP_DIR"
