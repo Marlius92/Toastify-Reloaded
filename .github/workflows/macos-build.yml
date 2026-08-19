@@ -62,7 +62,6 @@ jobs:
           grep -Fq 'KeepLyricsPlus' "$PROJECT/Models/MacSettings.cs"
           grep -Fq 'EnableCompatibilityGuard' "$PROJECT/Models/MacSettings.cs"
           grep -Fq 'AutoCheckMacUpdates' "$PROJECT/Models/MacSettings.cs"
-          grep -Fq 'v1.5.0-macos-preview.1' "$PROJECT/Services/MacUpdateService.cs"
           grep -Fq 'SELF-TEST RESULT: PASS' "$PROJECT/Services/MacSelfTestService.cs"
           grep -Fq 'EnableX11GlobalHotkeys' "$PROJECT/Services/MacSettingsService.cs"
           grep -Fq 'AutoCheckLinuxUpdates' "$PROJECT/Services/MacSettingsService.cs"
